@@ -1,0 +1,8 @@
+name: Set Up tea
+description: >
+  Installs https://tea.xyz to your GitHub Actions runner.
+runs:
+  using: composite
+  steps:
+    - run: ./install.sh brew
+      shell: bash
