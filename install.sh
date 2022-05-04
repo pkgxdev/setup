@@ -34,14 +34,5 @@ elif [ -n "$TEA_SECRET" ]; then
     exec /usr/local/bin/tea "$@"
   fi
 else
-  echo
-  echo "418 I’m a teapot"
-  echo
-  echo "thanks for your interest in tea."
-  echo "alas, we’re not quite ready to serve you yet."
-  echo
-  echo "while you wait why not follow us on Twitter:"
-  echo
-  echo '    open $(sh <(curl tea.xyz) --show twitter)'
-  echo
+  curl -Ssf https://raw.githubusercontent.com/teaxyz/white-paper/main/white-paper.md | $PAGER
 fi
