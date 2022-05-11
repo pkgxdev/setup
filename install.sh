@@ -15,8 +15,8 @@ elif [ -n "$TEA_SECRET" ]; then
   Darwin)
     MIDFIX=darwin/aarch64;;
   *)
-      echo "unsupported OS or architecture" >&2
-      exit 1;;
+    echo "unsupported OS or architecture" >&2
+    exit 1;;
   esac
 
   if [ ! -f /usr/local/bin/tea ]; then
@@ -28,6 +28,9 @@ elif [ -n "$TEA_SECRET" ]; then
     sudo mkdir -p /opt
     sudo chgrp staff /opt
     sudo chmod g+w /opt
+
+    echo '# added by tea' >> ~/.zshrc
+    echo 'add-zsh-hook -Uz chpwd (){ source <(tea -Eds) }' >> ~/.zshrc
   fi
 
   if [ "$#" -gt 1 ]; then
