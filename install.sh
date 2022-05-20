@@ -37,5 +37,8 @@ elif [ -n "$TEA_SECRET" ]; then
     exec /usr/local/bin/tea "$@"
   fi
 else
+  if [ "x$PAGER" == "x" ]; then
+    PAGER=cat
+  fi
   curl -Ssf https://raw.githubusercontent.com/teaxyz/white-paper/main/white-paper.md | $PAGER
 fi
