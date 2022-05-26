@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - install.sh
+      - .github/workflows/ci.yml
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    strategy:
+      matrix:
+        - macos-latest
+        - ubuntu-latest
+    steps:
+      - run: ./install.sh --env --dump
+        env:
+          TEA_SECRET: ${{ secrets.TEA_SECRET }}
