@@ -1,1 +1,3 @@
-require("child_process").exec("./install.sh")
+import { spawnSync } from 'child_process'
+
+spawnSync("./install.sh", [], {stdio: "inherit"})
