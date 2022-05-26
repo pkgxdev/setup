@@ -14,9 +14,9 @@ elif [ -n "$TEA_SECRET" ]; then
   case $(uname)-$(uname -m) in
   Darwin-arm64)
     MIDFIX=darwin/aarch64;;
-  Darwin-amd64)
+  Darwin-x86_64)
     MIDFIX=darwin/x86-64;;
-  Linux-amd64)
+  Linux-x86_64)
     MIDFIX=linux/x86-64;;
   *)
     echo "unsupported OS or architecture" >&2
@@ -24,8 +24,8 @@ elif [ -n "$TEA_SECRET" ]; then
   esac
 
   if [ ! -f /usr/local/bin/tea ]; then
-    tmp=$(mktemp)
-    curl https://$TEA_SECRET/tea.xyz/$MIDFIX/v'*'.tar.gz -o $tmp
+    tmp=$(mktemp -t tea.XXXXXXX)
+    curl --fail https://$TEA_SECRET/tea.xyz/$MIDFIX/v'*'.tar.gz -o $tmp
     sudo mkdir -p /opt
     sudo chgrp staff /opt
     sudo chmod g+w /opt
