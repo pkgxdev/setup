@@ -2,7 +2,5 @@ name: tea/setup
 description: >
   Installs https://tea.xyz to your GitHub Actions runner.
 runs:
-  using: composite
-  steps:
-    - run: ./install.sh
-      shell: bash
+  using: node16
+  main: action.js

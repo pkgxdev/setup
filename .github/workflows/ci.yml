@@ -1,6 +1,7 @@
 on:
   pull_request:
     paths:
+      - action.yml
       - install.sh
       - .github/workflows/ci.yml
 
