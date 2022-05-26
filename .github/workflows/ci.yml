@@ -1,0 +1,38 @@
+on:
+  pull_request:
+    paths:
+      - install.sh
+      - .github/workflows/ci.yml
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TEA_SECRET: ${{ secrets.TEA_SECRET }}
+  VERBOSE: 1
+
+jobs:
+  direct:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+        - macos-latest
+        - ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./install.sh --env --dump
+      - run: tea --env --dump
+      # ^^ TEST
+  action:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+        - macos-latest
+        - ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: tea --env --dump
