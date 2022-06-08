@@ -1,6 +1,12 @@
 name: tea/setup
 description: >
-  Installs https://tea.xyz to your GitHub Actions runner.
+  Installs tea.xyz to your GitHub Actions runner.
+inputs:
+  token:
+    description: >
+      Used to ensure queries to the GitHub API aren’t rate limited.
+    default: ${{ github.token }}
+    required: false
 runs:
   using: node16
   main: action.js
