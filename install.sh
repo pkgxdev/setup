@@ -37,9 +37,19 @@ elif [ -n "$TEA_SECRET" ]; then
     sudo mkdir -p /usr/local/bin
     sudo ln -sf /opt/tea.xyz/v'*'/bin/tea /usr/local/bin/tea
 
-    echo >> ~/.zshrc
-    echo '# added by tea' >> ~/.zshrc
-    echo 'add-zsh-hook -Uz chpwd (){ source <(tea -Eds) }' >> ~/.zshrc
+    SHELLNAME=$(basename "$SHELL")
+    if [ "X$SHELLNAME" = "Xfish" ]
+    then
+      echo "if type -q tea" > ~/.config/fish/conf.d/tea.fish
+      echo "  function __tea_env --on-variable PWD" >> ~/.config/fish/conf.d/tea.fish
+      echo "    eval (tea -Eds)" >> ~/.config/fish/conf.d/tea.fish
+      echo "  end" >> ~/.config/fish/conf.d/tea.fish
+      echo "end" >> ~/.config/fish/conf.d/tea.fish
+    else
+      echo >> ~/.zshrc
+      echo '# added by tea' >> ~/.zshrc
+      echo 'add-zsh-hook -Uz chpwd (){ source <(tea -Eds) }' >> ~/.zshrc
+    fi
   fi
 
   if [ "$#" -gt 1 ]; then
