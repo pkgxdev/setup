@@ -4,7 +4,34 @@ on:
       - main
 
 jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+        #^^TMP
+      - uses: teaxyz/setup@v0
+
+      - id: rev-parse
+        name: did we already publish this version?
+        run: |
+          # fetch tags since actions/checkout is a shallow checkout
+          git fetch --prune --unshallow --tags
+
+          if git show-ref --tags v${{ steps.extract.outputs.version }} --quiet; then
+            echo "::set-output name=result::cancel"
+          fi
+
+      - uses: andymckay/cancel-action@0.2
+        if: ${{ steps.rev-parse.outputs.result == 'cancel' }}
+
+  ci:
+    needs: [smoke]
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
   put:
+    needs: [ci, smoke]
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment

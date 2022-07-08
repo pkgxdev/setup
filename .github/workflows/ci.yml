@@ -4,6 +4,7 @@ on:
       - action.yml
       - install.sh
       - .github/workflows/ci.yml
+  workflow_call:
 
 concurrency:
   group: ${{ github.ref }}
@@ -23,10 +24,11 @@ jobs:
         - ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - run: ./install.sh --env --dump
       - run: tea --env --dump
       # ^^ TEST
-  action:
+  target:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -35,5 +37,14 @@ jobs:
         - ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - uses: ./
+        id: tea
+        with:
+          target: test
+        env:
+          DEBUG: 1
+      - run: test -n "$VERSION"
+      - run: test -n "${{ steps.tea.outputs.version }}"
+      - run: test v$VERSION == v${{ steps.tea.outputs.version }}
       - run: tea --env --dump

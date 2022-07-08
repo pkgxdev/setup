@@ -7,6 +7,13 @@ inputs:
       Used to ensure queries to the GitHub API aren’t rate limited.
     default: ${{ github.token }}
     required: false
+  target:
+    description: >
+      The executable markdown target.
+    required: false
+outputs:
+  version:
+    description: Your project’s version.
 runs:
   using: node16
   main: action.js
