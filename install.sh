@@ -31,12 +31,15 @@ elif test -n "$TEA_SECRET"; then
     # we can add our user to (which isn't `root`)
     sudo chgrp staff /opt
     sudo chmod g+w /opt
+
+    OLD_CWD=$PWD
     cd /opt
     tar xzf "$tmp"
     cd tea.xyz
     if test ! -L v'*'; then
       ln -sf "$(find . -maxdepth 1 -type d -name "v[0-9].[0-9].[0-9]" | head -n 1)" v'*'
     fi
+    cd "$OLD_CWD"
 
     sudo mkdir -p /usr/local/bin
     sudo ln -sf /opt/tea.xyz/v'*'/bin/tea /usr/local/bin/tea
@@ -57,6 +60,14 @@ elif test -n "$TEA_SECRET"; then
         echo '# added by tea'
         echo 'add-zsh-hook -Uz chpwd (){ source <(tea -Eds) }'
       } >> ~/.zshrc
+    fi
+
+    if test -d /opt/tea.xyz/var/pantry
+    then
+      echo "warning: found /opt/tea.xyz/var/pantry" >&2
+    else
+      mkdir /opt/tea.xyz/var
+      git -C /opt/tea.xyz/var clone https://github.com/teaxyz/pantry
     fi
   fi
 

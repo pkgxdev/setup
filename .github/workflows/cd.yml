@@ -3,16 +3,48 @@ on:
     branches:
       - main
 
+env:
+  TEA_SECRET: ${{ secrets.TEA_SECRET }}
+
 jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.tea.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+        #^^TMP
+      - uses: ./
+        id: tea
+
+      - id: rev-parse
+        name: did we already publish this version?
+        run: |
+          # fetch tags since actions/checkout is a shallow checkout
+          git fetch --prune --unshallow --tags
+
+          if git show-ref --tags v${{ steps.extract.outputs.version }} --quiet; then
+            echo "::set-output name=result::cancel"
+          fi
+
+      - uses: andymckay/cancel-action@0.2
+        if: ${{ steps.rev-parse.outputs.result == 'cancel' }}
+
+  ci:
+    needs: [smoke]
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
   put:
+    needs: [ci, smoke]
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment
-        uses: bobheadxi/deployments@v0.6.2
+        uses: bobheadxi/deployments@v1
         id: deployment
         with:
           step: start
-          token: ${{ github.token }}
           env: aws
 
       - uses: actions/checkout@v3
@@ -33,11 +65,16 @@ jobs:
             --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} \
             --paths / /pour.sh
 
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: ./install.sh
+          tag_name: ${{ needs.smoke.outputs.version }}
+
       - name: Seal Deployment
-        uses: bobheadxi/deployments@v0.6.2
+        uses: bobheadxi/deployments@v1
         if: always()
         with:
+          env: aws
           step: finish
-          token: ${{ github.token }}
           status: ${{ job.status }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
