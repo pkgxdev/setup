@@ -1,18 +1,33 @@
 const { execSync } = require('child_process')
 const fs = require('fs')
+const os = require("os")
 
 try {
-  process.stdout.write("Installing tea…\n")
+  process.stdout.write("installing tea…\n")
 
   const GITHUB_TOKEN = process.env['INPUT_TOKEN'].trim()
-  execSync(`${__dirname}/install.sh`, {} , {
+
+  execSync(`${__dirname}/install.sh`, {
     stdio: "inherit",
-    env: { GITHUB_TOKEN }
+    env: {
+      ...process.env,
+      GITHUB_TOKEN,
+      YES: '1',
+      FORCE: '1'
+      //^^ so running this twice doesn’t do unexpected things
+      //^^ NOTE ideally we would have a flag to just abort if already installed
+    }
   })
+
+  //TODO precise PATH to teafile
+  const teafile = `${os.homedir()}/.tea/tea.xyz/v*/bin/tea`
+
+  const GITHUB_PATH = process.env['GITHUB_PATH']
+  fs.appendFileSync(GITHUB_PATH, `${teafile}\n`, {encoding: 'utf8'})
 
   const target = process.env['INPUT_TARGET']
   if (target) {
-    execSync(`/usr/local/bin/tea ${target}`, {
+    execSync(`${teafile} ${target}`, {
       stdio: "inherit",
       env: { GITHUB_TOKEN }
     })
@@ -24,8 +39,8 @@ try {
     const version = match[1]
     process.stdout.write(`::set-output name=version::${version}\n`)
 
-    const path = process.env['GITHUB_ENV']
-    fs.appendFileSync(path, `VERSION=${version}\n`, {encoding: 'utf8'})
+    const GITHUB_ENV = process.env['GITHUB_ENV']
+    fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
   }
 
 } catch (err) {
