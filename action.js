@@ -23,9 +23,8 @@ try {
   const v = out.trim().split("\n").slice(-1)[0].match(/\d+\.\d+\.\d+/)[0]
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
-  fs.appendFileSync(GITHUB_PATH, `${bindir}}\n`, {encoding: 'utf8'})
+  fs.appendFileSync(GITHUB_PATH, `${bindir}\n`, {encoding: 'utf8'})
 
-  //TODO precise PATH to teafile
   const teafile = `${bindir}/tea`
 
   const target = process.env['INPUT_TARGET']
