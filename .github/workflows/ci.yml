@@ -42,7 +42,7 @@ jobs:
           - ubuntu-latest
         prefix:
           - ~
-          - /opt/tea
+          - /opt
     env:
       PREFIX: ${{ matrix.prefix }}
     steps:
@@ -51,6 +51,9 @@ jobs:
 
       - run: echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
         if: matrix.prefix == null
+
+      - run: chown -R $(whoami):staff /opt
+        if: runner.os == "macos-latest"
 
       - uses: ./
         id: tea
