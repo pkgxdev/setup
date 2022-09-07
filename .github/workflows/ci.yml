@@ -50,7 +50,7 @@ jobs:
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
       - run: echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
-        if: matrix.prefix == ~
+        if: matrix.prefix == null
 
       # FIXME action should run `install.sh` as sudo if necessary
       - run: sudo chown -R $(whoami):staff "$PREFIX"
