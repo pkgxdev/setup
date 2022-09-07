@@ -25,7 +25,7 @@ try {
   const teafile = `${PREFIX}/tea.xyz/v*/bin/tea`
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
-  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v*/bin\n`, {encoding: 'utf8'})
+  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/'v*'/bin\n`, {encoding: 'utf8'})
 
   const target = process.env['INPUT_TARGET']
   if (target) {
