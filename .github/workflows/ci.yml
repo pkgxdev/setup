@@ -43,20 +43,18 @@ jobs:
         prefix:
           - ~
           - /opt
+    env:
+      PREFIX: ${{ matrix.prefix }}
     steps:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
-      - run: |
-          if test -z "${{ matrix.prefix }}"; then
-            echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
-          else
-            echo "PREFIX=${{ matrix.prefix }}" >> $GITHUB_ENV
-          fi
+      - run: echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
+        if: matrix.prefix == ~
 
       # FIXME action should run `install.sh` as sudo if necessary
       - run: sudo chown -R $(whoami):staff "$PREFIX"
-        if: ${{ matrix.os }} == "macos-latest" && ${{ matrix.prefix }} == "/opt"
+        if: matrix.os == "macos-latest" && matrix.prefix == "/opt"
 
       - uses: ./
         id: tea
