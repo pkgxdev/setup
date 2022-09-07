@@ -41,7 +41,7 @@ jobs:
           - macos-latest
           - ubuntu-latest
         prefix:
-          - ~
+          - $HOME
           - /opt
     steps:
       - uses: actions/checkout@v3
