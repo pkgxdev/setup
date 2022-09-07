@@ -45,7 +45,7 @@ try {
     fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
   }
 
-  process.stdout.write(`::set-output name=prefix::${PREFIX ?? '/opt'}`
+  process.stdout.write(`::set-output name=prefix::${PREFIX ?? '/opt'}`)
 
 } catch (err) {
   console.error(err)
