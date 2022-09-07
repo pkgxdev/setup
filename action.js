@@ -22,7 +22,7 @@ try {
   })
 
   //TODO precise PATH to teafile
-  const teafile = `${PREFIX}/tea.xyz/v*/bin/tea`
+  const teafile = `${PREFIX}/tea.xyz/v'*'/bin/tea`
 
   const target = process.env['INPUT_TARGET']
   if (target) {
