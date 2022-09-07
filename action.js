@@ -8,7 +8,7 @@ try {
   const GITHUB_TOKEN = process.env['INPUT_TOKEN'].trim()
   const PREFIX = process.env['INPUT_PREFIX'].trim() || '/opt'
 
-  execSync(`${__dirname}/install.sh`, {
+  let out = execSync(`${__dirname}/install.sh`, {
     stdio: "inherit",
     env: {
       ...process.env,
@@ -21,8 +21,13 @@ try {
     }
   })
 
+  const v = out.split("\n").slice(-1).match(/\d+\.\d+\.\d+/)[0]
+  const GITHUB_PATH = process.env['GITHUB_PATH']
+  const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
+  fs.appendFileSync(GITHUB_PATH, `${bindir}}\n`, {encoding: 'utf8'})
+
   //TODO precise PATH to teafile
-  const teafile = `${PREFIX}/tea.xyz/v'*'/bin/tea`
+  const teafile = `${bindir}/tea`
 
   const target = process.env['INPUT_TARGET']
   if (target) {
@@ -32,9 +37,7 @@ try {
     })
   }
 
-  const GITHUB_PATH = process.env['GITHUB_PATH']
-
-  const out = execSync(`${teafile} -Eds`).toString()
+  out = execSync(`${teafile} -Eds`).toString()
   const match = out.match(/export VERSION=(.*)/)
   if (match && match[1]) {
     const version = match[1]
@@ -42,12 +45,7 @@ try {
 
     const GITHUB_ENV = process.env['GITHUB_ENV']
     fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
-
-    fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v${version}/bin\n`, {encoding: 'utf8'})
-  } else {
-    fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v'*'/bin\n`, {encoding: 'utf8'})
   }
-
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
 
