@@ -52,7 +52,7 @@ jobs:
       - run: echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
         if: matrix.prefix == null
 
-      - run: chown -R $(whoami):staff /opt
+      - run: sudo chown -R $(whoami):staff /opt
         if: ${{ matrix.os == 'macos-latest' }}
 
       - uses: ./
