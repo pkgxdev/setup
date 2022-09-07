@@ -54,9 +54,9 @@ jobs:
             echo "PREFIX=${{ matrix.prefix }}" >> $GITHUB_ENV
           fi
 
-      # FIXME action should run as sudo if it needs to
+      # FIXME action should run `install.sh` as sudo if necessary
       - run: sudo chown -R $(whoami):staff "$PREFIX"
-        if: ${{ matrix.os }} == "macos-latest"
+        if: ${{ matrix.os }} == "macos-latest" && ${{ matrix.prefix }} == "/opt"
 
       - uses: ./
         id: tea
