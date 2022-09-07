@@ -19,7 +19,7 @@ try {
       //^^ so running this twice doesn’t do unexpected things
       //^^ NOTE ideally we would have a flag to just abort if already installed
     }
-  })
+  }).toString()
 
   const v = out.split("\n").slice(-1).match(/\d+\.\d+\.\d+/)[0]
   const GITHUB_PATH = process.env['GITHUB_PATH']
