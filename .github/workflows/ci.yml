@@ -53,7 +53,7 @@ jobs:
         if: matrix.prefix == null
 
       - run: chown -R $(whoami):staff /opt
-        if: runner.os == "macos-latest"
+        if: ${{ runner.os == "macos-latest" }}
 
       - uses: ./
         id: tea
