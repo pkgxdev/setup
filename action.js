@@ -43,7 +43,7 @@ try {
   }
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
-  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v${VERSION}/bin\n`, {encoding: 'utf8'})
+  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v${version}/bin\n`, {encoding: 'utf8'})
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
 
