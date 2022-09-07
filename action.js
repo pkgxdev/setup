@@ -6,7 +6,7 @@ try {
   process.stdout.write("installing tea…\n")
 
   const GITHUB_TOKEN = process.env['INPUT_TOKEN'].trim()
-  const PREFIX = process.env['INPUT_PREFIX'].trim() || undefined
+  const PREFIX = process.env['INPUT_PREFIX'].trim() || '/opt'
 
   execSync(`${__dirname}/install.sh`, {
     stdio: "inherit",
@@ -22,10 +22,10 @@ try {
   })
 
   //TODO precise PATH to teafile
-  const teafile = `${os.homedir()}/.tea/tea.xyz/v*/bin/tea`
+  const teafile = `${PREFIX}/tea.xyz/v*/bin/tea`
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
-  fs.appendFileSync(GITHUB_PATH, `${teafile}\n`, {encoding: 'utf8'})
+  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v*/bin\n`, {encoding: 'utf8'})
 
   const target = process.env['INPUT_TARGET']
   if (target) {
@@ -45,7 +45,7 @@ try {
     fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
   }
 
-  process.stdout.write(`::set-output name=prefix::${PREFIX ?? '/opt'}`)
+  process.stdout.write(`::set-output name=prefix::${PREFIX}`)
 
 } catch (err) {
   console.error(err)
