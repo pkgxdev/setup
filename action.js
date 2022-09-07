@@ -32,6 +32,8 @@ try {
     })
   }
 
+  const GITHUB_PATH = process.env['GITHUB_PATH']
+
   const out = execSync(`${teafile} -Eds`).toString()
   const match = out.match(/export VERSION=(.*)/)
   if (match && match[1]) {
@@ -40,10 +42,12 @@ try {
 
     const GITHUB_ENV = process.env['GITHUB_ENV']
     fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
+
+    fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v${version}/bin\n`, {encoding: 'utf8'})
+  } else {
+    fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v'*'/bin\n`, {encoding: 'utf8'})
   }
 
-  const GITHUB_PATH = process.env['GITHUB_PATH']
-  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v${version}/bin\n`, {encoding: 'utf8'})
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
 
