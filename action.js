@@ -9,7 +9,6 @@ try {
   const PREFIX = process.env['INPUT_PREFIX'].trim() || '/opt'
 
   let out = execSync(`${__dirname}/install.sh`, {
-    stdio: "inherit",
     env: {
       ...process.env,
       GITHUB_TOKEN,
