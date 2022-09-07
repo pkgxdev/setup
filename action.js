@@ -24,9 +24,6 @@ try {
   //TODO precise PATH to teafile
   const teafile = `${PREFIX}/tea.xyz/v*/bin/tea`
 
-  const GITHUB_PATH = process.env['GITHUB_PATH']
-  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/'v*'/bin\n`, {encoding: 'utf8'})
-
   const target = process.env['INPUT_TARGET']
   if (target) {
     execSync(`${teafile} ${target}`, {
@@ -44,6 +41,9 @@ try {
     const GITHUB_ENV = process.env['GITHUB_ENV']
     fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
   }
+
+  const GITHUB_PATH = process.env['GITHUB_PATH']
+  fs.appendFileSync(GITHUB_PATH, `${PREFIX}/tea.xyz/v${VERSION}/bin\n`, {encoding: 'utf8'})
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
 

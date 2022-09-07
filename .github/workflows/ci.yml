@@ -49,7 +49,7 @@ jobs:
 
       - run: |
           if test -z "${{ matrix.prefix }}"; then
-            echo "PREFIX=$HOME" >> $GITHUB_ENV
+            echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
           else
             echo "PREFIX=${{ matrix.prefix }}" >> $GITHUB_ENV
           fi
