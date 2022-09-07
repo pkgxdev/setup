@@ -47,10 +47,15 @@ jobs:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
-      - run:  echo "PREFIX=${{ matrix.prefix || "$HOME" }}" >> $GITHUB_ENV
+      - run: |
+          if test -z "${{ matrix.prefix }}"; then
+            echo "PREFIX=$HOME" >> $GITHUB_ENV
+          else
+            echo "PREFIX=${{ matrix.prefix }}" >> $GITHUB_ENV
+          fi
 
       # FIXME action should run as sudo if it needs to
-      - run: sudo chown -R $(whoami):staff $PREFIX
+      - run: sudo chown -R $(whoami):staff "$PREFIX"
         if: ${{ matrix.os }} == "macos-latest"
 
       - uses: ./
