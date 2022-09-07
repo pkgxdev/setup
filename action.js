@@ -20,7 +20,7 @@ try {
     }
   }).toString()
 
-  console.log(out.split("\n").slice(-1))
+  console.log("HIII", out)
 
   const v = out.split("\n").slice(-1)[0].match(/\d+\.\d+\.\d+/)[0]
   const GITHUB_PATH = process.env['GITHUB_PATH']
