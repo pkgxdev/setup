@@ -41,13 +41,16 @@ jobs:
           - macos-latest
           - ubuntu-latest
         prefix:
-          - $HOME
+          - ${{ env.HOME }}
           - /opt
     steps:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+
+      # FIXME action should run as sudo if it needs to
       - run: sudo chown -R $USER:staff ${{ matrix.prefix }}
         if: ${{ matrix.os }} == "macos-latest"
+
       - uses: ./
         id: tea
         with:
