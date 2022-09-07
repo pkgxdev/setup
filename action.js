@@ -6,12 +6,14 @@ try {
   process.stdout.write("installing tea…\n")
 
   const GITHUB_TOKEN = process.env['INPUT_TOKEN'].trim()
+  const PREFIX = process.env['INPUT_PREFIX'].trim() || undefined
 
   execSync(`${__dirname}/install.sh`, {
     stdio: "inherit",
     env: {
       ...process.env,
       GITHUB_TOKEN,
+      PREFIX,
       YES: '1',
       FORCE: '1'
       //^^ so running this twice doesn’t do unexpected things
@@ -33,7 +35,7 @@ try {
     })
   }
 
-  const out = execSync('/usr/local/bin/tea -Eds').toString()
+  const out = execSync(`${teafile} -Eds`).toString()
   const match = out.match(/export VERSION=(.*)/)
   if (match && match[1]) {
     const version = match[1]
@@ -42,6 +44,8 @@ try {
     const GITHUB_ENV = process.env['GITHUB_ENV']
     fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
   }
+
+  process.stdout.write(`::set-output name=prefix::${PREFIX ?? '/opt'}`
 
 } catch (err) {
   console.error(err)
