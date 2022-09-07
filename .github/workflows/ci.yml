@@ -48,7 +48,7 @@ jobs:
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
       # FIXME action should run as sudo if it needs to
-      - run: sudo chown -R $USER:staff ${{ matrix.prefix }}
+      - run: sudo chown -R $USER:staff ${{ matrix.prefix || env.HOME }}
         if: ${{ matrix.os }} == "macos-latest"
 
       - uses: ./
