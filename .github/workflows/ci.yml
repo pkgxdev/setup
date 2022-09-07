@@ -42,7 +42,7 @@ jobs:
           - ubuntu-latest
         prefix:
           - ~
-          - /opt
+          - /opt/tea
     env:
       PREFIX: ${{ matrix.prefix }}
     steps:
@@ -51,10 +51,6 @@ jobs:
 
       - run: echo "PREFIX=$HOME/opt" >> $GITHUB_ENV
         if: matrix.prefix == null
-
-      # FIXME action should run `install.sh` as sudo if necessary
-      - run: sudo chown -R $(whoami):staff "$PREFIX"
-        if: ${{ matrix.os }} == "macos-latest" && ${{ matrix.prefix }} == "/opt"
 
       - uses: ./
         id: tea
