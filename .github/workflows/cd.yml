@@ -68,7 +68,7 @@ jobs:
       - uses: softprops/action-gh-release@v1
         with:
           files: ./install.sh
-          tag_name: ${{ needs.smoke.outputs.version }}
+          tag_name: v${{ needs.smoke.outputs.version }}
           token: ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
           # ^^ using our own PAT since otherwise vx-tagger won’t run
 

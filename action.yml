@@ -11,6 +11,12 @@ inputs:
     description: >
       The executable markdown target.
     required: false
+  prefix:
+    description: >
+      Where tea installs.
+      Set to `null` to install to the tea default (~/.tea).
+      For GHA we default to `~/opt`.
+    required: false
 outputs:
   version:
     description: Your project’s version.
