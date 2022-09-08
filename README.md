@@ -4,7 +4,7 @@
 
 **WARNING** PRE-RELEASE SOFTWARE! DO NOT USE!
 
-# GitHub Action 0.2.0
+# GitHub Action 0.3.0
 
 This repository also provides the `tea` GitHub Action.
 

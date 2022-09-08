@@ -26,25 +26,42 @@ jobs:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - run: ./install.sh --env --dump
+        env:
+          YES: 1
+      - run: sudo ln -s ~/.tea/tea.xyz/v'*'/bin/tea /usr/local/bin/tea
       - run: tea --env --dump
-      # ^^ TEST
-  target:
+      - run: tea test
+      - run: which tea
+
+  gha:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os:
-        - macos-latest
-        - ubuntu-latest
+          - macos-latest
+          - ubuntu-latest
+        prefix:
+          - ~
+          - /opt
+    env:
+      PREFIX: ${{ matrix.prefix }}
     steps:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+
+      - run: sudo chown -R $(whoami):staff /opt
+        if: ${{ matrix.os == 'macos-latest' && matrix.prefix == '/opt' }}
+
       - uses: ./
         id: tea
         with:
+          prefix: ${{ env.PREFIX }}
           target: test
-        env:
-          DEBUG: 1
+
+      - run: echo $PATH
+
       - run: test -n "$VERSION"
       - run: test -n "${{ steps.tea.outputs.version }}"
       - run: test v$VERSION == v${{ steps.tea.outputs.version }}
       - run: tea --env --dump
+      - run: which tea
