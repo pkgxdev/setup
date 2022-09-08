@@ -7,7 +7,7 @@ if test -n "$VERBOSE"; then
   set -x
 fi
 
-if test -z $FORCE; then
+if test -z "$FORCE"; then
   if which tea >/dev/null; then
     #TODO should do a signature check on the binary
     exec tea "$@"
@@ -22,16 +22,16 @@ fi
 
 OLDWD="$PWD"
 
-if test -z $PREFIX; then
+if test -z "$PREFIX"; then
   PREFIX="$HOME/.tea"
 fi
 
-if test -z $CURL; then
+if test -z "$CURL"; then
   if which curl >/dev/null; then
     CURL="curl -fL"
   else
     # how they got here without curl: we dunno
-    echo "you need curl, or you can set \`$CURL\`" &>2
+    echo "you need curl, or you can set \`$CURL\`" >&2
     exit 1
   fi
 fi
@@ -60,7 +60,7 @@ echo "> tea installs to \`$PREFIX\`"
 echo "> tea (itself) won’t touch files outside its prefix"
 echo
 
-if test -z $YES; then
+if test -z "$YES"; then
   if [ ! -t 1 ]; then
     echo "no tty detected, re-run with \`YES=1\` set"
   fi
@@ -80,14 +80,14 @@ if test -z $YES; then
 fi
 
 ####################################################################### fetch
-v=`$CURL https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt | tail -n1`
+v="$($CURL https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt | tail -n1)"
 
 mkdir -p "$PREFIX"/tea.xyz/var
 cd "$PREFIX"
-$CURL https://"$TEA_SECRET"/tea.xyz/$MIDFIX/v$v.tar.gz | tar xz
+$CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz
 
 cd tea.xyz
-ln -sf v$v v'*'
+ln -sf "v$v" v'*'
 #TODO ^^ use tea to do this (also need major/minor symlinks)
 
 ################################################################# prep pantry
