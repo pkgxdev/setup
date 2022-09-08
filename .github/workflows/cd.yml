@@ -24,7 +24,7 @@ jobs:
           # fetch tags since actions/checkout is a shallow checkout
           git fetch --prune --unshallow --tags
 
-          if git show-ref --tags v${{ steps.extract.outputs.version }} --quiet; then
+          if git show-ref --tags v${{ steps.tea.outputs.version }} --quiet; then
             echo "::set-output name=result::cancel"
           fi
 
