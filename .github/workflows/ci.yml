@@ -43,6 +43,12 @@ jobs:
         prefix:
           - ~
           - /opt
+        container:
+          - ~
+        include:
+          os: ubuntu-latest
+          container: ghcr.io/teaxyz/infuser:main
+    container: ${{ matrix.container }}
     env:
       PREFIX: ${{ matrix.prefix }}
     steps:
