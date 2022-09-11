@@ -92,8 +92,9 @@ cd "$PREFIX"
 if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; then
   $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz
   cd tea.xyz
-  if test ! -d v\*; then
-    # ^^ is directory if we’re a self-installed source distribution
+  if test -L v\* -o ! -e v\*; then
+    # if v* is a directory then this is a self-installed source distribution
+    # in that case we don’t do this symlink
     ln -sf "v$v" v\*
   fi
 else
