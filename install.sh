@@ -45,7 +45,7 @@ Darwin/arm64)
   MIDFIX=darwin/aarch64;;
 Darwin/x86_64)
   MIDFIX=darwin/x86-64;;
-Linux/arm64)
+Linux/arm64|Linux/aarch64)
   MIDFIX=linux/aarch64;;
 Linux/x86_64)
   MIDFIX=linux/x86-64;;
