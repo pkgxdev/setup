@@ -7,13 +7,6 @@ if test -n "$VERBOSE"; then
   set -x
 fi
 
-if test -z "$FORCE"; then
-  if which tea >/dev/null; then
-    #TODO should do a signature check on the binary
-    exec tea "$@"
-  fi
-fi
-
 ######################################################################## vars
 if test -z "$TEA_SECRET"; then
   echo "coming soon"
@@ -23,15 +16,24 @@ fi
 OLDWD="$PWD"
 
 if test -z "$PREFIX"; then
-  PREFIX="$HOME/.tea"
+  # use existing installation if found
+  if which tea >/dev/null 2>&1; then
+    PREFIX="$(tea --prefix --silent)"
+    ALREADY_INSTALLED=1
+    YES=1
+  fi
+  # we check again: in case the above failed for some reason
+  if test -z "$PREFIX"; then
+    PREFIX="$HOME/.tea"
+  fi
 fi
 
 if test -z "$CURL"; then
-  if which curl >/dev/null; then
+  if which curl >/dev/null 2>&1; then
     CURL="curl -fL"
   else
     # how they got here without curl: we dunno
-    echo "you need curl, or you can set \`$CURL\`" >&2
+    echo "you need curl, or you can set \`\$CURL\`" >&2
     exit 1
   fi
 fi
@@ -54,12 +56,13 @@ Linux/x86_64)
 esac
 
 ##################################################################### confirm
-echo "this script installs tea"
-echo
-echo "> tea installs to \`$PREFIX\`"
-echo "> tea (itself) won’t touch files outside its prefix"
-echo
-
+if test -z "$ALREADY_INSTALLED"; then
+  echo "this script installs tea"
+  echo
+  echo "> tea installs to \`$PREFIX\`"
+  echo "> tea (itself) won’t touch files outside its prefix"
+  echo
+fi
 if test -z "$YES"; then
   if [ ! -t 1 ]; then
     echo "no tty detected, re-run with \`YES=1\` set"
@@ -79,27 +82,61 @@ if test -z "$YES"; then
   echo
 fi
 
+
 ####################################################################### fetch
 v="$($CURL https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt | tail -n1)"
 
 mkdir -p "$PREFIX"/tea.xyz/var
 cd "$PREFIX"
-$CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz
 
-cd tea.xyz
-ln -sf "v$v" v'*'
-#TODO ^^ use tea to do this (also need major/minor symlinks)
+if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; then
+  $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz
+  cd tea.xyz
+  if test ! -d v\*; then
+    # ^^ is directory if we’re a self-installed source distribution
+    ln -sf "v$v" v\*
+  fi
+else
+  cd tea.xyz
+fi
+
 
 ################################################################# prep pantry
 cd var
 
-if test ! -e pantry; then
-  if which git >/dev/null; then
+function update_pantry {
+  #NOTE pretty nasty global mods here
+  export GIT_DIR=$PWD/pantry/.git
+  export GIT_WORK_TREE=$PWD/pantry
+
+  test -z "$(git status --porcelain)" || return 0
+  if ! git diff --quiet; then return 0; fi
+  test "$(git branch --show-current)" = main || return 0
+
+  git remote update
+
+  local BASE LOCAL
+  BASE="$(git merge-base @ '@{u}')"
+  LOCAL="$(git rev-parse @)"
+  if test "$BASE" = "$LOCAL"; then
+    git pull
+  fi
+
+  unset GIT_DIR GIT_WORK_TREE
+}
+
+#TODO could use a tea installed git
+
+if test ! -d pantry; then
+  if which git >/dev/null 2>&1; then
     git clone https://github.com/teaxyz/pantry.git
   else
+    #NOTE **fails** because the repo is still private
     $CURL https://github.com/teaxyz/pantry/archive/refs/heads/main.tar.gz | tar xz
     # tea itself will install `git` for pantry updates
   fi
+elif which git >/dev/null 2>&1; then
+  update_pantry
 fi
 
 ###################################################################### finish
