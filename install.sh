@@ -109,14 +109,15 @@ function update_pantry {
   export GIT_DIR=$PWD/pantry/.git
   export GIT_WORK_TREE=$PWD/pantry
 
-  test -z $(git status --porcelain) || return 0
+  test -z "$(git status --porcelain)" || return 0
   if ! git diff --quiet; then return 0; fi
   test "$(git branch --show-current)" = main || return 0
 
   git remote update
 
-  local BASE=$(git merge-base @ '@{u}')
-  local LOCAL=$(git rev-parse @)
+  local BASE LOCAL
+  BASE="$(git merge-base @ '@{u}')"
+  LOCAL="$(git rev-parse @)"
   if test "$BASE" = "$LOCAL"; then
     git pull
   fi
