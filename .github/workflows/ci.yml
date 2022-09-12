@@ -68,6 +68,7 @@ jobs:
         id: tea
         with:
           prefix: ${{ matrix.prefix }}
+          # node 16 not rebuilt for older glibc yet
           target: ${{ matrix.container && "test" || null }}
 
       - run: test -n "$VERSION"
