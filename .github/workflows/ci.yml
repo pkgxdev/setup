@@ -55,7 +55,7 @@ jobs:
 
       - name: HACKS
         run: |
-          apt install --yes curl
+          apt install --yes curl git
           mkdir .git
         if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:main' }}
       - name: HACKS
