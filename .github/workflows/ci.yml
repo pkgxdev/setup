@@ -43,11 +43,27 @@ jobs:
         prefix:
           - ~
           - /opt
-    env:
-      PREFIX: ${{ matrix.prefix }}
+        container:
+          - ~
+          - ghcr.io/teaxyz/infuser:main
+        exclude:
+          - os: macos-latest
+            container: ghcr.io/teaxyz/infuser:main
+    container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
-      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+
+      - name: HACKS
+        run: |
+          apt install --yes curl git
+          mkdir .git
+        if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:main' }}
+      - name: HACKS
+        run: echo 'TARGET=test' >> $GITHUB_ENV
+        if: ${{ matrix.container != 'ghcr.io/teaxyz/infuser:main' }}
+        # ^^ node 16 not rebuilt for older glibc yet so can't run test target
+      - name: HACKS
+        run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
       - run: sudo chown -R $(whoami):staff /opt
         if: ${{ matrix.os == 'macos-latest' && matrix.prefix == '/opt' }}
@@ -55,12 +71,12 @@ jobs:
       - uses: ./
         id: tea
         with:
-          prefix: ${{ env.PREFIX }}
-          target: test
+          prefix: ${{ matrix.prefix }}
+          target: ${{ env.TARGET }}
 
       - run: test -n "$VERSION"
       - run: test -n "${{ steps.tea.outputs.version }}"
-      - run: test v$VERSION == v${{ steps.tea.outputs.version }}
+      - run: test v$VERSION = v${{ steps.tea.outputs.version }}
       - run: tea --env --dump
       - run: which tea
 

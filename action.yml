@@ -2,11 +2,6 @@ name: tea/setup
 description: >
   Installs tea.xyz to your GitHub Actions runner.
 inputs:
-  token:
-    description: >
-      Used to ensure queries to the GitHub API aren’t rate limited.
-    default: ${{ github.token }}
-    required: false
   target:
     description: >
       The executable markdown target.
