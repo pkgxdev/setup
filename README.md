@@ -2,7 +2,6 @@
 
 [`install.sh`](./install.sh) is delivered when you `curl tea.xyz`.
 
-**WARNING** PRE-RELEASE SOFTWARE! DO NOT USE!
 
 # GitHub Action 0.4.3
 
