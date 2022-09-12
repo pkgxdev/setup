@@ -68,8 +68,15 @@ jobs:
         id: tea
         with:
           prefix: ${{ matrix.prefix }}
-          target: ${{ matrix.container && "test" || null }}
-          # ^^ node 16 not rebuilt for older glibc yet
+        if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:main' }}
+        # ^^ node 16 not rebuilt for older glibc yet so can't run test target
+
+      - uses: ./
+        id: tea
+        with:
+          prefix: ${{ matrix.prefix }}
+          target: test
+        if: ${{ matrix.container != 'ghcr.io/teaxyz/infuser:main' }}
 
       - run: test -n "$VERSION"
       - run: test -n "${{ steps.tea.outputs.version }}"
