@@ -98,6 +98,8 @@ if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; the
     rm -f v\*
     ln -s "v$v" v\*
   fi
+  ln -sf "v$v" v"$(echo $v | cut -d. -f1)"
+  ln -sf "v$v" v"$(echo $v | cut -d. -f1 -f2)"
 else
   cd tea.xyz
 fi
