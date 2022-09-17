@@ -87,21 +87,26 @@ fi
 v="$($CURL https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt | tail -n1)"
 
 mkdir -p "$PREFIX"/tea.xyz/var
-cd "$PREFIX"
+cd "$PREFIX"/tea.xyz
+
+function link {
+  if test -L v$1; then
+    rm -f v$1
+  elif test -d v$1
+    echo \`"$v1"\' is unexpectedly a directory
+  fi
+  ln -s "v$v" v$1
+}
 
 if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; then
-  $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz
-  cd tea.xyz
-  if test -L v\* -o ! -e v\*; then
+  $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz --strip-components 1
+  if !test -d v\*; then
     # if v* is a directory then this is a self-installed source distribution
     # in that case we don’t do this symlink
-    rm -f v\*
-    ln -s "v$v" v\*
+    link \*
   fi
-  ln -sf "v$v" v"$(echo $v | cut -d. -f1)"
-  ln -sf "v$v" v"$(echo $v | cut -d. -f1 -f2)"
-else
-  cd tea.xyz
+  link "$(echo $v | cut -d. -f1)"
+  link "$(echo $v | cut -d. -f1 -f2)"
 fi
 
 
