@@ -93,14 +93,14 @@ function link {
   if test -L v$1; then
     rm -f v$1
   elif test -d v$1; then
-    echo "\`$v1' is unexpectedly a directory"
+    echo "\`v$1' is unexpectedly a directory"
   fi
   ln -s "v$v" v$1
 }
 
 if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; then
   $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz" | tar xz --strip-components 1
-  if !test -d v\*; then
+  if ! test -d v\*; then
     # if v* is a directory then this is a self-installed source distribution
     # in that case we don’t do this symlink
     link \*
