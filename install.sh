@@ -92,7 +92,7 @@ cd "$PREFIX"/tea.xyz
 function link {
   if test -L v$1; then
     rm -f v$1
-  elif test -d v$1
+  elif test -d v$1; then
     echo "\`$v1' is unexpectedly a directory"
   fi
   ln -s "v$v" v$1
