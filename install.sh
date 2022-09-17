@@ -90,12 +90,12 @@ mkdir -p "$PREFIX"/tea.xyz/var
 cd "$PREFIX"/tea.xyz
 
 function link {
-  if test -L v$1; then
-    rm -f v$1
-  elif test -d v$1; then
+  if test -L "v$1"; then
+    rm -f "v$1"
+  elif test -d "v$1"; then
     echo "\`v$1' is unexpectedly a directory"
   fi
-  ln -s "v$v" v$1
+  ln -s "v$v" "v$1"
 }
 
 if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; then
