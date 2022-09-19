@@ -106,7 +106,7 @@ if test ! -x tea.xyz/v$v/bin/tea -o ! -f tea.xyz/v$v/bin/tea -o -n "$FORCE"; the
     link \*
   fi
   link "$(echo $v | cut -d. -f1)"
-  link "$(echo $v | cut -d. -f1 -f2)"
+  link "$(echo $v | cut -d. -f1-2)"
 fi
 
 
