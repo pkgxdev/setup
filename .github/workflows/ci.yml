@@ -4,6 +4,7 @@ on:
       - action.yml
       - install.sh
       - .github/workflows/ci.yml
+      - action.js
   workflow_call:
 
 concurrency:
@@ -32,6 +33,9 @@ jobs:
       - run: tea --env --dump
       - run: tea test
       - run: which tea
+      - run: find "$(tea --silent --prefix)"/tea.xyz
+      - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0.?
+      - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0
 
   gha:
     runs-on: ${{ matrix.os }}
