@@ -31,6 +31,8 @@ fi
 if test -z "$CURL"; then
   if which curl >/dev/null 2>&1; then
     CURL="curl -fL"
+  elif test -f "$PREFIX/curl.se/v*/bin/curl"; then
+    CURL="$PREFIX/curl.se/v*/bin/curl"
   else
     # how they got here without curl: we dunno
     echo "you need curl, or you can set \`\$CURL\`" >&2
@@ -149,7 +151,8 @@ elif which git >/dev/null 2>&1; then
 fi
 
 ###################################################################### finish
-tea="$PREFIX/tea.xyz/v$v/bin/tea"
+vx=v"$(echo $v | cut -d. -f1)"
+tea="$PREFIX/tea.xyz/$vx/bin/tea"
 
 if test "$#" -gt 0; then
   # indeed, we only install `tea` into the `PATH` for the bare install line
