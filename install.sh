@@ -31,6 +31,8 @@ fi
 if test -z "$CURL"; then
   if which curl >/dev/null 2>&1; then
     CURL="curl -fL"
+  elif test -f "$PREFIX/curl.se/v*/bin/curl"; then
+    CURL="$PREFIX/curl.se/v*/bin/curl"
   else
     # how they got here without curl: we dunno
     echo "you need curl, or you can set \`\$CURL\`" >&2
