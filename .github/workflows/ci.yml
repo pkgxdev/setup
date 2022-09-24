@@ -71,7 +71,7 @@ jobs:
 
       # install.sh cannot find our cURL if the prefix is not set to where it exists
       #TODO though, we *could* install it ourselves first
-      - run: echo 'CURL=/opt/curl.se/v\\*/bin/curl' >> $GITHUB_ENV
+      - run: echo 'CURL=/opt/curl.se/v*/bin/curl' >> $GITHUB_ENV
         if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:latest' && matrix.prefix != '/opt' }}
 
       - run: sudo chown -R $(whoami):staff /opt
