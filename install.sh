@@ -1,7 +1,9 @@
 #!/bin/bash
-#FIXME ^^ ideally we'd be POSIX compliant
+#FIXME ^^ideally we'd be POSIX compliant
 
 set -e
+set -o noglob
+set -o pipefail
 
 if test -n "$VERBOSE"; then
   set -x
@@ -30,9 +32,9 @@ fi
 
 if test -z "$CURL"; then
   if which curl >/dev/null 2>&1; then
-    CURL="curl -fL"
+    CURL="curl -f"
   elif test -f "$PREFIX/curl.se/v*/bin/curl"; then
-    CURL="$PREFIX/curl.se/v*/bin/curl"
+    CURL="$PREFIX/curl.se/v*/bin/curl -f"
   else
     # how they got here without curl: we dunno
     echo "you need curl, or you can set \`\$CURL\`" >&2
@@ -143,7 +145,7 @@ if test ! -d pantry; then
     git clone https://github.com/teaxyz/pantry.git
   else
     #NOTE **fails** because the repo is still private
-    $CURL https://github.com/teaxyz/pantry/archive/refs/heads/main.tar.gz | tar xz
+    $CURL -L https://github.com/teaxyz/pantry/archive/refs/heads/main.tar.gz | tar xz
     # tea itself will install `git` for pantry updates
   fi
 elif which git >/dev/null 2>&1; then
