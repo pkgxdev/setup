@@ -2,6 +2,7 @@
 #FIXME ^^ ideally we'd be POSIX compliant
 
 set -e
+set -o noglob
 
 if test -n "$VERBOSE"; then
   set -x
