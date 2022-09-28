@@ -93,8 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: which git
-      - run: sudo rm -rf .git README.md /usr/local/bin
+      - run: sudo apt-get remove git
+      - run: sudo rm -rf .git README.md
+      - name: HACKS
+        run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - uses: ./
 
   shellcheck:
