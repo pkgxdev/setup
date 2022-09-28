@@ -89,6 +89,15 @@ jobs:
       - run: tea --env --dump
       - run: which tea
 
+  emptier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo rm -rf .git README.md
+      - name: HACKS
+        run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+      - uses: ./
+
   shellcheck:
     runs-on: ubuntu-latest
     steps:
