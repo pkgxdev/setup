@@ -94,7 +94,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: which git
-      - run: rm -rf .git README.md /usr/local/bin
+      - run: sudo rm -rf .git README.md /usr/local/bin
       - uses: ./
 
   shellcheck:
