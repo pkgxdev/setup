@@ -63,10 +63,6 @@ jobs:
           mkdir .git
         if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:latest' }}
       - name: HACKS
-        run: echo 'TARGET=test' >> $GITHUB_ENV
-        if: ${{ matrix.container != 'ghcr.io/teaxyz/infuser:latest' }}
-        # ^^ node 16 not rebuilt for older glibc yet so can't run test target
-      - name: HACKS
         run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
       # install.sh cannot find our cURL if the prefix is not set to where it exists
@@ -74,14 +70,11 @@ jobs:
       - run: echo 'CURL=/opt/curl.se/v*/bin/curl' >> $GITHUB_ENV
         if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:latest' && matrix.prefix != '/opt' }}
 
-      - run: sudo chown -R $(whoami):staff /opt
-        if: ${{ matrix.os == 'macos-latest' && matrix.prefix == '/opt' }}
-
       - uses: ./
         id: tea
         with:
           prefix: ${{ matrix.prefix }}
-          target: ${{ env.TARGET }}
+          target: test
 
       - run: test -n "$VERSION"
       - run: test -n "${{ steps.tea.outputs.version }}"

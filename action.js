@@ -7,6 +7,12 @@ try {
 
   const PREFIX = process.env['INPUT_PREFIX'].trim() || `${os.homedir()}/opt`
 
+  // we build to /opt and special case this action so people new to
+  // building aren’t immediatelyt flumoxed
+  if (PREFIX == '/opt' && os.platform == 'darwin') {
+    execSync('sudo chown -R $(whoami):staff /opt')
+  }
+
   let out = execSync(`${__dirname}/install.sh`, {
     env: {
       ...process.env,
