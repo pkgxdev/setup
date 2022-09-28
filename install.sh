@@ -140,15 +140,7 @@ function update_pantry {
 
 #TODO could use a tea installed git
 
-if test ! -d pantry; then
-  if which git >/dev/null 2>&1; then
-    git clone https://github.com/teaxyz/pantry.git
-  else
-    #NOTE **fails** because the repo is still private
-    $CURL -L https://github.com/teaxyz/pantry/archive/refs/heads/main.tar.gz | tar xz
-    # tea itself will install `git` for pantry updates
-  fi
-elif which git >/dev/null 2>&1; then
+if test -d pantry && which git >/dev/null 2>&1; then
   update_pantry
 fi
 
