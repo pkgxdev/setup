@@ -1,11 +1,12 @@
 const { execSync, spawn } = require('child_process')
 const fs = require('fs')
 const os = require("os")
+const https = require('https')
 
 async function go() {
   process.stdout.write("installing tea…\n")
 
-  const PREFIX = process.env['INPUT_PREFIX'].trim() || `${os.homedir()}/opt`
+  const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
@@ -13,13 +14,41 @@ async function go() {
     execSync('sudo chown $(whoami):staff /opt')
   }
 
-  let rsp = await fetch(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`)
-  const v = (await rsp.text()).split("\n").at(-1)
+  const midfix = (() => {
+    switch (process.arch) {
+    case 'arm64':
+      return `${process.platform}/aarch64`
+    case 'x64':
+      return `${process.platform}/x86-86`
+    default:
+      throw new Error(`unsupported platform: ${process.platform}/${process.arch}`)
+    }
+  })()
 
-  rsp = await fetch(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${V}.tar.gz`)
+  const v = await new Promise((resolve, reject) => {
+    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`, rsp => {
+      if (rsp.statusCode != 200) return reject(rsp.statusCode)
+      rsp.setEncoding('utf8')
+      const chunks = []
+      rsp.on("data", x => chunks.push(x))
+      rsp.on("end", () => {
+        resolve(chunks.join("").split("\n").at(-1))
+      })
+    }).on('error', reject)
+  })
 
-  const tar = spawn('tar', ['xf', '-'], { stdio: [ 0, 'pipe', 'pipe' ], cwd: PREFIX })
-  await rsp.body().pipe(tar.stdin.createWriteStream())
+  process.stdout.write(`fetching tea.xyz@${v}\n`)
+
+  fs.mkdirSync(PREFIX, { recursive: true })
+
+  await new Promise((resolve, reject) => {
+    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
+      if (rsp.statusCode != 200) return reject(rsp.statusCode)
+      const tar = spawn('/usr/bin/tar', ['xf', '-'], { stdio: ['pipe', 'pipe', 'pipe'], cwd: PREFIX })
+      rsp.pipe(tar.stdin)
+      tar.on("end", resolve)
+    }).on('error', reject)
+  })
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
