@@ -65,11 +65,6 @@ jobs:
       - name: HACKS
         run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
 
-      # install.sh cannot find our cURL if the prefix is not set to where it exists
-      #TODO though, we *could* install it ourselves first
-      - run: echo 'CURL=/opt/curl.se/v*/bin/curl' >> $GITHUB_ENV
-        if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:latest' && matrix.prefix != '/opt' }}
-
       - uses: ./
         id: tea
         with:
@@ -87,9 +82,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: sudo rm -rf .git README.md
-      - name: HACKS
-        run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - uses: ./
+        with:
+          target: test
 
   shellcheck:
     runs-on: ubuntu-latest

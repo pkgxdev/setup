@@ -25,6 +25,8 @@ async function go() {
     }
   })()
 
+  console.log(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`)
+
   const v = await new Promise((resolve, reject) => {
     https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
