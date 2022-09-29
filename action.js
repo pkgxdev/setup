@@ -5,7 +5,7 @@ const fs = require('fs')
 const os = require("os")
 
 async function go() {
-  process.stdout.write("installing tea…\n")
+  process.stderr.write("determining latest tea version…\n")
 
   const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
   const TEA_DIR = (() => {
@@ -49,7 +49,7 @@ async function go() {
     }).on('error', reject)
   })
 
-  process.stdout.write(`fetching tea.xyz@${v}\n`)
+  process.stderr.write(`fetching tea.xyz@${v}\n`)
 
   fs.mkdirSync(PREFIX, { recursive: true })
 
@@ -65,6 +65,9 @@ async function go() {
   if (exitcode != 0) {
     throw new Error(`tar: ${exitcode}`)
   }
+
+  fs.symlinkSync(`${PREFIX}/tea.xyz/v${v}/bin/tea`, `${PREFIX}/tea.xyz/v*/bin/tea`)
+  fs.symlinkSync(`${PREFIX}/tea.xyz/v${v}/bin/tea`, `${PREFIX}/tea.xyz/v0/bin/tea`) //FIXME
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
@@ -103,6 +106,8 @@ async function go() {
   }
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
+
+  process.stderr.write(`installed ${PREFIX}/tea.xyz/v${v}\n`)
 }
 
 go().catch(err => {
