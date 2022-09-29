@@ -1,11 +1,12 @@
-const { execSync } = require('child_process')
+const { execSync, spawn } = require('child_process')
+const https = require('https')
 const fs = require('fs')
 const os = require("os")
 
-try {
+async function go() {
   process.stdout.write("installing tea…\n")
 
-  const PREFIX = process.env['INPUT_PREFIX'].trim() || `${os.homedir()}/opt`
+  const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
@@ -13,18 +14,46 @@ try {
     execSync('sudo chown $(whoami):staff /opt')
   }
 
-  let out = execSync(`${__dirname}/install.sh`, {
-    env: {
-      ...process.env,
-      PREFIX,
-      YES: '1',
-      FORCE: '1'
-      //^^ so running this twice doesn’t do unexpected things
-      //^^ NOTE ideally we would have a flag to just abort if already installed
+  const midfix = (() => {
+    switch (process.arch) {
+    case 'arm64':
+      return `${process.platform}/aarch64`
+    case 'x64':
+      return `${process.platform}/x86-64`
+    default:
+      throw new Error(`unsupported platform: ${process.platform}/${process.arch}`)
     }
-  }).toString()
+  })()
 
-  const v = out.trim().split("\n").pop().match(/\/tea.xyz\/v(\d+)\//)[1]
+  const v = await new Promise((resolve, reject) => {
+    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`, rsp => {
+      if (rsp.statusCode != 200) return reject(rsp.statusCode)
+      rsp.setEncoding('utf8')
+      const chunks = []
+      rsp.on("data", x => chunks.push(x))
+      rsp.on("end", () => {
+        resolve(chunks.join("").split("\n").at(-1))
+      })
+    }).on('error', reject)
+  })
+
+  process.stdout.write(`fetching tea.xyz@${v}\n`)
+
+  fs.mkdirSync(PREFIX, { recursive: true })
+
+  const exitcode = await new Promise((resolve, reject) => {
+    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
+      if (rsp.statusCode != 200) return reject(rsp.statusCode)
+      const tar = spawn('tar', ['xzf', '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
+      rsp.pipe(tar.stdin)
+      tar.on("close", resolve)
+    }).on('error', reject)
+  })
+
+  if (exitcode != 0) {
+    throw new Error(`tar: ${exitcode}`)
+  }
+
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
   fs.appendFileSync(GITHUB_PATH, `${bindir}\n`, {encoding: 'utf8'})
@@ -52,8 +81,9 @@ try {
   }
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
+}
 
-} catch (err) {
+go().catch(err => {
   console.error(err)
   process.exitCode = 1
-}
+})
