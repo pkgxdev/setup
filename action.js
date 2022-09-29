@@ -43,14 +43,18 @@ async function go() {
 
   fs.mkdirSync(PREFIX, { recursive: true })
 
-  await new Promise((resolve, reject) => {
+  const exitcode = await new Promise((resolve, reject) => {
     https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
-      const tar = spawn('/usr/bin/tar', ['xf', '-'], { stdio: ['pipe', 'pipe', 'pipe'], cwd: PREFIX })
+      const tar = spawn('/usr/bin/tar', ['xf', '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
       rsp.pipe(tar.stdin)
-      tar.on("end", resolve)
+      tar.on("close", resolve)
     }).on('error', reject)
   })
+
+  if (exitcode != 0) {
+    throw new Error(`tar: ${exitcode}`)
+  }
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
