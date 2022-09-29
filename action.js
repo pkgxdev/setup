@@ -59,9 +59,10 @@ async function go() {
   fs.appendFileSync(GITHUB_PATH, `${bindir}\n`, {encoding: 'utf8'})
 
   const teafile = `${bindir}/tea`
+  const TEA_DIR = process.cwd()
 
   const env = {
-    TEA_DIR: process.cwd(),
+    TEA_DIR,
     // ^^ if there's no git then the checkout action uses the GitHub API
     // to check out the repo. So there won’t be a `.git` directory and tea
     // won’t find the SRCROOT
@@ -74,15 +75,19 @@ async function go() {
   }
 
   try {
+    const GITHUB_ENV = process.env['GITHUB_ENV']
+
     out = execSync(`${teafile} -Eds`, {env}).toString()
     const match = out.match(/export VERSION=(.*)/)
     if (match && match[1]) {
       const version = match[1]
       process.stdout.write(`::set-output name=version::${version}\n`)
-
-      const GITHUB_ENV = process.env['GITHUB_ENV']
       fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
     }
+
+    process.stdout.write(`::set-output name=srcroot::${TEA_DIR}\n`)
+    fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
+
   } catch {
     // `tea -Eds` returns exit code 1 if no SRCROOT is found
     //TODO a flag so it returns 0 so we can not just swallow all errors lol
