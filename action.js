@@ -1,5 +1,6 @@
 const { execSync, spawn } = require('child_process')
 const https = require('https')
+const path = require('path')
 const fs = require('fs')
 const os = require("os")
 
@@ -7,6 +8,17 @@ async function go() {
   process.stdout.write("installing tea…\n")
 
   const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
+  const TEA_DIR = (() => {
+    let TEA_DIR = process.env['INPUT_SRCROOT']
+    if (!TEA_DIR) return
+    TEA_DIR = TEA_DIR.trim()
+    if (!TEA_DIR) return
+    if (!TEA_DIR.startsWith("/")) {
+      // for security this must be an absolute path
+      TEA_DIR = `${process.cwd()}/${TEA_DIR}`
+    }
+    return path.normalize(TEA_DIR)
+  })()
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
@@ -59,13 +71,9 @@ async function go() {
   fs.appendFileSync(GITHUB_PATH, `${bindir}\n`, {encoding: 'utf8'})
 
   const teafile = `${bindir}/tea`
-  const TEA_DIR = process.cwd()
 
   const env = {
     TEA_DIR,
-    // ^^ if there's no git then the checkout action uses the GitHub API
-    // to check out the repo. So there won’t be a `.git` directory and tea
-    // won’t find the SRCROOT
     ...process.env
   }
 
@@ -85,9 +93,10 @@ async function go() {
       fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
     }
 
-    process.stdout.write(`::set-output name=srcroot::${TEA_DIR}\n`)
-    fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
-
+    if (TEA_DIR) {
+      process.stdout.write(`::set-output name=srcroot::${TEA_DIR}\n`)
+      fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
+    }
   } catch {
     // `tea -Eds` returns exit code 1 if no SRCROOT is found
     //TODO a flag so it returns 0 so we can not just swallow all errors lol
