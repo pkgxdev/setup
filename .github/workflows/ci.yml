@@ -83,8 +83,6 @@ jobs:
       - uses: actions/checkout@v3
       - run: sudo rm -rf .git README.md
       - uses: ./
-        with:
-          target: test
 
   shellcheck:
     runs-on: ubuntu-latest

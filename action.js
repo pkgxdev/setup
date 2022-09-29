@@ -25,8 +25,6 @@ async function go() {
     }
   })()
 
-  console.log(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`)
-
   const v = await new Promise((resolve, reject) => {
     https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
@@ -46,7 +44,7 @@ async function go() {
   const exitcode = await new Promise((resolve, reject) => {
     https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
-      const tar = spawn('/usr/bin/tar', ['xzf', '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
+      const tar = spawn('tar', ['xzf', '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
       rsp.pipe(tar.stdin)
       tar.on("close", resolve)
     }).on('error', reject)
