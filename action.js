@@ -19,7 +19,7 @@ async function go() {
     case 'arm64':
       return `${process.platform}/aarch64`
     case 'x64':
-      return `${process.platform}/x86-86`
+      return `${process.platform}/x86-64`
     default:
       throw new Error(`unsupported platform: ${process.platform}/${process.arch}`)
     }
