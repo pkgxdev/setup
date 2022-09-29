@@ -1,4 +1,4 @@
-const { execSync } = require('child_process')
+const { execSync, spawn } = require('child_process')
 const fs = require('fs')
 const os = require("os")
 
@@ -13,18 +13,14 @@ try {
     execSync('sudo chown $(whoami):staff /opt')
   }
 
-  let out = execSync(`${__dirname}/install.sh`, {
-    env: {
-      ...process.env,
-      PREFIX,
-      YES: '1',
-      FORCE: '1'
-      //^^ so running this twice doesn’t do unexpected things
-      //^^ NOTE ideally we would have a flag to just abort if already installed
-    }
-  }).toString()
+  let rsp = await fetch(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`)
+  const v = (await rsp.text()).split("\n").at(-1)
 
-  const v = out.trim().split("\n").pop().match(/\/tea.xyz\/v(\d+)\//)[1]
+  rsp = await fetch(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${V}.tar.gz`)
+
+  const tar = spawn('tar', ['xf', '-'], { stdio: [ 0, 'pipe', 'pipe' ], cwd: PREFIX })
+  await rsp.body().pipe(tar.stdin.createWriteStream())
+
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
   fs.appendFileSync(GITHUB_PATH, `${bindir}\n`, {encoding: 'utf8'})
