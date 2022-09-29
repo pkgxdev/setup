@@ -8,18 +8,17 @@ async function go() {
   process.stdout.write("installing tea…\n")
 
   const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
-  const TEA_DIR = path.normalize((() => {
+  const TEA_DIR = (() => {
     let TEA_DIR = process.env['INPUT_SRCROOT']
     if (!TEA_DIR) return
     TEA_DIR = TEA_DIR.trim()
     if (!TEA_DIR) return
     if (!TEA_DIR.startsWith("/")) {
       // for security this must be an absolute path
-      return `${process.cwd()}/${TEA_DIR}`
-    } else {
-      return TEA_DIR
+      TEA_DIR = `${process.cwd()}/${TEA_DIR}`
     }
-  })())
+    return path.normalize(TEA_DIR)
+  })()
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
