@@ -12,6 +12,17 @@ inputs:
       Set to `null` to install to the tea default (~/.tea).
       For GHA we default to `~/opt`.
     required: false
+  srcroot:
+    description: |
+      Override detection of `$SRCROOT`.
+
+      tea normally finds your `$SRCROOT` by looking for a `.git` directory.
+      However, if git is not installed the checkout action uses the GitHub
+      API to download the repository.
+
+      You will need this if you depend on the virtual environment tea
+      provides.
+
 outputs:
   version:
     description: Your project’s version.
