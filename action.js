@@ -2,7 +2,7 @@ const { execSync, spawn } = require('child_process')
 const fs = require('fs')
 const os = require("os")
 
-try {
+async function go() {
   process.stdout.write("installing tea…\n")
 
   const PREFIX = process.env['INPUT_PREFIX'].trim() || `${os.homedir()}/opt`
@@ -48,8 +48,9 @@ try {
   }
 
   process.stdout.write(`::set-output name=prefix::${PREFIX}`)
+}
 
-} catch (err) {
+go().catch(err => {
   console.error(err)
   process.exitCode = 1
-}
+})
