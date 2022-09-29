@@ -59,14 +59,16 @@ jobs:
 
       - name: HACKS
         run: |
-          apt install --yes git
-          mkdir .git
-        if: ${{ matrix.container == 'ghcr.io/teaxyz/infuser:latest' }}
-      - name: HACKS
-        run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+          if which git; then
+            # tea doesn’t need get to create the pantry anymore
+            # however if it *is* installed, then it must work
+            .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+          fi
 
       - uses: ./
         id: tea
+        env:
+          GITHUB_TOKEN: ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
         with:
           prefix: ${{ matrix.prefix }}
           target: test

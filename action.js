@@ -60,13 +60,21 @@ async function go() {
 
   const teafile = `${bindir}/tea`
 
+  const env = {
+    TEA_DIR: process.cwd(),
+    // ^^ if there's no git then the checkout action uses the GitHub API
+    // to check out the repo. So there won’t be a `.git` directory and tea
+    // won’t find the SRCROOT
+    ...process.env
+  }
+
   const target = process.env['INPUT_TARGET']
   if (target) {
-    execSync(`${teafile} ${target}`, {stdio: "inherit"})
+    execSync(`${teafile} ${target}`, {stdio: "inherit", env})
   }
 
   try {
-    out = execSync(`${teafile} -Eds`).toString()
+    out = execSync(`${teafile} -Eds`, {env}).toString()
     const match = out.match(/export VERSION=(.*)/)
     if (match && match[1]) {
       const version = match[1]
