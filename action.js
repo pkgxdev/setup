@@ -1,7 +1,7 @@
 const { execSync, spawn } = require('child_process')
+const https = require('https')
 const fs = require('fs')
 const os = require("os")
-const https = require('https')
 
 async function go() {
   process.stdout.write("installing tea…\n")
