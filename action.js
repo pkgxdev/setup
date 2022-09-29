@@ -66,8 +66,11 @@ async function go() {
     throw new Error(`tar: ${exitcode}`)
   }
 
-  fs.symlinkSync(`${PREFIX}/tea.xyz/v${v}/bin/tea`, `${PREFIX}/tea.xyz/v*/bin/tea`)
-  fs.symlinkSync(`${PREFIX}/tea.xyz/v${v}/bin/tea`, `${PREFIX}/tea.xyz/v0/bin/tea`) //FIXME
+  const oldwd = process.cwd()
+  process.chdir(`${PREFIX}/tea.xyz`)
+  fs.symlinkSync(`v${v}`, `v*`, 'dir')
+  fs.symlinkSync(`v${v}`, `v0`, 'dir') //FIXME
+  process.chdir(oldwd)
 
   const GITHUB_PATH = process.env['GITHUB_PATH']
   const bindir = `${PREFIX}/tea.xyz/v${v}/bin`
