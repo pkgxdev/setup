@@ -1,5 +1,6 @@
 const { execSync, spawn } = require('child_process')
 const https = require('https')
+const path = require('path')
 const fs = require('fs')
 const os = require("os")
 
@@ -7,7 +8,7 @@ async function go() {
   process.stdout.write("installing tea…\n")
 
   const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
-  const TEA_DIR = (() => {
+  const TEA_DIR = path.normalize((() => {
     let TEA_DIR = process.env['INPUT_SRCROOT']
     if (!TEA_DIR) return
     TEA_DIR = TEA_DIR.trim()
@@ -18,7 +19,7 @@ async function go() {
     } else {
       return TEA_DIR
     }
-  })()
+  })())
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
