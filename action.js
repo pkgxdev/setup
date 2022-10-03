@@ -54,12 +54,25 @@ async function go() {
   fs.mkdirSync(PREFIX, { recursive: true })
 
   const exitcode = await new Promise((resolve, reject) => {
-    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
+    const handler = (rsp, cmp) => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
-      const tar = spawn('tar', ['xzf', '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
+      let cmd = ""
+      switch(cmp) {
+        case 'gz': cmd = 'xzf'; break
+        case 'xz': cmd = 'xJf'; break
+        default: reject('Unknown archive compression')
+      }
+      const tar = spawn('tar', [cmd, '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
       rsp.pipe(tar.stdin)
       tar.on("close", resolve)
-    }).on('error', reject)
+    }
+    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.xz`, rsp => {
+      handler(rsp, 'xz')
+    }).on('error', () => {
+      https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
+        handler(rsp, 'gz')
+      }).on('error', reject)
+    })
   })
 
   if (exitcode != 0) {
