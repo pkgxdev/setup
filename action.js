@@ -66,11 +66,11 @@ async function go() {
       rsp.pipe(tar.stdin)
       tar.on("close", resolve)
     }
-    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.xz`, rsp => {
-      handler(rsp, 'xz')
+    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
+      handler(rsp, 'gz')
     }).on('error', () => {
-      https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
-        handler(rsp, 'gz')
+      https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.xz`, rsp => {
+        handler(rsp, 'xz')
       }).on('error', reject)
     })
   })
