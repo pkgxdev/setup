@@ -83,7 +83,7 @@ function prepare() {
 function gum_no_tty {
 	local cmd="$1"
 	while test "$1" != --; do
-    shift
+		shift
 	done
 	shift  # remove the --
 	case "$cmd" in
@@ -279,7 +279,7 @@ function check_zshrc {
 			add-zsh-hook -Uz chpwd(){ source <(tea -Eds) }  #tea
 			EOSH
 		fi
-  else
+	else
 		gum format -- <<-EOMD
 			# we need your help 🙏
 

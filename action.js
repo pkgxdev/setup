@@ -68,7 +68,9 @@ async function go() {
 
   const oldwd = process.cwd()
   process.chdir(`${PREFIX}/tea.xyz`)
+  if (fs.existsSync(`v*`)) fs.unlinkSync(`v*`)
   fs.symlinkSync(`v${v}`, `v*`, 'dir')
+  if (fs.existsSync(`v0`)) fs.unlinkSync(`v0`)
   fs.symlinkSync(`v${v}`, `v0`, 'dir') //FIXME
   process.chdir(oldwd)
 
