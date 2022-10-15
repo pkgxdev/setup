@@ -87,6 +87,15 @@ jobs:
       - run: tea --env --dump
       - run: which tea
 
+  multiple-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: tea --version
+      - uses: ./
+      - run: tea --version
+
   emptier:
     runs-on: ubuntu-latest
     steps:
