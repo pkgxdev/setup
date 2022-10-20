@@ -16,7 +16,7 @@ env:
   VERBOSE: 1
 
 jobs:
-  direct:
+  transitory:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -29,7 +29,19 @@ jobs:
       - run: ./install.sh --env --dump
         env:
           YES: 1
-      - run: sudo ln -s ~/.tea/tea.xyz/v'*'/bin/tea /usr/local/bin/tea
+  direct:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+        - macos-latest
+        - ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+      - run: ./install.sh
+        env:
+          YES: 1
       - run: tea --env --dump
       - run: tea test
       - run: which tea
@@ -51,10 +63,10 @@ jobs:
           - ~
         include:
           - os: ubuntu-latest
-            container: ghcr.io/teaxyz/infuser:latest
+            container: ghcr.io/teaxyz/infuser:slim
             srcroot: .
           - os: ubuntu-latest
-            container: ghcr.io/teaxyz/infuser:latest
+            container: ghcr.io/teaxyz/infuser:slim
             srcroot: ~
     container: ${{ matrix.container }}
     steps:
