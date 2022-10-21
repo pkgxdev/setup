@@ -134,7 +134,7 @@ function welcome {
 		* everything tea installs goes there, we won’t touch anything else
 
 		> docs https://github.com/teaxyz/cli/docs/tea-prefix.md
-	EOMD
+		EOMD
 	echo  #spacer
 
 	if ! gum confirm "how about it?" --affirmative="install tea" --negative="cancel"
@@ -159,6 +159,8 @@ function get_tea_version {
 }
 
 function fix_links {
+	local OLDWD="$PWD"
+
 	function link {
 		if test -d "v$1" -a ! -L "v$1"; then
 			echo "\`v$1' is unexpectedly a directory" >&2
@@ -177,8 +179,6 @@ function fix_links {
 }
 
 function install {
-	local OLDWD="$PWD"
-
 	if (("$ALREADY_INSTALLED")); then
 		local TITLE="updating to tea@$v"
 	else
@@ -240,7 +240,7 @@ function check_path {
 		# one second!
 		tea’s not in your path!
 		> *we may need to ask for your **root password*** (via \`sudo\` obv.)
-	EOMD
+		EOMD
 
 	if gum confirm "create /usr/local/bin/tea?" --affirmative="make symlink" --negative="skip"
 	then
@@ -252,10 +252,10 @@ function check_path {
 		then
 			echo  #spacer
 			gum format -- <<-EOMD
-			> hmmm, \`/usr/local/bin\` isn’t in your path,
-			> you’ll need to fix that yourself.
-			> sorry 😞
-			EOMD
+				> hmmm, \`/usr/local/bin\` isn’t in your path,
+				> you’ll need to fix that yourself.
+				> sorry 😞
+				EOMD
 		fi
 	fi
 }
@@ -276,8 +276,8 @@ function check_zshrc {
 		then
 			cat <<-EOSH >> ~/.zshrc
 
-			add-zsh-hook -Uz chpwd(){ source <(tea -Eds) }  #tea
-			EOSH
+				add-zsh-hook -Uz chpwd(){ source <(tea -Eds) }  #tea
+				EOSH
 		fi
 	else
 		gum format -- <<-EOMD

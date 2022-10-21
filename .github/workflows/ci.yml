@@ -26,7 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
-      - run: ./install.sh --env --dump
+      - run: echo foo > foo
+      - run: ./install.sh cat ./foo
         env:
           YES: 1
   direct:
