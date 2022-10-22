@@ -1,12 +1,10 @@
-#!/bin/bash
-#FIXME ^^ideally we'd be POSIX compliant
+#!/bin/sh
 
 set -e
 set -o noglob
-set -o pipefail
 
 ####################################################################### funcs
-function prepare() {
+prepare() {
 	if test -z "$TEA_SECRET"; then
 		echo "coming soon" >&2
 		exit
@@ -20,13 +18,12 @@ function prepare() {
 		set -x
 	fi
 
-	if [[ $# -eq 0 ]]; then
+	if test $# -eq 0; then
 		MODE="install"
 	else
 		MODE="exec"
 	fi
 
-	local HW_TARGET
 	HW_TARGET=$(uname)/$(uname -m)
 
 	case $HW_TARGET in
@@ -80,8 +77,8 @@ function prepare() {
 	fi
 }
 
-function gum_no_tty {
-	local cmd="$1"
+gum_no_tty() {
+	cmd="$1"
 	while test "$1" != --; do
 		shift
 	done
@@ -99,7 +96,7 @@ function gum_no_tty {
 	esac
 }
 
-function get_gum {
+get_gum() {
 	if test ! -t 1; then
 		GUM=gum_no_tty
 	elif which gum >/dev/null 2>&1; then
@@ -109,24 +106,24 @@ function get_gum {
 	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
 	else
-		local URL="https://$TEA_SECRET/charm.sh/gum/$MIDFIX/v0.8.0.tar.gz"
+		URL="https://$TEA_SECRET/charm.sh/gum/$MIDFIX/v0.8.0.tar.gz"
 		mkdir -p "$TEA_PREFIX"
 		# shellcheck disable=SC2291
-		echo -n    "one moment, just steeping some leaves…"
+		printf "one moment, just steeping some leaves…"
 		$CURL "$URL" | tar xz -C "$TEA_PREFIX"
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
-		echo -en "\r                                      "
+		printf "\r                                      "
 	fi
 }
 
-function gum {
+gum() {
 	if test "$1" == confirm -a -n "$YES"; then
 		return
 	fi
 	$GUM "$@"
 }
 
-function welcome {
+welcome() {
 	gum format -- <<-EOMD
 		# hi 👋 let’s set up tea
 
@@ -153,15 +150,15 @@ function welcome {
 	fi
 }
 
-function get_tea_version {
+get_tea_version() {
 	# shellcheck disable=SC2086
 	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
 }
 
-function fix_links {
-	local OLDWD="$PWD"
+fix_links() {
+	OLDWD="$PWD"
 
-	function link {
+	link() {
 		if test -d "v$1" -a ! -L "v$1"; then
 			echo "\`v$1' is unexpectedly a directory" >&2
 		else
@@ -178,31 +175,30 @@ function fix_links {
 
 }
 
-function install {
-	if (("$ALREADY_INSTALLED")); then
-		local TITLE="updating to tea@$v"
+install() {
+	if test -n "$ALREADY_INSTALLED"; then
+		TITLE="updating to tea@$v"
 	else
-		local TITLE="fetching tea@$v"
+		TITLE="fetching tea@$v"
 	fi
 
 	#NOTE using script instead of passing args to gum because
 	# periodically the data didn’t pipe to tar causing it to error
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
-	local sh="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
-	local URL="https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz"
-	echo "$CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$sh"
-	gum spin --title "$TITLE" -- sh "$sh"
+	SCRIPT="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
+	URL="https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz"
+	echo "$CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$SCRIPT"
+	gum spin --title "$TITLE" -- sh "$SCRIPT"
 
 	fix_links
 
 	gum format -- "k, we installed \`$TEA_PREFIX/tea.xyz/v$v/bin/tea\`"
 
-	local vx
-	vx="$(echo "$v" | cut -d. -f1)"
-	tea="$TEA_PREFIX/tea.xyz/v$vx/bin/tea"
+	VERSION="$(echo "$v" | cut -d. -f1)"
+	tea="$TEA_PREFIX/tea.xyz/v$VERSION/bin/tea"
 }
 
-function update_pantry {
+update_pantry() {
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
 	sh="$TEA_PREFIX/tea.xyz/tmp/update-pantry.sh"
 
@@ -233,7 +229,7 @@ function update_pantry {
 	fi
 }
 
-function check_path {
+check_path() {
 	echo  #spacer
 
 	gum format -- <<-EOMD
@@ -260,7 +256,7 @@ function check_path {
 	fi
 }
 
-function check_zshrc {
+check_zshrc() {
 	echo  #spacer
 
 	if test "$(basename "$SHELL")" = zsh; then
@@ -311,7 +307,7 @@ if test "$MODE" = install -a -d "$TEA_PREFIX/tea.xyz/var/pantry/.git"; then
 fi
 case $MODE in
 install)
-	if ! (("$ALREADY_INSTALLED")); then
+	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
 		check_zshrc
 		gum format -- <<-EOMD
@@ -319,7 +315,7 @@ install)
 			try it out:
 			> tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow --pager -
 			EOMD
-	elif (("$TEA_IS_CURRENT")); then
+	elif test -n "$TEA_IS_CURRENT"; then
 		gum format -- <<-EOMD
 			# the latest version of tea was already installed
 			> $tea
