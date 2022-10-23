@@ -87,7 +87,7 @@ function gum_no_tty {
 	done
 	shift  # remove the --
 	case "$cmd" in
-	format)
+	format|style)
 		echo "$@";;
 	confirm)
 		if test -n "$YES"; then
@@ -100,7 +100,7 @@ function gum_no_tty {
 }
 
 function get_gum {
-	if test ! -t 1; then
+	if test ! -t 1 -o "$GUM" = "0"; then
 		GUM=gum_no_tty
 	elif which gum >/dev/null 2>&1; then
 		GUM=gum
@@ -337,6 +337,7 @@ install)
 			--border=normal \
 			--border-foreground 212 \
 			--padding="0 1" --margin="1 2" \
+      -- \
 			"tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow -p -"
 	elif (("$TEA_IS_CURRENT")); then
 		gum format -- <<-EOMD
