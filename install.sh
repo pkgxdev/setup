@@ -87,7 +87,7 @@ function gum_no_tty {
 	done
 	shift  # remove the --
 	case "$cmd" in
-	format)
+	format|style)
 		echo "$@";;
 	confirm)
 		if test -n "$YES"; then
@@ -100,7 +100,7 @@ function gum_no_tty {
 }
 
 function get_gum {
-	if test ! -t 1; then
+	if test ! -t 1 -o "$GUM" = "0"; then
 		GUM=gum_no_tty
 	elif which gum >/dev/null 2>&1; then
 		GUM=gum
@@ -120,9 +120,18 @@ function get_gum {
 }
 
 function gum {
-	if test "$1" == confirm -a -n "$YES"; then
-		return
-	fi
+	case "$1" in
+	confirm)
+		if test -n "$YES"; then
+			return
+		fi;;
+	spin)
+		if test -n "$VERBOSE"; then
+			gum_no_tty "$@"
+      return
+		fi;;
+	esac
+
 	$GUM "$@"
 }
 
@@ -131,7 +140,8 @@ function welcome {
 		# hi 👋 let’s set up tea
 
 		* we’ll put it here: \`$TEA_PREFIX\`
-		* everything tea installs goes there, we won’t touch anything else
+		* everything tea installs goes there
+		* (we won’t touch anything else)
 
 		> docs https://github.com/teaxyz/cli/docs/tea-prefix.md
 		EOMD
@@ -200,6 +210,8 @@ function install {
 	local vx
 	vx="$(echo "$v" | cut -d. -f1)"
 	tea="$TEA_PREFIX/tea.xyz/v$vx/bin/tea"
+
+  echo  #spacer
 }
 
 function update_pantry {
@@ -234,8 +246,6 @@ function update_pantry {
 }
 
 function check_path {
-	echo  #spacer
-
 	gum format -- <<-EOMD
 		# one second!
 		tea’s not in your path!
@@ -258,11 +268,11 @@ function check_path {
 				EOMD
 		fi
 	fi
+
+	echo  #spacer
 }
 
 function check_zshrc {
-	echo  #spacer
-
 	if test "$(basename "$SHELL")" = zsh; then
 		gum format -- <<-EOMD
 			# want magic?
@@ -288,6 +298,8 @@ function check_zshrc {
 			> https://github.com/teaxyz/cli/pulls
 			EOMD
 	fi
+
+	echo  #spacer
 }
 
 ########################################################################## go
@@ -304,21 +316,29 @@ else
 	TEA_IS_CURRENT=1
 	tea="$TEA_PREFIX/tea.xyz/v$v/bin/tea"
 fi
-if test "$MODE" = install -a -d "$TEA_PREFIX/tea.xyz/var/pantry/.git"; then
-	if which git >/dev/null 2>&1; then
-		update_pantry
-	fi
-fi
+
 case $MODE in
 install)
+  if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry/.git"; then
+		#FIXME || true because tea/cli doesn’t like zero args currently will fix tho
+		gum spin --title "prefetching pantry" -- $tea -S
+	elif which git >/dev/null 2>&1; then
+		update_pantry
+	fi
+
 	if ! (("$ALREADY_INSTALLED")); then
-		check_path
+    check_path
 		check_zshrc
 		gum format -- <<-EOMD
 			# you’re all set!
 			try it out:
-			> tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow --pager -
 			EOMD
+		gum style \
+			--border=normal \
+			--border-foreground 212 \
+			--padding="0 1" --margin="1 2" \
+      -- \
+			"tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow -p -"
 	elif (("$TEA_IS_CURRENT")); then
 		gum format -- <<-EOMD
 			# the latest version of tea was already installed

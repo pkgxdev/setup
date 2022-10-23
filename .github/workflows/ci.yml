@@ -13,7 +13,6 @@ concurrency:
 
 env:
   TEA_SECRET: ${{ secrets.TEA_SECRET }}
-  VERBOSE: 1
 
 jobs:
   transitory:
@@ -23,12 +22,16 @@ jobs:
         os:
         - macos-latest
         - ubuntu-latest
+        VERBOSE:
+        - 1
+        - ~
     steps:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - run: echo foo > foo
       - run: ./install.sh cat ./foo
         env:
+          VERBOSE: ${{ matrix.VERBOSE }}
           YES: 1
   direct:
     runs-on: ${{ matrix.os }}
@@ -37,11 +40,15 @@ jobs:
         os:
         - macos-latest
         - ubuntu-latest
+        VERBOSE:
+        - 1
+        - ~
     steps:
       - uses: actions/checkout@v3
       - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - run: ./install.sh
         env:
+          VERBOSE: ${{ matrix.VERBOSE }}
           YES: 1
       - run: tea --env --dump
       - run: tea test
@@ -97,6 +104,7 @@ jobs:
       - uses: ./
       - run: tea --version
 
+  # tests that we don’t require a “srcroot”
   emptier:
     runs-on: ubuntu-latest
     steps:
