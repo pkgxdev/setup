@@ -31,12 +31,16 @@ function prepare() {
 
 	case $HW_TARGET in
 	Darwin/arm64)
+    ZZ=xz
 		MIDFIX=darwin/aarch64;;
 	Darwin/x86_64)
+    ZZ=xz
 		MIDFIX=darwin/x86-64;;
 	Linux/arm64|Linux/aarch64)
+    ZZ=gz
 		MIDFIX=linux/aarch64;;
 	Linux/x86_64)
+    ZZ=gz
 		MIDFIX=linux/x86-64;;
 	*)
 		echo "tea: error: (currently) unsupported OS or architecture ($HW_TARGET)" >&2
@@ -109,7 +113,7 @@ function get_gum {
 	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
 	else
-		local URL="https://$TEA_SECRET/charm.sh/gum/$MIDFIX/v0.8.0.tar.gz"
+		local URL="https://$TEA_SECRET/charm.sh/gum/$MIDFIX/v0.8.0.tar.$ZZ"
 		mkdir -p "$TEA_PREFIX"
 		# shellcheck disable=SC2291
 		echo -n    "one moment, just steeping some leaves…"
@@ -199,7 +203,7 @@ function install {
 	# periodically the data didn’t pipe to tar causing it to error
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
 	local sh="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
-	local URL="https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz"
+	local URL="https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
 	echo "$CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$sh"
 	gum spin --title "$TITLE" -- sh "$sh"
 
