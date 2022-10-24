@@ -38,7 +38,7 @@ async function go() {
   })()
 
   const v = await new Promise((resolve, reject) => {
-    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/versions.txt`, rsp => {
+    https.get(`https://dist.tea.xyz/tea.xyz/${midfix}/versions.txt`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
       rsp.setEncoding('utf8')
       const chunks = []
@@ -54,7 +54,7 @@ async function go() {
   fs.mkdirSync(PREFIX, { recursive: true })
 
   const exitcode = await new Promise((resolve, reject) => {
-    https.get(`https://${process.env.TEA_SECRET}/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
+    https.get(`https://dist.tea.xyz/tea.xyz/${midfix}/v${v}.tar.gz`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
       const tar = spawn('tar', ['xzf', '-'], { stdio: ['pipe', 'inherit', 'inherit'], cwd: PREFIX })
       rsp.pipe(tar.stdin)
