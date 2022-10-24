@@ -5,11 +5,6 @@ set -o noglob
 
 ####################################################################### funcs
 prepare() {
-	if test -z "$TEA_SECRET"; then
-		echo "coming soon" >&2
-		exit
-	fi
-
 	if ! which tar >/dev/null 2>&1; then
 		echo "tea: error: sorry. pls install tar :(" >&2
 	fi
@@ -28,12 +23,16 @@ prepare() {
 
 	case $HW_TARGET in
 	Darwin/arm64)
+    ZZ=xz
 		MIDFIX=darwin/aarch64;;
 	Darwin/x86_64)
+    ZZ=xz
 		MIDFIX=darwin/x86-64;;
 	Linux/arm64|Linux/aarch64)
+    ZZ=gz
 		MIDFIX=linux/aarch64;;
 	Linux/x86_64)
+    ZZ=gz
 		MIDFIX=linux/x86-64;;
 	*)
 		echo "tea: error: (currently) unsupported OS or architecture ($HW_TARGET)" >&2
@@ -84,7 +83,7 @@ gum_no_tty() {
 	done
 	shift  # remove the --
 	case "$cmd" in
-	format)
+	format|style)
 		echo "$@";;
 	confirm)
 		if test -n "$YES"; then
@@ -97,7 +96,7 @@ gum_no_tty() {
 }
 
 get_gum() {
-	if test ! -t 1; then
+	if test ! -t 1 -o "$GUM" = "0"; then
 		GUM=gum_no_tty
 	elif which gum >/dev/null 2>&1; then
 		GUM=gum
@@ -106,7 +105,7 @@ get_gum() {
 	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
 	else
-		URL="https://$TEA_SECRET/charm.sh/gum/$MIDFIX/v0.8.0.tar.gz"
+		URL="https://dist.tea.xyz/charm.sh/gum/$MIDFIX/v0.8.0.tar.$ZZ"
 		mkdir -p "$TEA_PREFIX"
 		# shellcheck disable=SC2291
 		printf "one moment, just steeping some leaves…"
@@ -117,9 +116,18 @@ get_gum() {
 }
 
 gum() {
-	if test "$1" == confirm -a -n "$YES"; then
-		return
-	fi
+	case "$1" in
+	confirm)
+		if test -n "$YES"; then
+			return
+		fi;;
+	spin)
+		if test -n "$VERBOSE"; then
+			gum_no_tty "$@"
+      return
+		fi;;
+	esac
+
 	$GUM "$@"
 }
 
@@ -128,9 +136,12 @@ welcome() {
 		# hi 👋 let’s set up tea
 
 		* we’ll put it here: \`$TEA_PREFIX\`
-		* everything tea installs goes there, we won’t touch anything else
+		* everything tea installs goes there
+		* (we won’t touch anything else)
 
 		> docs https://github.com/teaxyz/cli/docs/tea-prefix.md
+
+    🚨🚨 tea is prerelease! you should stop now! 🚨🚨
 		EOMD
 	echo  #spacer
 
@@ -152,7 +163,7 @@ welcome() {
 
 get_tea_version() {
 	# shellcheck disable=SC2086
-	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
+	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
 }
 
 fix_links() {
@@ -186,8 +197,8 @@ install() {
 	# periodically the data didn’t pipe to tar causing it to error
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
 	SCRIPT="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
-	URL="https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.gz"
-	echo "$CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$SCRIPT"
+	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
+	echo "set -e; $CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$SCRIPT"
 	gum spin --title "$TITLE" -- sh "$SCRIPT"
 
 	fix_links
@@ -196,6 +207,8 @@ install() {
 
 	VERSION="$(echo "$v" | cut -d. -f1)"
 	tea="$TEA_PREFIX/tea.xyz/v$VERSION/bin/tea"
+
+	echo  #spacer
 }
 
 update_pantry() {
@@ -254,11 +267,11 @@ check_path() {
 				EOMD
 		fi
 	fi
+
+	echo  #spacer
 }
 
 check_zshrc() {
-	echo  #spacer
-
 	if test "$(basename "$SHELL")" = zsh; then
 		gum format -- <<-EOMD
 			# want magic?
@@ -284,6 +297,8 @@ check_zshrc() {
 			> https://github.com/teaxyz/cli/pulls
 			EOMD
 	fi
+
+	echo  #spacer
 }
 
 ########################################################################## go
@@ -300,21 +315,29 @@ else
 	TEA_IS_CURRENT=1
 	tea="$TEA_PREFIX/tea.xyz/v$v/bin/tea"
 fi
-if test "$MODE" = install -a -d "$TEA_PREFIX/tea.xyz/var/pantry/.git"; then
-	if which git >/dev/null 2>&1; then
-		update_pantry
-	fi
-fi
+
 case $MODE in
 install)
+  if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry/.git"; then
+		#FIXME || true because tea/cli doesn’t like zero args currently will fix tho
+		gum spin --title "prefetching pantry" -- $tea -S
+	elif which git >/dev/null 2>&1; then
+		update_pantry
+	fi
+
 	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
 		check_zshrc
 		gum format -- <<-EOMD
 			# you’re all set!
 			try it out:
-			> tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow --pager -
 			EOMD
+		gum style \
+			--border=normal \
+			--border-foreground 212 \
+			--padding="0 1" --margin="1 2" \
+      -- \
+			"tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow -p -"
 	elif test -n "$TEA_IS_CURRENT"; then
 		gum format -- <<-EOMD
 			# the latest version of tea was already installed
