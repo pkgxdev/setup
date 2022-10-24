@@ -7,11 +7,6 @@ set -o pipefail
 
 ####################################################################### funcs
 function prepare() {
-	if test -z "$TEA_SECRET"; then
-		echo "coming soon" >&2
-		exit
-	fi
-
 	if ! which tar >/dev/null 2>&1; then
 		echo "tea: error: sorry. pls install tar :(" >&2
 	fi
@@ -113,7 +108,7 @@ function get_gum {
 	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
 	else
-		local URL="https://$TEA_SECRET/charm.sh/gum/$MIDFIX/v0.8.0.tar.$ZZ"
+		local URL="https://dist.tea.xyz/charm.sh/gum/$MIDFIX/v0.8.0.tar.$ZZ"
 		mkdir -p "$TEA_PREFIX"
 		# shellcheck disable=SC2291
 		echo -n    "one moment, just steeping some leaves…"
@@ -148,6 +143,8 @@ function welcome {
 		* (we won’t touch anything else)
 
 		> docs https://github.com/teaxyz/cli/docs/tea-prefix.md
+
+    🚨🚨 tea is prerelease! you should stop now! 🚨🚨
 		EOMD
 	echo  #spacer
 
@@ -169,7 +166,7 @@ function welcome {
 
 function get_tea_version {
 	# shellcheck disable=SC2086
-	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://$TEA_SECRET/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
+	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
 }
 
 function fix_links {
@@ -203,8 +200,8 @@ function install {
 	# periodically the data didn’t pipe to tar causing it to error
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
 	local sh="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
-	local URL="https://$TEA_SECRET/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
-	echo "$CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$sh"
+	local URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
+	echo "set -e; $CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$sh"
 	gum spin --title "$TITLE" -- sh "$sh"
 
 	fix_links
