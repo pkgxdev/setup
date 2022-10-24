@@ -211,40 +211,9 @@ install() {
 	echo  #spacer
 }
 
-update_pantry() {
-	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
-	sh="$TEA_PREFIX/tea.xyz/tmp/update-pantry.sh"
-
-	cat <<-EOSH >"$sh"
-		set -e
-
-		cd "$TEA_PREFIX"/tea.xyz/var/pantry
-
-		if test -n "$VERBOSE"; then
-			set -x
-		fi
-
-		test -z "\$(git status --porcelain)" || return 0
-		if ! git diff --quiet; then return 0; fi
-		test "\$(git branch --show-current)" = main || return 0
-
-		git remote update
-
-		BASE="\$(git merge-base @ '@{u}')"
-		LOCAL="\$(git rev-parse @)"
-		if test "\$BASE" = "\$LOCAL"; then
-			git pull
-		fi
-		EOSH
-
-	if ! gum spin --title "updating pantry" -- bash "$sh"; then
-		gum format -- "> failed to update pantry"
-	fi
-}
-
 check_path() {
 	echo  #spacer
-
+  
 	gum format -- <<-EOMD
 		# one second!
 		tea’s not in your path!
@@ -318,12 +287,12 @@ fi
 
 case $MODE in
 install)
-  if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry/.git"; then
-		#FIXME || true because tea/cli doesn’t like zero args currently will fix tho
-		gum spin --title "prefetching pantry" -- $tea -S
+  if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
+		title="prefetching"
 	elif which git >/dev/null 2>&1; then
-		update_pantry
+		title="syncing"
 	fi
+  gum spin --title "$title pantry" -- "$tea" --sync
 
 	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
