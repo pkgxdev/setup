@@ -39,7 +39,7 @@ sh <(curl tea.xyz) +charm.sh/gum gum spin -- sleep 5
 ## Via GitHub Actions
 
 ```yaml
-- use: teaxyz/setup@v0
+- uses: teaxyz/setup@v0
   with:
     target: build
 ```
