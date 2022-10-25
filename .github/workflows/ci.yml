@@ -24,7 +24,6 @@ jobs:
         - ~
     steps:
       - uses: actions/checkout@v3
-      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - run: echo foo > foo
       - run: ./install.sh cat ./foo
         env:
@@ -42,7 +41,6 @@ jobs:
         - ~
     steps:
       - uses: actions/checkout@v3
-      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
       - run: ./install.sh
         env:
           VERBOSE: ${{ matrix.VERBOSE }}
@@ -66,23 +64,25 @@ jobs:
           - /opt
         container:
           - ~
-      # ~disabled~ because failing in a way we cannot reproduce locally
-      # https://github.com/teaxyz/setup/actions/runs/3308067944/jobs/5472147609#step:5:14
-      # include:
-      #   - os: ubuntu-latest
-      #     container: ghcr.io/teaxyz/infuser:slim
-      #     srcroot: .
-      #   - os: ubuntu-latest
-      #     container: ghcr.io/teaxyz/infuser:slim
-      #     srcroot: ~
+        include:
+        - os: ubuntu-latest
+          container: debian:buster-slim
+          srcroot: .
+        - os: ubuntu-latest
+          container: debian:buster-slim
+          srcroot: ~
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
-      - run: .github/mk-pantry-accessible.sh ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
+
+      # required for somethings
+      - run: |
+          apt-get update
+          apt-get --yes install libc-dev libstdc++-8-dev libgcc-8-dev
+        if: ${{ matrix.container != '' }}
+
       - uses: ./
         id: tea
-        env:
-          GITHUB_TOKEN: ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
         with:
           prefix: ${{ matrix.prefix }}
           target: test
