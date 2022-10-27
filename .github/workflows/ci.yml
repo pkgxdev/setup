@@ -52,6 +52,8 @@ jobs:
       - run: which tea
       - run: find "$(tea --silent --prefix)"/tea.xyz
       - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0.?
+        continue-on-error: true
+        #FIXME ^^ because v0.10 is valid and the above test fails for that
       - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0
 
   gha:

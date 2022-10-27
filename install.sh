@@ -23,16 +23,16 @@ prepare() {
 
 	case $HW_TARGET in
 	Darwin/arm64)
-    ZZ=xz
+		ZZ=xz
 		MIDFIX=darwin/aarch64;;
 	Darwin/x86_64)
-    ZZ=xz
+		ZZ=xz
 		MIDFIX=darwin/x86-64;;
 	Linux/arm64|Linux/aarch64)
-    ZZ=gz
+		ZZ=gz
 		MIDFIX=linux/aarch64;;
 	Linux/x86_64)
-    ZZ=gz
+		ZZ=gz
 		MIDFIX=linux/x86-64;;
 	*)
 		echo "tea: error: (currently) unsupported OS or architecture ($HW_TARGET)" >&2
@@ -124,7 +124,7 @@ gum() {
 	spin)
 		if test -n "$VERBOSE"; then
 			gum_no_tty "$@"
-      return
+			return
 		fi;;
 	esac
 
@@ -141,7 +141,7 @@ welcome() {
 
 		> docs https://github.com/teaxyz/cli/docs/tea-prefix.md
 
-    🚨🚨 tea is prerelease! you should stop now! 🚨🚨
+		🚨🚨 tea is prerelease! you should stop now! 🚨🚨
 		EOMD
 	echo  #spacer
 
@@ -213,7 +213,7 @@ install() {
 
 check_path() {
 	echo  #spacer
-  
+
 	gum format -- <<-EOMD
 		# one second!
 		tea’s not in your path!
@@ -287,12 +287,12 @@ fi
 
 case $MODE in
 install)
-  if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
+	if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
 		title="prefetching"
 	elif which git >/dev/null 2>&1; then
 		title="syncing"
 	fi
-  gum spin --title "$title pantry" -- "$tea" --sync
+	gum spin --title "$title pantry" -- "$tea" --sync
 
 	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
@@ -305,7 +305,7 @@ install)
 			--border=normal \
 			--border-foreground 212 \
 			--margin="1" \
-      -- \
+			-- \
 			"tea +gnu.org/wget wget -qO- tea.xyz/white-paper | tea +charm.sh/glow glow -"
 	elif test -n "$TEA_IS_CURRENT"; then
 		gum format -- <<-EOMD
