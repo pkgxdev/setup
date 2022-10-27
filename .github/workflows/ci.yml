@@ -51,7 +51,7 @@ jobs:
       - run: tea test
       - run: which tea
       - run: find "$(tea --silent --prefix)"/tea.xyz
-      - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0.?
+      - run: find /opt/tea.xyz -name v0.? -o -name v0.?? -mindepth 1 -maxdepth 1 -print0 | xargs -0 test -L
       - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0
 
   gha:

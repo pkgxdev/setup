@@ -41,12 +41,12 @@ prepare() {
 	esac
 
 	if test $ZZ = 'gz'; then
-		if which base64; then
+		if which base64 >/dev/null 2>&1; then
 			BASE64_TARXZ="/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4AX/AFNdADMb7AG6cMNAaNMVK8FvZMaza8QKKTQY6wZ3kG/F814lHE9ruhkFO5DAG7XNamN7JMHavgmbbLacr72NaAzgGUXOstqUaGb6kbp7jrkF+3aQT12CAAB8Uikc1gG8RwABb4AMAAAAeGbHwbHEZ/sCAAAAAARZWg=="
 			if echo "$BASE64_TARXZ" | base64 -d | tar Jtf - >/dev/null 2>&1; then
 				ZZ=xz
 			fi
-		elif which uudecode; then
+		elif which uudecode >/dev/null 2>&1; then
 			TMPFILE=$(mktemp)
 			cat >"$TMPFILE" <<-EOF
 				begin 644 foo.tar.xz
@@ -62,6 +62,15 @@ prepare() {
 			fi
 		fi
 	fi
+
+	case "$ZZ" in
+	gz)
+		TAR_FLAGS=xz # confusingly
+		;;
+	xz)
+		TAR_FLAGS=xJ
+		;;
+	esac
 
 	if test -n "$TEA_PREFIX" -a -f "$TEA_PREFIX/tea.xyz/v*/bin/tea"; then
 		# if PREFIX is set but nothing is in it then we’ll do a full install
@@ -132,7 +141,7 @@ get_gum() {
 		mkdir -p "$TEA_PREFIX"
 		# shellcheck disable=SC2291
 		printf "one moment, just steeping some leaves…"
-		$CURL "$URL" | tar xz -C "$TEA_PREFIX"
+		$CURL "$URL" | tar "$TAR_FLAGS" -C "$TEA_PREFIX"
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
 		printf "\r                                      "
 	fi
@@ -221,7 +230,7 @@ install() {
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
 	SCRIPT="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
 	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
-	echo "set -e; $CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$SCRIPT"
+	echo "set -e; $CURL '$URL' | tar '$TAR_FLAGS' -C '$TEA_PREFIX'" > "$SCRIPT"
 	gum spin --title "$TITLE" -- sh "$SCRIPT"
 
 	fix_links
