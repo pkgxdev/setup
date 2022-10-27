@@ -304,9 +304,9 @@ install)
 		gum style \
 			--border=normal \
 			--border-foreground 212 \
-			--padding="0 1" --margin="1 2" \
+			--margin="1" \
       -- \
-			"tea +curl.se curl -L tea.xyz/white-paper/ | tea +charm.sh/glow glow -p -"
+			"tea +gnu.org/wget wget -qO- tea.xyz/white-paper | tea +charm.sh/glow glow -"
 	elif test -n "$TEA_IS_CURRENT"; then
 		gum format -- <<-EOMD
 			# the latest version of tea was already installed
