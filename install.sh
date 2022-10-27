@@ -21,7 +21,6 @@ prepare() {
 
 	HW_TARGET=$(uname)/$(uname -m)
 
-	local ZZ
 	ZZ=gz
 
 	case $HW_TARGET in
@@ -44,7 +43,7 @@ prepare() {
 	if test $ZZ = 'gz'; then
 		if which base64; then
 			BASE64_TARXZ="/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4AX/AFNdADMb7AG6cMNAaNMVK8FvZMaza8QKKTQY6wZ3kG/F814lHE9ruhkFO5DAG7XNamN7JMHavgmbbLacr72NaAzgGUXOstqUaGb6kbp7jrkF+3aQT12CAAB8Uikc1gG8RwABb4AMAAAAeGbHwbHEZ/sCAAAAAARZWg=="
-			if echo "$BASE64_TARXZ" | base64 -d | tar Jtf - 2>&1 >/dev/null; then
+			if echo "$BASE64_TARXZ" | base64 -d | tar Jtf - >/dev/null 2>&1; then
 				ZZ=xz
 			fi
 		elif which uudecode; then
@@ -58,7 +57,7 @@ prepare() {
 				\`
 				end
 				EOF
-			if uudecode -p "$TMPFILE" | tar Jtf - 2>&1 >/dev/null; then
+			if uudecode -p "$TMPFILE" | tar Jtf - >/dev/null 2>&1; then
 				ZZ=xz
 			fi
 		fi
