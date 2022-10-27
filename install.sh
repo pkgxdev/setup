@@ -285,15 +285,15 @@ else
 	tea="$TEA_PREFIX/tea.xyz/v$v/bin/tea"
 fi
 
+if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
+  title="prefetching"
+elif which git >/dev/null 2>&1; then
+  title="syncing"
+fi
+gum spin --title "$title pantry" -- "$tea" --sync
+
 case $MODE in
 install)
-	if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
-		title="prefetching"
-	elif which git >/dev/null 2>&1; then
-		title="syncing"
-	fi
-	gum spin --title "$title pantry" -- "$tea" --sync
-
 	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
 		check_zshrc
