@@ -85,15 +85,10 @@ async function go() {
     ...process.env
   }
 
-  const target = process.env['INPUT_TARGET']
-  if (target) {
-    execSync(`${teafile} ${target}`, {stdio: "inherit", env})
-  }
-
   try {
     const GITHUB_ENV = process.env['GITHUB_ENV']
 
-    out = execSync(`${teafile} -Eds`, {env}).toString()
+    out = execSync(`${teafile} -SEds`, {env}).toString()
     const match = out.match(/export VERSION=['"]?(\d+\.\d+\.\d+)/)
     if (match && match[1]) {
       const version = match[1]
@@ -110,8 +105,12 @@ async function go() {
     //TODO a flag so it returns 0 so we can not just swallow all errors lol
   }
 
-  process.stdout.write(`::set-output name=prefix::${PREFIX}`)
+  const target = process.env['INPUT_TARGET']
+  if (target) {
+    execSync(`${teafile} ${target}`, {stdio: "inherit", env})
+  }
 
+  process.stdout.write(`::set-output name=prefix::${PREFIX}\n`)
   process.stderr.write(`installed ${PREFIX}/tea.xyz/v${v}\n`)
 }
 
