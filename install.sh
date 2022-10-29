@@ -322,7 +322,7 @@ if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
 elif which git >/dev/null 2>&1; then
   title="syncing"
 fi
-gum spin --title "$title pantry" -- "$tea" --sync
+gum spin --title "$title pantry" -- "$tea" --sync --dump
 
 case $MODE in
 install)
