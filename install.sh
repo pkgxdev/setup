@@ -21,6 +21,8 @@ prepare() {
 
 	HW_TARGET=$(uname)/$(uname -m)
 
+	ZZ=gz
+
 	case $HW_TARGET in
 	Darwin/arm64)
 		ZZ=xz
@@ -29,15 +31,45 @@ prepare() {
 		ZZ=xz
 		MIDFIX=darwin/x86-64;;
 	Linux/arm64|Linux/aarch64)
-		ZZ=gz
 		MIDFIX=linux/aarch64;;
 	Linux/x86_64)
-		ZZ=gz
 		MIDFIX=linux/x86-64;;
 	*)
 		echo "tea: error: (currently) unsupported OS or architecture ($HW_TARGET)" >&2
 		echo "let’t talk about it: https://github.com/teaxyz/cli/discussions" >&2
 		exit 1;;
+	esac
+
+	if test $ZZ = 'gz'; then
+		if which base64 >/dev/null 2>&1; then
+			BASE64_TARXZ="/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4AX/AFNdADMb7AG6cMNAaNMVK8FvZMaza8QKKTQY6wZ3kG/F814lHE9ruhkFO5DAG7XNamN7JMHavgmbbLacr72NaAzgGUXOstqUaGb6kbp7jrkF+3aQT12CAAB8Uikc1gG8RwABb4AMAAAAeGbHwbHEZ/sCAAAAAARZWg=="
+			if echo "$BASE64_TARXZ" | base64 -d | tar Jtf - >/dev/null 2>&1; then
+				ZZ=xz
+			fi
+		elif which uudecode >/dev/null 2>&1; then
+			TMPFILE=$(mktemp)
+			cat >"$TMPFILE" <<-EOF
+				begin 644 foo.tar.xz
+				M_3=Z6%H\`\`\`3FUK1&\`@\`A\`18\`\`\`!T+^6CX\`7_\`%-=\`#,;[\`&Z<,-\`:-,5*\%O
+				M9,:S:\0**308ZP9WD&_%\UXE'$]KNAD%.Y#\`&[7-:F-[),':O@F;;+:<K[V-
+				M:\`S@&47.LMJ4:&;ZD;I[CKD%^W:03UV"\`\`!\4BD<U@&\1P\`!;X\`,\`\`\`\`>&;'
+				-P;'\$9_L"\`\`\`\`\`\`196@\`\`
+				\`
+				end
+				EOF
+			if uudecode -p "$TMPFILE" | tar Jtf - >/dev/null 2>&1; then
+				ZZ=xz
+			fi
+		fi
+	fi
+
+	case "$ZZ" in
+	gz)
+		TAR_FLAGS=xz # confusingly
+		;;
+	xz)
+		TAR_FLAGS=xJ
+		;;
 	esac
 
 	if test -n "$TEA_PREFIX" -a -f "$TEA_PREFIX/tea.xyz/v*/bin/tea"; then
@@ -109,7 +141,7 @@ get_gum() {
 		mkdir -p "$TEA_PREFIX"
 		# shellcheck disable=SC2291
 		printf "one moment, just steeping some leaves…"
-		$CURL "$URL" | tar xz -C "$TEA_PREFIX"
+		$CURL "$URL" | tar "$TAR_FLAGS" -C "$TEA_PREFIX"
 		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
 		printf "\r                                      "
 	fi
@@ -198,7 +230,7 @@ install() {
 	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
 	SCRIPT="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
 	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
-	echo "set -e; $CURL '$URL' | tar xz -C '$TEA_PREFIX'" > "$SCRIPT"
+	echo "set -e; $CURL '$URL' | tar '$TAR_FLAGS' -C '$TEA_PREFIX'" > "$SCRIPT"
 	gum spin --title "$TITLE" -- sh "$SCRIPT"
 
 	fix_links
