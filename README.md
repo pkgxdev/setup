@@ -44,8 +44,23 @@ sh <(curl tea.xyz) +charm.sh/gum gum spin -- sleep 5
     target: build
 ```
 
-Is the equivalent of `tea build`, ie. runs the executable markdown from your project’s README for the `# build` section. Of course we
-install your dependencies first.
+Is the equivalent of `tea build`, ie. runs the executable markdown from your
+project’s README for the `# build` section. Of course we install your
+dependencies first.
+
+There is no need to specify a target, `- uses: teaxyz/setup@v0` by itself
+installs your deps and exports some variables like `VERSION`. See [action.yml]
+for all inputs and outputs.
+
+[action.yml]: ../../action.yml
+
+### Interesting Usages
+
+At tea, we consider the version in the `README` the definitive version.
+Thus we use GitHub Actions to automatically tag and publish that version when
+the README is edited and the version changes.
+
+See our CI scripts for details.
 
 
 # Test
