@@ -36,9 +36,19 @@ prepare() {
 		MIDFIX=linux/x86-64;;
 	*)
 		echo "tea: error: (currently) unsupported OS or architecture ($HW_TARGET)" >&2
-		echo "let’t talk about it: https://github.com/teaxyz/cli/discussions" >&2
+		echo "let’s talk about it: https://github.com/teaxyz/cli/discussions" >&2
 		exit 1;;
 	esac
+
+	# We support minimum OS version of 11 on Darwin
+	if test "$(uname)" = "Darwin"; then
+		MAJOR=$(sw_vers -productVersion | cut -d . -f 1)
+		if test "$MAJOR" -lt 11; then
+			echo "tea: error: we currently don't support macOS versions less than 11" >&2
+			echo "let’s talk about it: https://github.com/teaxyz/cli/discussions" >&2
+			exit 1
+		fi
+	fi
 
 	if test $ZZ = 'gz'; then
 		if which base64 >/dev/null 2>&1; then
