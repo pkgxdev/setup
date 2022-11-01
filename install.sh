@@ -181,7 +181,7 @@ welcome() {
 		* everything tea installs goes there
 		* (we won’t touch anything else)
 
-		> docs https://github.com/teaxyz/cli/docs/tea-prefix.md
+		> docs https://github.com/teaxyz/cli#getting-started
 
 		🚨🚨 tea is prerelease! you should stop now! 🚨🚨
 		EOMD
@@ -289,7 +289,7 @@ check_zshrc() {
 			tea’s shell magic works via a one-line addition to your \`~/.zshrc\` \\
 			it’s not required, **but we do recommend it**.
 
-			> docs https://github.com/teaxyz/cli/docs/shell-magic.md
+			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
 			EOMD
 
 		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
