@@ -182,8 +182,6 @@ welcome() {
 		* (we won’t touch anything else)
 
 		> docs https://github.com/teaxyz/cli#getting-started
-
-		🚨🚨 tea is prerelease! you should stop now! 🚨🚨
 		EOMD
 	echo  #spacer
 
