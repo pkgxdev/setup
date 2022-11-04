@@ -243,7 +243,9 @@ install() {
 
 	fix_links
 
-	gum format -- "k, we installed \`$TEA_PREFIX/tea.xyz/v$v/bin/tea\`"
+	if ! test "$MODE" = exec; then
+		gum format -- "k, we installed \`$TEA_PREFIX/tea.xyz/v$v/bin/tea\`"
+	fi
 
 	VERSION="$(echo "$v" | cut -d. -f1)"
 	tea="$TEA_PREFIX/tea.xyz/v$VERSION/bin/tea"
