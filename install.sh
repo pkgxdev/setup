@@ -211,7 +211,7 @@ fix_links() {
 
 	link() {
 		if test -d "v$1" -a ! -L "v$1"; then
-			echo "\`v$1' is unexpectedly a directory" >&2
+			echo "'v$1' is unexpectedly a directory" >&2
 		else
 			rm -f "v$1"
 			ln -s "v$v" "v$1"
