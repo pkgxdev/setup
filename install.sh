@@ -204,10 +204,10 @@ welcome() {
 get_tea_version() {
 	# shellcheck disable=SC2086
 	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
-  if test -z "$v"; then
-    echo "failed to get latest tea version" >&2
-    exit 1
-  fi
+	if test -z "$v"; then
+		echo "failed to get latest tea version" >&2
+		exit 1
+	fi
 }
 
 fix_links() {
@@ -307,7 +307,7 @@ check_zshrc() {
 		gum format -- <<-EOMD
 			# we need your help 🙏
 
-			our shell magic doesn’t support \`$SHELL\` yet, can you make a pull request?
+			our shell magic doesn’t support $SHELL yet, can you make a pull request?
 
 			> https://github.com/teaxyz/cli/pulls
 			EOMD
@@ -332,9 +332,9 @@ else
 fi
 
 if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
-  title="prefetching"
+	title="prefetching"
 elif which git >/dev/null 2>&1; then
-  title="syncing"
+	title="syncing"
 fi
 gum spin --title "$title pantry" -- "$tea" --sync --dump
 
