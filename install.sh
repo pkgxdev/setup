@@ -204,6 +204,10 @@ welcome() {
 get_tea_version() {
 	# shellcheck disable=SC2086
 	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
+  if test -z "$v"; then
+    echo "failed to get latest tea version" >&2
+    exit 1
+  fi
 }
 
 fix_links() {
