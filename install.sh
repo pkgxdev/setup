@@ -287,7 +287,8 @@ check_path() {
 }
 
 check_zshrc() {
-	if test "$(basename "$SHELL")" = zsh; then
+  sh="$(basename "$SHELL")"
+	if test "$sh" = zsh; then
 		gum format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a one-line addition to your \`~/.zshrc\` \\
@@ -307,7 +308,7 @@ check_zshrc() {
 		gum format -- <<-EOMD
 			# we need your help 🙏
 
-			our shell magic doesn’t support \`$(basename $SHELL)\` yet, can you make a pull request?
+			our shell magic doesn’t support \`$sh\` yet, can you make a pull request?
 
 			> https://github.com/teaxyz/cli/pulls
 			EOMD
