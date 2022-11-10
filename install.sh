@@ -307,7 +307,7 @@ check_zshrc() {
 		gum format -- <<-EOMD
 			# we need your help 🙏
 
-			our shell magic doesn’t support $SHELL yet, can you make a pull request?
+			our shell magic doesn’t support \`$(basename $SHELL)\` yet, can you make a pull request?
 
 			> https://github.com/teaxyz/cli/pulls
 			EOMD
