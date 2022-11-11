@@ -286,7 +286,7 @@ check_path() {
 	echo  #spacer
 }
 
-check_zshrc() {
+check_shell_magic() {
   sh="$(basename "$SHELL")"
 	if test "$sh" = zsh; then
 		gum format -- <<-EOMD
@@ -303,6 +303,19 @@ check_zshrc() {
 
 				add-zsh-hook -Uz chpwd(){ source <(tea -Eds) }  #tea
 				EOSH
+		fi
+	elif test "$sh" = "fish"; then
+		gum format -- <<-EOMD
+			# want magic?
+			tea’s shell magic works via a simple hook function in fish \\
+			it’s not required, **but we do recommend it**.
+
+			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
+			EOMD
+
+		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
+		then
+			"$SHELL" -c "function add_tea_environment --on-variable PWD; source <(teal -Eds|psub); end; funcsave add_tea_environment >/dev/null"
 		fi
 	else
 		gum format -- <<-EOMD
@@ -343,7 +356,7 @@ case $MODE in
 install)
 	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
-		check_zshrc
+		check_shell_magic
 		gum format -- <<-EOMD
 			# you’re all set!
 			try it out:
