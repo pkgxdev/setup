@@ -44,7 +44,7 @@ async function go() {
       const chunks = []
       rsp.on("data", x => chunks.push(x))
       rsp.on("end", () => {
-        resolve(chunks.join("").split("\n").at(-1))
+        resolve(chunks.join("").trim().split("\n").at(-1))
       })
     }).on('error', reject)
   })
