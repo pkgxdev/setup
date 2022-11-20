@@ -315,7 +315,10 @@ check_shell_magic() {
 
 		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
 		then
-			"$SHELL" -c "function add_tea_environment --on-variable PWD; source <(teal -Eds|psub); end; funcsave add_tea_environment >/dev/null"
+			cat <<-EOSH >> "${XDG_CONFIG_HOME:-~/.config}/fish/config.fish"
+
+				function add_tea_environment --on-variable PWD; tea -Eds | source; end  #tea
+				EOSH
 		fi
 	else
 		gum format -- <<-EOMD
