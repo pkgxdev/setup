@@ -118,3 +118,13 @@ jobs:
       - uses: ludeeus/action-shellcheck@1.1.0
         with:
           severity: warning
+
+  root:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run as root
+        run: |
+          sudo su - root
+          dpkg -P sudo
+          $GITHUB_WORKSPACE/install.sh
