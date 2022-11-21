@@ -270,16 +270,19 @@ check_path() {
 	then
 		echo  #spacer
 
-		if [ "$USER" = "root" ] || which sudo >/dev/null;
+		if [ -w /usr/local/bin ];
+		then
+			mkdir -p /usr/local/bin
+			ln -sf "$tea" /usr/local/bin/tea
+		elif which sudo >/dev/null;
 		then
 			sudo mkdir -p /usr/local/bin
 			sudo ln -sf "$tea" /usr/local/bin/tea
 		else
 			echo  #spacer
 			gum format -- <<-EOMD
-				> hmmm, sudo command not found,
-				> you’ll need to run as root user or 
-				> try installing sudo.
+				> hmmm, sudo command not found.
+				> try installing sudo
 				EOMD
 		fi
 			
