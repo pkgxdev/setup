@@ -270,7 +270,7 @@ check_path() {
 	then
 		echo  #spacer
 
-		if [ -w /usr/local/bin ];
+		if [ -w /usr/local/bin ] || [ -w /usr/local ] || [ -w /usr ] || [ -w / ];
 		then
 			mkdir -p /usr/local/bin
 			ln -sf "$tea" /usr/local/bin/tea
