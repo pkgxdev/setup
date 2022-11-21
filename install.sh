@@ -272,11 +272,13 @@ check_path() {
 
 		if [ -w /usr/local/bin ] || [ -w /usr/local ] || [ -w /usr ] || [ -w / ];
 		then
-			mkdir -p /usr/local/bin
+			mkdir -p /usr/local/bin	
 			ln -sf "$tea" /usr/local/bin/tea
 		elif which sudo >/dev/null;
 		then
 			sudo mkdir -p /usr/local/bin
+			chmod 555 /usr/local/bin
+			chmod 777 /usr
 			sudo ln -sf "$tea" /usr/local/bin/tea
 		else
 			echo  #spacer
