@@ -124,7 +124,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run as root
-        run: |
-          sudo su - root
-          dpkg -P sudo
-          $GITHUB_WORKSPACE/install.sh
+        run: sudo su - root -c "dpkg -P sudo && $GITHUB_WORKSPACE/install.sh"
