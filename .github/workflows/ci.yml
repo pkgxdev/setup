@@ -118,3 +118,11 @@ jobs:
       - uses: ludeeus/action-shellcheck@1.1.0
         with:
           severity: warning
+
+  check-external-gum:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@master
+      - run: brew install gum
+      - uses: actions/checkout@v3
+      - uses: ./
