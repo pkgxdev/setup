@@ -269,9 +269,20 @@ check_path() {
 	if gum confirm "create /usr/local/bin/tea?" --affirmative="make symlink" --negative="skip"
 	then
 		echo  #spacer
-		sudo mkdir -p /usr/local/bin
-		sudo ln -sf "$tea" /usr/local/bin/tea
 
+		if [ "$USER" = "root" ] || which sudo >/dev/null;
+		then
+			sudo mkdir -p /usr/local/bin
+			sudo ln -sf "$tea" /usr/local/bin/tea
+		else
+			echo  #spacer
+			gum format -- <<-EOMD
+				> hmmm, sudo command not found,
+				> you’ll need to run as root user or 
+				> try installing sudo.
+				EOMD
+		fi
+			
 		if ! which tea >/dev/null 2>&1
 		then
 			echo  #spacer
