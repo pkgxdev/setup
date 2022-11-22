@@ -132,4 +132,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run as root
-        run: sudo su - root -c "$GITHUB_WORKSPACE/install.sh"
+        run: sudo su -c './install.sh'
