@@ -119,6 +119,14 @@ jobs:
         with:
           severity: warning
 
+  check-external-gum:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@master
+      - run: brew install gum
+      - uses: actions/checkout@v3
+      - uses: ./
+
   root:
     runs-on: ubuntu-latest
     steps:
