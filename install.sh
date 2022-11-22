@@ -287,7 +287,7 @@ check_path() {
 }
 
 check_shell_magic() {
-  sh="$(basename "$SHELL")"
+	sh="$(basename "$SHELL")"
 	if test "$sh" = zsh; then
 		gum format -- <<-EOMD
 			# want magic?
@@ -363,13 +363,9 @@ install)
 		gum format -- <<-EOMD
 			# you’re all set!
 			try it out:
-			EOMD
-		gum style \
-			--border=normal \
-			--border-foreground 212 \
-			--margin="1" \
-			-- \
-			"tea +gnu.org/wget wget -qO- tea.xyz/white-paper | tea +charm.sh/glow glow -"
+
+			\`tea +gnu.org/wget wget -qO- tea.xyz/white-paper | tea +charm.sh/glow glow -\`
+		EOMD
 	elif test -n "$TEA_IS_CURRENT"; then
 		gum format -- <<-EOMD
 			# the latest version of tea was already installed
