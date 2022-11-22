@@ -202,6 +202,10 @@ welcome() {
 }
 
 get_tea_version() {
+	if test -n "$VERSION"; then
+		v=$VERSION
+		return
+	fi
 	# shellcheck disable=SC2086
 	v="$(gum_func spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
 	if test -z "$v"; then
