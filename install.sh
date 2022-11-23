@@ -320,6 +320,22 @@ check_shell_magic() {
 				function add_tea_environment --on-variable PWD; tea -Eds | source; end  #tea
 				EOSH
 		fi
+	elif test "$sh" = "bash"; then
+		gum format -- <<-EOMD
+			# want magic?
+			tea’s shell magic works via a simple function in bash \\
+			it’s not required, **but we do recommend it**.
+
+			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
+			EOMD
+
+		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
+		then
+			cat <<-EOSH >> ~/.bashrc
+
+				cd() { builtin cd "\$@" || return; [ "\$OLDPWD" = "\$PWD" ] || source <(tea -Eds); }
+				EOSH
+		fi
 	else
 		gum format -- <<-EOMD
 			# we need your help 🙏
