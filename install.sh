@@ -12,7 +12,7 @@ prepare() {
 		echo "tea: error: sorry. pls install tar :(" >&2
 	fi
 
-	if test -n "$VERBOSE"; then
+	if test -n "$VERBOSE" -o -n "$GITHUB_ACTIONS" -a -n "$RUNNER_DEBUG"; then
 		set -x
 	fi
 
@@ -95,8 +95,14 @@ prepare() {
 	if test -z "$TEA_PREFIX"; then
 		# use existing installation if found
 		if which tea >/dev/null 2>&1; then
+			set +e
 			TEA_PREFIX="$(tea --prefix --silent)"
-			ALREADY_INSTALLED=1
+			set -e
+			if test $? -eq 0 -a -n "$TEA_PREFIX"; then
+				ALREADY_INSTALLED=1
+			else
+				unset TEA_PREFIX
+			fi
 		fi
 
 		# we check again: in case the above failed for some reason
@@ -235,7 +241,6 @@ fix_links() {
 	link "$(echo "$v" | cut -d. -f1)"
 	link "$(echo "$v" | cut -d. -f1-2)"
 	cd "$OLDWD"
-
 }
 
 install() {
@@ -279,8 +284,8 @@ check_path() {
 		echo  #spacer
 
 		if test -w /usr/local/bin -o -w /usr/local -a ! -d /usr/local/bin
-    then
-      mkdir -p /usr/local/bin
+		then
+			mkdir -p /usr/local/bin
 			ln -sf "$tea" /usr/local/bin/tea
 		elif which sudo >/dev/null 2>&1
 		then
