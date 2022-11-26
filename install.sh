@@ -120,10 +120,10 @@ prepare() {
 
 gum_no_tty() {
 	cmd="$1"
-	while test "$1" != --; do
+	while test "$1" != -- -a -n "$1"; do
 		shift
 	done
-	shift  # remove the --
+	if test -n "$1"; then shift; fi  # remove the --
 	case "$cmd" in
 	format|style)
 		echo "$@";;
@@ -157,7 +157,7 @@ get_gum() {
 	fi
 }
 
-gum() {
+gum_func() {
 	case "$1" in
 	confirm)
 		if test -n "$YES"; then
@@ -174,7 +174,7 @@ gum() {
 }
 
 welcome() {
-	gum format -- <<-EOMD
+	gum_func format -- <<-EOMD
 		# hi 👋 let’s set up tea
 
 		* we’ll put it here: \`$TEA_PREFIX\`
@@ -185,10 +185,10 @@ welcome() {
 		EOMD
 	echo  #spacer
 
-	if ! gum confirm "how about it?" --affirmative="install tea" --negative="cancel"
+	if ! gum_func confirm "how about it?" --affirmative="install tea" --negative="cancel"
 	then
 			#0123456789012345678901234567890123456789012345678901234567890123456789012
-		gum format -- <<-EOMD
+		gum_func format -- <<-EOMD
 			# kk, aborting
 
 			btw \`tea\`’s just a standalone executable; you can run it anywhere; you \\
@@ -203,7 +203,7 @@ welcome() {
 
 get_tea_version() {
 	# shellcheck disable=SC2086
-	v="$(gum spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
+	v="$(gum_func spin --show-output --title 'determing tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
 	if test -z "$v"; then
 		echo "failed to get latest tea version" >&2
 		exit 1
@@ -243,12 +243,12 @@ install() {
 	SCRIPT="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
 	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
 	echo "set -e; $CURL '$URL' | tar '$TAR_FLAGS' -C '$TEA_PREFIX'" > "$SCRIPT"
-	gum spin --title "$TITLE" -- sh "$SCRIPT"
+	gum_func spin --title "$TITLE" -- sh "$SCRIPT"
 
 	fix_links
 
 	if ! test "$MODE" = exec; then
-		gum format -- "k, we installed \`$TEA_PREFIX/tea.xyz/v$v/bin/tea\`"
+		gum_func format -- "k, we installed \`$TEA_PREFIX/tea.xyz/v$v/bin/tea\`"
 	fi
 
 	VERSION="$(echo "$v" | cut -d. -f1)"
@@ -260,13 +260,13 @@ install() {
 check_path() {
 	echo  #spacer
 
-	gum format -- <<-EOMD
+	gum_func format -- <<-EOMD
 		# one second!
 		tea’s not in your path!
 		> *we may need to ask for your **root password*** (via \`sudo\` obv.)
 		EOMD
 
-	if gum confirm "create /usr/local/bin/tea?" --affirmative="make symlink" --negative="skip"
+	if gum_func confirm "create /usr/local/bin/tea?" --affirmative="make symlink" --negative="skip"
 	then
 		echo  #spacer
 
@@ -288,7 +288,7 @@ check_path() {
 		if ! which tea >/dev/null 2>&1
 		then
 			echo  #spacer
-			gum format -- <<-EOMD
+			gum_func format -- <<-EOMD
 				> hmmm, \`/usr/local/bin\` isn’t in your path,
 				> you’ll need to fix that yourself.
 				> sorry 😞
@@ -302,7 +302,7 @@ check_path() {
 check_shell_magic() {
 	sh="$(basename "$SHELL")"
 	if test "$sh" = zsh; then
-		gum format -- <<-EOMD
+		gum_func format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a one-line addition to your \`~/.zshrc\` \\
 			it’s not required, **but we do recommend it**.
@@ -310,7 +310,7 @@ check_shell_magic() {
 			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
 			EOMD
 
-		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
+		if gum_func confirm 'magic?' --affirmative="add one-liner" --negative="skip"
 		then
 			cat <<-EOSH >> ~/.zshrc
 
@@ -318,7 +318,7 @@ check_shell_magic() {
 				EOSH
 		fi
 	elif test "$sh" = "fish"; then
-		gum format -- <<-EOMD
+		gum_func format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a simple hook function in fish \\
 			it’s not required, **but we do recommend it**.
@@ -326,15 +326,31 @@ check_shell_magic() {
 			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
 			EOMD
 
-		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
+		if gum_func confirm 'magic?' --affirmative="add one-liner" --negative="skip"
 		then
 			cat <<-EOSH >> "${XDG_CONFIG_HOME:-~/.config}/fish/config.fish"
 
 				function add_tea_environment --on-variable PWD; tea -Eds | source; end  #tea
 				EOSH
 		fi
-	else
+	elif test "$sh" = "bash"; then
 		gum format -- <<-EOMD
+			# want magic?
+			tea’s shell magic works via a simple function in bash \\
+			it’s not required, **but we do recommend it**.
+
+			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
+			EOMD
+
+		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
+		then
+			cat <<-EOSH >> ~/.bashrc
+
+				cd() { builtin cd "\$@" || return; [ "\$OLDPWD" = "\$PWD" ] || source <(tea -Eds); }
+				EOSH
+		fi
+	else
+		gum_func format -- <<-EOMD
 			# we need your help 🙏
 
 			our shell magic doesn’t support \`$sh\` yet, can you make a pull request?
@@ -366,21 +382,21 @@ if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
 elif which git >/dev/null 2>&1; then
 	title="syncing"
 fi
-gum spin --title "$title pantry" -- "$tea" --sync --dump
+gum_func spin --title "$title pantry" -- "$tea" --sync --dump
 
 case $MODE in
 install)
 	if ! test -n "$ALREADY_INSTALLED"; then
 		check_path
 		check_shell_magic
-		gum format -- <<-EOMD
+		gum_func format -- <<-EOMD
 			# you’re all set!
 			try it out:
 
 			\`tea +gnu.org/wget wget -qO- tea.xyz/white-paper | tea +charm.sh/glow glow -\`
 		EOMD
 	elif test -n "$TEA_IS_CURRENT"; then
-		gum format -- <<-EOMD
+		gum_func format -- <<-EOMD
 			# the latest version of tea was already installed
 			> $tea
 			EOMD
@@ -393,7 +409,7 @@ exec)
 
 		echo  #spacer
 
-		gum format <<-EOMD >&2
+		gum_func format <<-EOMD >&2
 			> powered by [tea](https://tea.xyz); brew2 for equitable open-source
 			EOMD
 
