@@ -202,8 +202,8 @@ welcome() {
 }
 
 get_tea_version() {
-	if test -n "$VERSION"; then
-		v=$VERSION
+	if test -n "$TEA_VERSION"; then
+		v=$TEA_VERSION
 		return
 	fi
 	# shellcheck disable=SC2086
