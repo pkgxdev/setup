@@ -334,7 +334,7 @@ check_shell_magic() {
 				EOSH
 		fi
 	elif test "$sh" = "bash"; then
-		gum format -- <<-EOMD
+		gum_func format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a simple function in bash \\
 			it’s not required, **but we do recommend it**.
@@ -342,7 +342,7 @@ check_shell_magic() {
 			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
 			EOMD
 
-		if gum confirm 'magic?' --affirmative="add one-liner" --negative="skip"
+		if gum_func confirm 'magic?' --affirmative="add one-liner" --negative="skip"
 		then
 			cat <<-EOSH >> ~/.bashrc
 
