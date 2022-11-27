@@ -37,7 +37,7 @@ async function go() {
     }
   })()
 
-  const v = await new Promise((resolve, reject) => {
+  const v = process.env['INPUT_VERSION'] || await new Promise((resolve, reject) => {
     https.get(`https://dist.tea.xyz/tea.xyz/${midfix}/versions.txt`, rsp => {
       if (rsp.statusCode != 200) return reject(rsp.statusCode)
       rsp.setEncoding('utf8')

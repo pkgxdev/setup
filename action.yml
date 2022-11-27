@@ -12,6 +12,11 @@ inputs:
       Set to `null` to install to the tea default (~/.tea).
       For GHA we default to `~/opt`.
     required: false
+  version:
+    description: >
+      The version of teaxyz/cli to install.
+      Defaults to the most recent published version.
+    required: false
   srcroot:
     description: |
       Override detection of `$SRCROOT`.
