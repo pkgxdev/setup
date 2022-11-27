@@ -273,9 +273,22 @@ check_path() {
 	if gum_func confirm "create /usr/local/bin/tea?" --affirmative="make symlink" --negative="skip"
 	then
 		echo  #spacer
-		sudo mkdir -p /usr/local/bin
-		sudo ln -sf "$tea" /usr/local/bin/tea
 
+		if [ -w /usr/local/bin ] || mkdir -p /usr/local/bin >/dev/null 2>&1;
+		then
+			ln -sf "$tea" /usr/local/bin/tea
+		elif which sudo >/dev/null;
+		then
+			sudo mkdir -p /usr/local/bin
+			sudo ln -sf "$tea" /usr/local/bin/tea
+		else
+			echo  #spacer
+			gum_func format -- <<-EOMD
+				> hmmm, sudo command not found.
+				> try installing sudo
+				EOMD
+		fi
+			
 		if ! which tea >/dev/null 2>&1
 		then
 			echo  #spacer
