@@ -279,7 +279,7 @@ check_path() {
 			sudo ln -sf "$tea" /usr/local/bin/tea
 		else
 			echo  #spacer
-			gum format -- <<-EOMD
+			gum_func format -- <<-EOMD
 				> hmmm, sudo command not found.
 				> try installing sudo
 				EOMD
