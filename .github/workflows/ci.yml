@@ -126,9 +126,18 @@ jobs:
       - run: brew install gum
       - uses: actions/checkout@v3
       - uses: ./
-
-  root:
+      
+  specific-version:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: sudo su -c './install.sh'
+      - uses: ./
+        with:
+          version: 0.13.8
+      - run:
+          test "$(tea --version)" = "tea 0.13.8"
+  root:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - run: sudo su -c './install.sh'
