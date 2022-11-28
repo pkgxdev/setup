@@ -97,12 +97,12 @@ prepare() {
 		if which tea >/dev/null 2>&1; then
 			set +e
 			TEA_PREFIX="$(tea --prefix --silent)"
-			set -e
 			if test $? -eq 0 -a -n "$TEA_PREFIX"; then
 				ALREADY_INSTALLED=1
 			else
 				unset TEA_PREFIX
 			fi
+      set -e
 		fi
 
 		# we check again: in case the above failed for some reason
