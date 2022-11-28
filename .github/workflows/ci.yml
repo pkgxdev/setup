@@ -172,4 +172,4 @@ jobs:
           tea --help
       - uses: actions/checkout@v3
       - run: ./install.sh
-      - run: ~/.tea/tea.xyz/v0/bin/tea --prefix
+      - run: test $(~/.tea/tea.xyz/v0/bin/tea --prefix) = $HOME/.tea
