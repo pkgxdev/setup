@@ -5,6 +5,9 @@ set -o noglob
 
 ####################################################################### funcs
 prepare() {
+	# ensure ⌃C works
+	trap "echo; exit" INT
+
 	if ! which tar >/dev/null 2>&1; then
 		echo "tea: error: sorry. pls install tar :(" >&2
 	fi
@@ -86,6 +89,7 @@ prepare() {
 		# if PREFIX is set but nothing is in it then we’ll do a full install
 		# under the assumption the user is re-running this script on a broken install
 		ALREADY_INSTALLED=1
+		export PATH="$TEA_PREFIX/tea.xyz/v*/bin:$PATH"
 	fi
 
 	if test -z "$TEA_PREFIX"; then
@@ -288,7 +292,7 @@ check_path() {
 				> try installing sudo
 				EOMD
 		fi
-			
+
 		if ! which tea >/dev/null 2>&1
 		then
 			echo  #spacer
