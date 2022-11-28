@@ -143,7 +143,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - run: sudo apt-get uninstall sudo
+        - run: sudo apt-get remove sudo
         - run: ./install.sh
 
   sudo-required:
