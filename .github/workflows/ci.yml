@@ -118,6 +118,8 @@ jobs:
       - uses: ludeeus/action-shellcheck@1.1.0
         with:
           severity: warning
+        env:
+          SHELLCHECK_OPTS: --shell dash
 
   check-external-gum:
     runs-on: ubuntu-latest
@@ -136,8 +138,18 @@ jobs:
           version: 0.13.8
       - run:
           test "$(tea --version)" = "tea 0.13.8"
-  root:
+
+  sudo-not-required:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - run: sudo su -c './install.sh'
+        - run: sudo apt-get remove sudo
+        - run: ./install.sh
+
+  sudo-required:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - run: sudo chmod go-w /usr/local/bin
+        # ^^ we run as `runner` but this dir has 999 perms
+        - run: ./install.sh
