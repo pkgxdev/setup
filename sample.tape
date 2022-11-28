@@ -1,4 +1,4 @@
-Set FontSize 16
+Set FontSize 20
 Set Height 800
 Set Width 1200
 Set TypingSpeed 40ms

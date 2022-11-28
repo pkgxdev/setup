@@ -317,8 +317,15 @@ check_path() {
 check_shell_magic() {
 	# foo knows I cannot tell you why $SHELL may be unset
 	if test -z "$SHELL"; then
-		# well dang
-		SHELL="unknown"
+		if which finger >/dev/null 2>&1; then
+			SHELL="$(finger "$USER" | grep Shell | cut -d: -f2 | tr -d ' ')"
+		elif which getent >/dev/null 2>&1; then
+			SHELL="$(basename "$(getent passwd "$USER")")"
+		fi
+		if test -z "$SHELL"; then
+			# well dang
+			SHELL="unknown"
+		fi
 	fi
 
 	case "$(basename "$SHELL")" in

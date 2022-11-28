@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: sudo apt-get install finger
       - name: preinstall gum
         # looks better if we don’t need to initially “steep some leaves”
         run: |
@@ -24,7 +25,7 @@ jobs:
           curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
           echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
           sudo apt-get update && sudo apt-get install gum
-      - uses: charmbracelet/vhs-action@v1.1.0
+      - uses: charmbracelet/vhs-action@v1
         with:
           path: sample.tape
       - name: massage
