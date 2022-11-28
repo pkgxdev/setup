@@ -283,6 +283,7 @@ check_path() {
 			ln -sf "$tea" /usr/local/bin/tea
 		elif which sudo >/dev/null;
 		then
+			sudo --reset-timestamp
 			sudo mkdir -p /usr/local/bin
 			sudo ln -sf "$tea" /usr/local/bin/tea
 		else

@@ -136,8 +136,10 @@ jobs:
           version: 0.13.8
       - run:
           test "$(tea --version)" = "tea 0.13.8"
+
   root:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
+        - run: test $(whoami) = root
         - run: sudo su -c './install.sh'
