@@ -102,7 +102,7 @@ prepare() {
 			else
 				unset TEA_PREFIX
 			fi
-      set -e
+			set -e
 		fi
 
 		# we check again: in case the above failed for some reason
