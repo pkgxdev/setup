@@ -315,8 +315,21 @@ check_path() {
 }
 
 check_shell_magic() {
-	sh="$(basename "$SHELL")"
-	if test "$sh" = zsh; then
+	# foo knows I cannot tell you why $SHELL may be unset
+	if test -z "$SHELL"; then
+		if which finger >/dev/null 2>&1; then
+			SHELL="$(finger "$USER" | grep Shell | cut -d: -f3 | tr -d ' ')"
+		elif which getent >/dev/null 2>&1; then
+			SHELL="$(basename "$(getent passwd "$USER")")"
+		fi
+		if test -z "$SHELL"; then
+			# well dang
+			SHELL="unknown"
+		fi
+	fi
+
+	case "$(basename "$SHELL")" in
+	zsh)
 		gum_func format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a one-line addition to your \`~/.zshrc\` \\
@@ -332,7 +345,8 @@ check_shell_magic() {
 				add-zsh-hook -Uz chpwd(){ source <(tea -Eds) }  #tea
 				EOSH
 		fi
-	elif test "$sh" = "fish"; then
+		;;
+	fish)
 		gum_func format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a simple hook function in fish \\
@@ -348,7 +362,8 @@ check_shell_magic() {
 				function add_tea_environment --on-variable PWD; tea -Eds | source; end  #tea
 				EOSH
 		fi
-	elif test "$sh" = "bash"; then
+		;;
+	bash)
 		gum_func format -- <<-EOMD
 			# want magic?
 			tea’s shell magic works via a simple function in bash \\
@@ -364,15 +379,16 @@ check_shell_magic() {
 				cd() { builtin cd "\$@" || return; [ "\$OLDPWD" = "\$PWD" ] || source <(tea -Eds); }
 				EOSH
 		fi
-	else
+		;;
+	*)
 		gum_func format -- <<-EOMD
 			# we need your help 🙏
 
-			our shell magic doesn’t support \`$sh\` yet, can you make a pull request?
+			our shell magic doesn’t support \`$SHELL\` yet, can you make a pull request?
 
 			> https://github.com/teaxyz/cli/pulls
 			EOMD
-	fi
+	esac
 
 	echo  #spacer
 }
