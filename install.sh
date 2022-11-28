@@ -278,10 +278,11 @@ check_path() {
 	then
 		echo  #spacer
 
-		if [ -w /usr/local/bin ] || mkdir -p /usr/local/bin >/dev/null 2>&1;
-		then
+		if test -w /usr/local/bin -o -w /usr/local -a ! -d /usr/local/bin
+    then
+      mkdir -p /usr/local/bin
 			ln -sf "$tea" /usr/local/bin/tea
-		elif which sudo >/dev/null;
+		elif which sudo >/dev/null 2>&1
 		then
 			sudo --reset-timestamp
 			sudo mkdir -p /usr/local/bin
