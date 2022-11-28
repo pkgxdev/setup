@@ -141,6 +141,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - run: chmod go-w /usr/local/bin
+        - run: sudo chmod go-w /usr/local/bin
+        # ^^ we run as `runner` but this dir has 999 perms
         - run: ./install.sh
         - run: sudo su -c './install.sh'
