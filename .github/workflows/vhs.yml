@@ -1,0 +1,37 @@
+on:
+  pull_request:
+    paths:
+      - .github/workflows/vhs.yml
+  release:
+    types: [published, edited]
+
+permissions:
+  contents: write
+
+# NOTE
+# we don’t run `vhs` via tea because that would require us to install tea
+# first, and this `.tape` file is for recording the installation of tea
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: preinstall gum
+        # looks better if we don’t need to initially “steep some leaves”
+        run: |
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
+          sudo apt-get update && sudo apt-get install gum
+      - uses: charmbracelet/vhs-action@v1.1.0
+        with:
+          path: sample.tape
+      - name: massage
+        run: |
+          mkdir out
+          mv out.gif out/sample.gif
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: out
+          single-commit: true
