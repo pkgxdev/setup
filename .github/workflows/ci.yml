@@ -141,7 +141,6 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - run: whoami
-        - run: ls -la /usr/local
-        - run: test $(whoami) = root
+        - run: chmod go-w /usr/local/bin
+        - run: ./install.sh
         - run: sudo su -c './install.sh'
