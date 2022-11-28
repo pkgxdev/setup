@@ -153,3 +153,23 @@ jobs:
         - run: sudo chmod go-w /usr/local/bin
         # ^^ we run as `runner` but this dir has 999 perms
         - run: ./install.sh
+
+  installs-if-gitea-found:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install gitea
+        run: |
+          sudo curl -sL -o /etc/apt/trusted.gpg.d/morph027-gitea.asc https://packaging.gitlab.io/gitea/gpg.key
+          echo "deb https://packaging.gitlab.io/gitea gitea main" | sudo tee /etc/apt/sources.list.d/morph027-gitea.list
+          sudo apt-get update
+          sudo apt-get install gitea morph027-keyring
+          sudo mv /usr/bin/gitea /usr/bin/tea
+        # ^^ lol actually pretty much the only time `gitea` installs as `tea` is via `brew`
+      - name: test gitea is there
+        run: |
+          dpkg -L gitea
+          which tea
+          tea --help
+      - uses: actions/checkout@v3
+      - run: ./install.sh
+      - run: test $(~/.tea/tea.xyz/v0/bin/tea --prefix) = $HOME/.tea
