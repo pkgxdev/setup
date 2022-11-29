@@ -154,6 +154,14 @@ jobs:
         # ^^ we run as `runner` but this dir has 999 perms
         - run: ./install.sh
 
+  no-usr-local:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - run: sudo rm -rf /usr/local # this is fine, right?
+        - run: sudo chmod 777 /usr    # and this
+        - run: ./install.sh
+
   installs-if-gitea-found:
     runs-on: ubuntu-latest
     steps:
