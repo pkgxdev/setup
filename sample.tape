@@ -1,6 +1,6 @@
-Set FontSize 18
+Set FontSize 16
 Set Height 800
-Set Width 1200
+Set Width 1000
 Set TypingSpeed 40ms
 
 Require gum
@@ -20,12 +20,12 @@ Sleep 1s
 
 Enter
 
-Sleep 10s
+Sleep 13s
 
 Enter
 
-Sleep 2s
+Sleep 4s
 
 Enter
 
-Sleep 5s
+Sleep 4s
