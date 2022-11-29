@@ -283,7 +283,9 @@ check_path() {
 	then
 		echo  #spacer
 
-		if test -w /usr/local/bin -o -w /usr/local -a ! -d /usr/local/bin
+		# Shellcheck thinks `>/dev/null` was supposed to be `-gt /dev/null` here. For some reason.
+		# shellcheck disable=2065
+		if test -w /usr/local/bin -o ! -e /usr/local/bin -a mkdir -p /usr/local/bin >/dev/null 2>&1
 		then
 			mkdir -p /usr/local/bin
 			ln -sf "$tea" /usr/local/bin/tea
