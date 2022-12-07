@@ -151,7 +151,7 @@ get_gum() {
 	if test ! -t 1 -o "$GUM" = "0"; then
 		GUM=gum_no_tty
 	elif command -v gum >/dev/null 2>&1; then
-		GUM=$(command -v gum)
+		GUM=gum
 	elif test -n "$ALREADY_INSTALLED"; then
 		GUM="tea --silent +charm.sh/gum gum"
 	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
