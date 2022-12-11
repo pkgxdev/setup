@@ -49,7 +49,7 @@ project’s README for the `# build` section. Of course we install your
 dependencies first.
 
 There is no need to specify a target, `- uses: teaxyz/setup@v0` by itself
-installs your deps and exports some variables like `VERSION`. See [action.yml]
+installs your deps and exports some variables like `VERSION`. See [`action.yml`]
 for all inputs and outputs.
 
 [action.yml]: ../../action.yml
@@ -74,3 +74,6 @@ node --check ./action.js
 |   Project   | Version |
 |-------------|---------|
 | nodejs.org  | ^16     |
+
+
+[`action.yml`]: ./action.yml
