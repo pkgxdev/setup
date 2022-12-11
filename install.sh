@@ -8,7 +8,7 @@ prepare() {
 	# ensure ⌃C works
 	trap "echo; exit" INT
 
-	if ! which tar >/dev/null 2>&1; then
+	if ! command -v tar >/dev/null 2>&1; then
 		echo "tea: error: sorry. pls install tar :(" >&2
 	fi
 
@@ -54,12 +54,12 @@ prepare() {
 	fi
 
 	if test $ZZ = 'gz'; then
-		if which base64 >/dev/null 2>&1; then
+		if command -v base64 >/dev/null 2>&1; then
 			BASE64_TARXZ="/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4AX/AFNdADMb7AG6cMNAaNMVK8FvZMaza8QKKTQY6wZ3kG/F814lHE9ruhkFO5DAG7XNamN7JMHavgmbbLacr72NaAzgGUXOstqUaGb6kbp7jrkF+3aQT12CAAB8Uikc1gG8RwABb4AMAAAAeGbHwbHEZ/sCAAAAAARZWg=="
 			if echo "$BASE64_TARXZ" | base64 -d | tar Jtf - >/dev/null 2>&1; then
 				ZZ=xz
 			fi
-		elif which uudecode >/dev/null 2>&1; then
+		elif command -v uudecode >/dev/null 2>&1; then
 			TMPFILE=$(mktemp)
 			cat >"$TMPFILE" <<-EOF
 				begin 644 foo.tar.xz
@@ -94,7 +94,7 @@ prepare() {
 
 	if test -z "$TEA_PREFIX"; then
 		# use existing installation if found
-		if which tea >/dev/null 2>&1; then
+		if command -v tea >/dev/null 2>&1; then
 			set +e
 			TEA_PREFIX="$(tea --prefix --silent)"
 			if test $? -eq 0 -a -n "$TEA_PREFIX"; then
@@ -116,7 +116,7 @@ prepare() {
 	fi
 
 	if test -z "$CURL"; then
-		if which curl >/dev/null 2>&1; then
+		if command -v curl >/dev/null 2>&1; then
 			CURL="curl -Ssf"
 		elif test -f "$TEA_PREFIX/curl.se/v*/bin/curl"; then
 			CURL="$TEA_PREFIX/curl.se/v*/bin/curl -Ssf"
@@ -150,8 +150,8 @@ gum_no_tty() {
 get_gum() {
 	if test ! -t 1 -o "$GUM" = "0"; then
 		GUM=gum_no_tty
-	elif which gum >/dev/null 2>&1; then
-		GUM=$(which gum)
+	elif command -v gum >/dev/null 2>&1; then
+		GUM=gum
 	elif test -n "$ALREADY_INSTALLED"; then
 		GUM="tea --silent +charm.sh/gum gum"
 	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
@@ -289,7 +289,7 @@ check_path() {
 		then
 			mkdir -p /usr/local/bin
 			ln -sf "$tea" /usr/local/bin/tea
-		elif which sudo >/dev/null 2>&1
+		elif command -v sudo >/dev/null 2>&1
 		then
 			sudo --reset-timestamp
 			sudo mkdir -p /usr/local/bin
@@ -302,7 +302,7 @@ check_path() {
 				EOMD
 		fi
 
-		if ! which tea >/dev/null 2>&1
+		if ! command -v tea >/dev/null 2>&1
 		then
 			echo  #spacer
 			gum_func format -- <<-EOMD
@@ -319,9 +319,9 @@ check_path() {
 check_shell_magic() {
 	# foo knows I cannot tell you why $SHELL may be unset
 	if test -z "$SHELL"; then
-		if which finger >/dev/null 2>&1; then
+		if command -v finger >/dev/null 2>&1; then
 			SHELL="$(finger "$USER" | grep Shell | cut -d: -f3 | tr -d ' ')"
-		elif which getent >/dev/null 2>&1; then
+		elif command -v getent >/dev/null 2>&1; then
 			SHELL="$(basename "$(getent passwd "$USER")")"
 		fi
 		if test -z "$SHELL"; then
@@ -412,7 +412,7 @@ fi
 
 if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
 	title="prefetching"
-elif which git >/dev/null 2>&1; then
+elif command -v git >/dev/null 2>&1; then
 	title="syncing"
 fi
 gum_func spin --title "$title pantry" -- "$tea" --sync --dump
