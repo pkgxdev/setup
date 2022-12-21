@@ -16,8 +16,10 @@ jobs:
       matrix:
         container:
         - debian:buster-slim
+        - debian:bullseye-slim
+        - debian:bookworm-slim
         - archlinux:latest
-        - ubuntu:bionic
+        # - ubuntu:bionic glibc too old currently
         - ubuntu:focal
         - ubuntu:jammy
         - ubuntu:kinetic
