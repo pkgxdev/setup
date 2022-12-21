@@ -10,6 +10,7 @@ concurrency:
 
 jobs:
   pre-reqs:
+    continue-on-error: true
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,6 +19,7 @@ jobs:
         - archlinux:latest
         - ubuntu:latest
         - fedora:latest
+        - nixos/nix:latest
         # - alpine:latest
     container: ${{ matrix.container }}
     steps:
