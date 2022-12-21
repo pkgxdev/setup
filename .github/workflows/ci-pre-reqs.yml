@@ -16,7 +16,9 @@ jobs:
         container:
         - debian:buster-slim
         - archlinux:latest
-        - ubuntu:slim
+        - ubuntu:latest
+        - fedora:latest
+        - alpine:latest
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
