@@ -19,19 +19,19 @@ jobs:
         - debian:bullseye-slim
         - debian:bookworm-slim
         - archlinux:latest
-        # - ubuntu:bionic glibc too old currently
+        # - ubuntu:bionic    glibc too old
         - ubuntu:focal
         - ubuntu:jammy
         - ubuntu:kinetic
         - ubuntu:lunar
         - ubuntu:trusty
-        - ubuntu:xenial
-        - fedora:latest
+        # - ubuntu:xenial     glibc too old
+        # - fedora:latest     glibc too old
         # - nixos/nix:latest  can’t exec
         # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./
-      - run: sh -x ./pre-reqs.sh
+      - run: sh -x ./install-pre-reqs.sh
       - run: tea -X node -e 'console.log(1)'

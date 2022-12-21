@@ -1,4 +1,6 @@
 #!/bin/sh
+# installs linux pre-reqs with the system packager
+# PR your system!
 
 if test -f /etc/debian_version; then
   apt-get --yes update
