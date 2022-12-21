@@ -28,7 +28,7 @@ jobs:
         - ubuntu:xenial
         - fedora:latest
         # - nixos/nix:latest  can’t exec
-        - alpine:latest
+        # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
