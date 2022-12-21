@@ -1,0 +1,37 @@
+on:
+  pull_request:
+    paths:
+      - pre-reqs.ts
+      - .github/workflows/ci-pre-reqs.yml
+
+concurrency:
+  group: ${{ github.ref }}/2
+  cancel-in-progress: true
+
+jobs:
+  pre-reqs:
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+        - debian:buster-slim
+        - debian:bullseye-slim
+        - debian:bookworm-slim
+        - archlinux:latest
+        # - ubuntu:bionic    glibc too old
+        - ubuntu:focal
+        - ubuntu:jammy
+        - ubuntu:kinetic
+        # - ubuntu:lunar     glibc too old
+        # - ubuntu:trusty
+        # - ubuntu:xenial     glibc too old
+        - fedora:latest
+        # - nixos/nix:latest  can’t exec
+        # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: sh -x ./install-pre-reqs.sh
+      - run: tea -X node -e 'console.log(1)'

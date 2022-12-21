@@ -8,7 +8,7 @@ on:
   workflow_call:
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}/1
   cancel-in-progress: true
 
 jobs:
@@ -74,12 +74,6 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
-
-      # required for somethings
-      - run: |
-          apt-get update
-          apt-get --yes install libc-dev libstdc++-8-dev libgcc-8-dev
-        if: ${{ matrix.container != '' }}
 
       - uses: ./
         id: tea

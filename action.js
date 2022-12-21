@@ -105,6 +105,15 @@ async function go() {
     //TODO a flag so it returns 0 so we can not just swallow all errors lol
   }
 
+  if (os.platform() != 'darwin') {
+    const sh = path.join(path.dirname(__filename), "install-pre-reqs.sh")
+    if (process.getuid() == 0) {
+      execSync(sh)
+    } else {
+      execSync(`sudo ${sh}`)
+    }
+  }
+
   const target = process.env['INPUT_TARGET']
   if (target) {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})
