@@ -18,7 +18,7 @@ jobs:
         - archlinux:latest
         - ubuntu:latest
         - fedora:latest
-        - alpine:latest
+        # - alpine:latest
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
