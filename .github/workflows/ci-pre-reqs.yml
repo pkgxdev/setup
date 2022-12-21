@@ -17,10 +17,16 @@ jobs:
         container:
         - debian:buster-slim
         - archlinux:latest
-        - ubuntu:latest
+        - ubuntu:bionic
+        - ubuntu:focal
+        - ubuntu:jammy
+        - ubuntu:kinetic
+        - ubuntu:lunar
+        - ubuntu:trusty
+        - ubuntu:xenial
         - fedora:latest
-        - nixos/nix:latest
-        # - alpine:latest
+        # - nixos/nix:latest  can’t exec
+        - alpine:latest
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3

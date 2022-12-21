@@ -9,6 +9,6 @@ if test -f /etc/debian_version; then
   *)
     apt-get --yes install libc-dev libstdc++-8-dev libgcc-8-dev;;
   esac
-elif tet -f /etc/fedora-release; then
+elif test -f /etc/fedora-release; then
   yum --assumeyes install libatomic
 fi
