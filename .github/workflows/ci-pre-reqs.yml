@@ -20,5 +20,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./
-      - run: sh ./pre-reqs.sh
+      - run: sh -x ./pre-reqs.sh
       - run: tea -X node -c 'console.log(1)'
