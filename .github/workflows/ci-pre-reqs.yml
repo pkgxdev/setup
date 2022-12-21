@@ -1,0 +1,24 @@
+on:
+  pull_request:
+    paths:
+      - pre-reqs.ts
+      - .github/workflows/ci-pre-reqs.yml
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-reqs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+        - debian:buster-slim
+        - archlinux:latest
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: sh ./pre-reqs.sh
+      - run: tea -X node -c 'console.log(1)'
