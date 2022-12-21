@@ -107,7 +107,11 @@ async function go() {
 
   if (os.platform() != 'darwin') {
     const sh = path.join(path.dirname(__filename), "install-pre-reqs.sh")
-    execSync(`${sh}`)
+    if (process.getuid() == 0) {
+      execSync(sh)
+    } else {
+      execSync(`sudo ${sh}`)
+    }
   }
 
   const target = process.env['INPUT_TARGET']
