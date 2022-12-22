@@ -16,35 +16,45 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        verbose:
+          - null
         os:
         - macos-latest
         - ubuntu-latest
-        VERBOSE:
-        - 1
-        - ~
+        include:
+        - os: ubuntu-latest
+          verbose: VERBOSE
     steps:
       - uses: actions/checkout@v3
       - run: echo foo > foo
-      - run: ./install.sh cat ./foo
+      - run: ./install.sh --yes cat ./foo
         env:
-          VERBOSE: ${{ matrix.VERBOSE }}
-          YES: 1
+          VERBOSE: ${{ matrix.verbose }}
   direct:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        verbose:
+          - null
         os:
-        - macos-latest
-        - ubuntu-latest
-        VERBOSE:
-        - 1
-        - ~
+          - macos-latest
+          - ubuntu-latest
+        prefix:
+          - ~
+          - foo
+        include:
+        - os: ubuntu-latest
+          verbose: VERBOSE
     steps:
       - uses: actions/checkout@v3
-      - run: ./install.sh
+      - run: ./install.sh --yes --prefix ${{ matrix.prefix }}
+        if: ${{ matrix.prefix }}
         env:
-          VERBOSE: ${{ matrix.VERBOSE }}
-          YES: 1
+          VERBOSE: ${{ matrix.verbose }}
+      - run: ./install.sh --yes
+        if: ${{ matrix.prefix == null }}
+        env:
+          VERBOSE: ${{ matrix.verbose }}
       - run: tea --env --dump
       - run: tea test
       - run: which tea
@@ -139,7 +149,7 @@ jobs:
       steps:
         - uses: actions/checkout@v3
         - run: apt-get update && apt-get --yes install curl
-        - run: ./install.sh
+        - run: ./install.sh --yes
 
   sudo-required:
       runs-on: ubuntu-latest
@@ -147,7 +157,8 @@ jobs:
         - uses: actions/checkout@v3
         - run: sudo chmod go-w /usr/local/bin
         # ^^ we run as `runner` but this dir has 999 perms
-        - run: ./install.sh
+        - run: ./install.sh --yes
+        - run: .github/smoke-test.sh
 
   no-usr-local:
       runs-on: ubuntu-latest
@@ -155,7 +166,8 @@ jobs:
         - uses: actions/checkout@v3
         - run: sudo rm -rf /usr/local # this is fine, right?
         - run: sudo chmod 777 /usr    # and this
-        - run: ./install.sh
+        - run: ./install.sh --yes
+        - run: .github/smoke-test.sh
 
   installs-if-gitea-found:
     runs-on: ubuntu-latest
@@ -174,12 +186,13 @@ jobs:
           which tea
           tea --help
       - uses: actions/checkout@v3
-      - run: ./install.sh
-      - run: test $(~/.tea/tea.xyz/v0/bin/tea --prefix) = $HOME/.tea
+      - run: ./install.sh --yes
+      - run: .github/smoke-test.sh
 
   run-without-which:
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:
         - uses: actions/checkout@v3
-        - run: ./install.sh
+        - run: ./install.sh --yes
+        - run: .github/smoke-test.sh
