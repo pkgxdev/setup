@@ -3,6 +3,42 @@
 set -e
 set -o noglob
 
+
+# prevent existing env breaking this script
+unset TEA_DESTDIR
+unset TEA_VERSION
+
+unset stop
+while test "$#" -gt 0 -a -z "$stop"; do
+	case $1 in
+	--prefix)
+		# we don’t use TEA_PREFIX so any already installed tea that we use in this script doesn’t break
+		TEA_DESTDIR="$2"
+		if test -z "$TEA_DESTDIR"; then
+			echo "tea: error: --prefix requires an argument" >&2
+			exit 1
+		fi
+		shift;shift;;
+	--version)
+		TEA_VERSION="$2"
+		if test -z "$TEA_VERSION"; then
+			echo "tea: error: --version requires an argument" >&2
+			exit 1
+		fi
+		shift;shift;;
+	--yes|-y)
+		TEA_YES=1
+		shift;;
+	--help|-h)
+		echo "tea: docs: https://github.com/teaxyz/setup"
+		exit;;
+	*)
+		stop=1;;
+	esac
+done
+unset stop
+
+
 ####################################################################### funcs
 prepare() {
 	# ensure ⌃C works
@@ -85,32 +121,25 @@ prepare() {
 		;;
 	esac
 
-	if test -n "$TEA_PREFIX" -a -f "$TEA_PREFIX/tea.xyz/v*/bin/tea"; then
-		# if PREFIX is set but nothing is in it then we’ll do a full install
-		# under the assumption the user is re-running this script on a broken install
-		ALREADY_INSTALLED=1
-		export PATH="$TEA_PREFIX/tea.xyz/v*/bin:$PATH"
-	fi
-
-	if test -z "$TEA_PREFIX"; then
-		# use existing installation if found
+	if test -z "$TEA_DESTDIR"; then
+		# update existing installation if found
 		if command -v tea >/dev/null 2>&1; then
 			set +e
-			TEA_PREFIX="$(tea --prefix --silent)"
-			if test $? -eq 0 -a -n "$TEA_PREFIX"; then
+			TEA_DESTDIR="$(tea --prefix --silent)"
+			if test $? -eq 0 -a -n "$TEA_DESTDIR"; then
 				ALREADY_INSTALLED=1
 			else
-				unset TEA_PREFIX
+				unset TEA_DESTDIR
 			fi
 			set -e
 		fi
 
 		# we check again: in case the above failed for some reason
-		if test -z "$TEA_PREFIX"; then
+		if test -z "$TEA_DESTDIR"; then
 			if test "$MODE" = exec; then
-				TEA_PREFIX="$(mktemp -dt tea-XXXXXX)"
+				TEA_DESTDIR="$(mktemp -dt tea-XXXXXX)"
 			else
-				TEA_PREFIX="$HOME/.tea"
+				TEA_DESTDIR="$HOME/.tea"
 			fi
 		fi
 	fi
@@ -118,11 +147,11 @@ prepare() {
 	if test -z "$CURL"; then
 		if command -v curl >/dev/null 2>&1; then
 			CURL="curl -Ssf"
-		elif test -f "$TEA_PREFIX/curl.se/v*/bin/curl"; then
-			CURL="$TEA_PREFIX/curl.se/v*/bin/curl -Ssf"
+		elif test -f "$TEA_DESTDIR/curl.se/v*/bin/curl"; then
+			CURL="$TEA_DESTDIR/curl.se/v*/bin/curl -Ssf"
 		else
 			# how they got here without curl: we dunno
-			echo "tea: error: you need curl, or you can set \`\$CURL\`" >&2
+			echo "tea: error: you need curl (or set \`\$CURL\`)" >&2
 			exit 1
 		fi
 	fi
@@ -138,7 +167,7 @@ gum_no_tty() {
 	format|style)
 		echo "$@";;
 	confirm)
-		if test -n "$YES"; then
+		if test -n "$TEA_YES"; then
 			echo "tea: error: no tty detected, re-run with \`YES=1\` set" >&2
 			return 1
 		fi;;
@@ -148,21 +177,30 @@ gum_no_tty() {
 }
 
 get_gum() {
-	if test ! -t 1 -o "$GUM" = "0"; then
-		GUM=gum_no_tty
-	elif command -v gum >/dev/null 2>&1; then
-		GUM=gum
+	if command -v gum >/dev/null 2>&1; then
+		TEA_GUM=gum
 	elif test -n "$ALREADY_INSTALLED"; then
-		GUM="tea --silent +charm.sh/gum gum"
-	elif test -f "$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"; then
-		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
+		TEA_GUM="tea --silent +charm.sh/gum gum"
+	fi
+
+	if test -n "$TEA_GUM"; then
+		if ! "$TEA_GUM" --version >/dev/null 2>&1; then
+			# apparently this gum is broken
+			unset TEA_GUM
+		else
+			return
+		fi
+	fi
+
+	if test -f "$TEA_DESTDIR/charm.sh/gum/v0.8.0/bin/gum"; then
+		TEA_GUM="$TEA_DESTDIR/charm.sh/gum/v0.8.0/bin/gum"
 	else
 		URL="https://dist.tea.xyz/charm.sh/gum/$MIDFIX/v0.8.0.tar.$ZZ"
-		mkdir -p "$TEA_PREFIX"
+		mkdir -p "$TEA_DESTDIR"
 		# shellcheck disable=SC2291
 		printf "one moment, just steeping some leaves…"
-		$CURL "$URL" | tar "$TAR_FLAGS" -C "$TEA_PREFIX"
-		GUM="$TEA_PREFIX/charm.sh/gum/v0.8.0/bin/gum"
+		$CURL "$URL" | tar "$TAR_FLAGS" -C "$TEA_DESTDIR"
+		TEA_GUM="$TEA_DESTDIR/charm.sh/gum/v0.8.0/bin/gum"
 		printf "\r                                      "
 	fi
 }
@@ -170,29 +208,43 @@ get_gum() {
 gum_func() {
 	case "$1" in
 	confirm)
-		if test -n "$YES"; then
-			return
+		if test -n "$TEA_YES"; then
+			set +e  # waiting on: https://github.com/charmbracelet/gum/pull/148
+			$TEA_GUM "$@" --timeout=1ms --default=yes
+			set -e
+			return 0
 		fi;;
 	spin)
-		if test -n "$VERBOSE"; then
-			gum_no_tty "$@"
+		if test ! -t 1; then
+			while test "$1" != --title -a -n "$1"; do
+				shift
+			done
+			if test -z "$VERBOSE"; then
+				echo "tea: spin: $2" >&2
+			fi
+			while test "$1" != -- -a -n "$1"; do
+				shift
+			done
+			shift
+			"$@"
 			return
 		fi;;
 	esac
 
-	$GUM "$@"
+	$TEA_GUM "$@"
 }
 
 welcome() {
 	gum_func format -- <<-EOMD
 		# hi 👋 let’s set up tea
 
-		* we’ll put it here: \`$TEA_PREFIX\`
+		* we’ll put it here: \`$TEA_DESTDIR\`
 		* everything tea installs goes there
 		* (we won’t touch anything else)
 
 		> docs https://github.com/teaxyz/cli#getting-started
 		EOMD
+
 	echo  #spacer
 
 	if ! gum_func confirm "how about it?" --affirmative="install tea" --negative="cancel"
@@ -207,18 +259,25 @@ welcome() {
 			> check it https://github.com/teaxyz/cli
 			EOMD
 		echo  #spacer
-		exit
+		exit 1
 	fi
 }
 
 get_tea_version() {
 	if test -n "$TEA_VERSION"; then
-		v=$TEA_VERSION
 		return
 	fi
-	# shellcheck disable=SC2086
-	v="$(gum_func spin --show-output --title 'determining tea version' -- $CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1)"
-	if test -z "$v"; then
+
+	v_sh="$(mktemp)"
+	cat <<-EOMD >"$v_sh"
+		$CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1 > "$v_sh"
+		EOMD
+
+	gum_func spin --title 'determining tea version' -- sh "$v_sh"
+
+	TEA_VERSION="$(cat "$v_sh")"
+
+	if test -z "$TEA_VERSION"; then
 		echo "failed to get latest tea version" >&2
 		exit 1
 	fi
@@ -232,47 +291,46 @@ fix_links() {
 			echo "'v$1' is unexpectedly a directory" >&2
 		else
 			rm -f "v$1"
-			ln -s "v$v" "v$1"
+			ln -s "v$TEA_VERSION" "v$1"
 		fi
 	}
 
-	cd "$TEA_PREFIX"/tea.xyz
+	cd "$TEA_DESTDIR"/tea.xyz
 	link \*
-	link "$(echo "$v" | cut -d. -f1)"
-	link "$(echo "$v" | cut -d. -f1-2)"
+	link "$(echo "$TEA_VERSION" | cut -d. -f1)"
+	link "$(echo "$TEA_VERSION" | cut -d. -f1-2)"
 	cd "$OLDWD"
 }
 
 install() {
 	if test -n "$ALREADY_INSTALLED"; then
-		TITLE="updating to tea@$v"
+		TITLE="updating to tea@$TEA_VERSION"
 	else
-		TITLE="fetching tea@$v"
+		TITLE="fetching tea@$TEA_VERSION"
 	fi
 
 	#NOTE using script instead of passing args to gum because
 	# periodically the data didn’t pipe to tar causing it to error
-	mkdir -p "$TEA_PREFIX/tea.xyz/tmp"
-	SCRIPT="$TEA_PREFIX/tea.xyz/tmp/fetch-tea.sh"
-	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$v.tar.$ZZ"
-	echo "set -e; $CURL '$URL' | tar '$TAR_FLAGS' -C '$TEA_PREFIX'" > "$SCRIPT"
-	gum_func spin --title "$TITLE" -- sh "$SCRIPT"
+	mkdir -p "$TEA_DESTDIR"
+	TEA_DESTDIR="$(cd $TEA_DESTDIR && pwd)"  # we need this PATH to be an absolute path for later stuff
+	TEA_TMP_SCRIPT="$(mktemp)"
+	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$TEA_VERSION.tar.$ZZ"
+	echo "set -e; $CURL '$URL' | tar '$TAR_FLAGS' -C '$TEA_DESTDIR'" > "$TEA_TMP_SCRIPT"
+	gum_func spin --title "$TITLE" -- sh "$TEA_TMP_SCRIPT"
 
 	fix_links
 
 	if ! test "$MODE" = exec; then
-		gum_func format -- "k, we installed \`$TEA_PREFIX/tea.xyz/v$v/bin/tea\`"
+		gum_func format -- "k, we installed \`$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea\`"
 	fi
 
-	VERSION="$(echo "$v" | cut -d. -f1)"
-	tea="$TEA_PREFIX/tea.xyz/v$VERSION/bin/tea"
+	TEA_VERSION_MAJOR="$(echo "$TEA_VERSION" | cut -d. -f1)"
+	TEA_EXENAME="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION_MAJOR/bin/tea"
 
 	echo  #spacer
 }
 
 check_path() {
-	echo  #spacer
-
 	gum_func format -- <<-EOMD
 		# one second!
 		tea’s not in your path!
@@ -284,17 +342,17 @@ check_path() {
 		echo  #spacer
 
 		# NOTE: Binary -a and -o are inherently ambiguous.  Use 'test EXPR1
-    #   && test EXPR2' or 'test EXPR1 || test EXPR2' instead.
+		#   && test EXPR2' or 'test EXPR1 || test EXPR2' instead.
 		# https://man7.org/linux/man-pages/man1/test.1.html
 		if test -w /usr/local/bin || (test ! -e /usr/local/bin && mkdir -p /usr/local/bin >/dev/null 2>&1)
 		then
 			mkdir -p /usr/local/bin
-			ln -sf "$tea" /usr/local/bin/tea
+			ln -sf "$TEA_EXENAME" /usr/local/bin/tea
 		elif command -v sudo >/dev/null 2>&1
 		then
 			sudo --reset-timestamp
 			sudo mkdir -p /usr/local/bin
-			sudo ln -sf "$tea" /usr/local/bin/tea
+			sudo ln -sf "$TEA_EXENAME" /usr/local/bin/tea
 		else
 			echo  #spacer
 			gum_func format -- <<-EOMD
@@ -305,11 +363,14 @@ check_path() {
 
 		if ! command -v tea >/dev/null 2>&1
 		then
+
 			echo  #spacer
 			gum_func format -- <<-EOMD
 				> hmmm, \`/usr/local/bin\` isn’t in your path,
 				> you’ll need to fix that yourself.
 				> sorry 😞
+
+				\`PATH=$PATH\`
 				EOMD
 		fi
 	fi
@@ -403,20 +464,20 @@ if test $MODE = install -a -z "$ALREADY_INSTALLED"; then
 	welcome
 fi
 get_tea_version
-if ! test -f "$TEA_PREFIX/tea.xyz/v$v/bin/tea"; then
+if ! test -f "$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"; then
 	install
 else
 	fix_links  # be proactive in repairing the user installation just in case that's what they ran this for
 	TEA_IS_CURRENT=1
-	tea="$TEA_PREFIX/tea.xyz/v$v/bin/tea"
+	TEA_EXENAME="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"
 fi
 
-if ! test -d "$TEA_PREFIX/tea.xyz/var/pantry"; then
+if ! test -d "$TEA_DESTDIR/tea.xyz/var/pantry"; then
 	title="prefetching"
 elif command -v git >/dev/null 2>&1; then
 	title="syncing"
 fi
-gum_func spin --title "$title pantry" -- "$tea" --sync --dump
+gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync true
 
 case $MODE in
 install)
@@ -432,14 +493,17 @@ install)
 	elif test -n "$TEA_IS_CURRENT"; then
 		gum_func format -- <<-EOMD
 			# the latest version of tea was already installed
-			> $tea
+			> $TEA_EXENAME
 			EOMD
 	fi
 	echo  #spacer
 	;;
 exec)
+	# ensure we use the just installed tea
+	export TEA_PREFIX="$TEA_DESTDIR"
+
 	if test -z "$ALREADY_INSTALLED" -a -t 1; then
-		$tea "$@"
+		$TEA_EXENAME "$@"
 
 		echo  #spacer
 
@@ -450,7 +514,7 @@ exec)
 		echo  #spacer
 	else
 		# don’t hog resources
-		exec $tea "$@"
+		exec $TEA_EXENAME "$@"
 	fi
 	;;
 esac

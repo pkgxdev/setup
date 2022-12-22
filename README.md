@@ -2,7 +2,7 @@
 
 [`install.sh`](./install.sh) is delivered when you `curl tea.xyz`.
 
-# GitHub Action 0.8.0
+# GitHub Action 0.9.0
 
 This repository also provides the `tea` GitHub Action.
 
@@ -32,8 +32,9 @@ sh <(curl tea.xyz) +charm.sh/gum gum spin -- sleep 5
 
 ### Options
 
-* `YES=1`, for headless environments, assumes affirmative for all prompts
-* `TEA_PREFIX=/path` change install location
+* `sh <(curl tea.xyz) --yes` assumes affirmative for all prompts
+* `sh <(curl tea.xyz) --prefix foo` change install location (you can use this option to false a re-install)
+* `sh <(curl tea.xyz) --version 1.2.3` install a specific version
 
 
 ## Via GitHub Actions

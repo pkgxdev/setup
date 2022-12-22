@@ -26,13 +26,18 @@ jobs:
       - uses: andymckay/cancel-action@0.2
         if: ${{ steps.rev-parse.outputs.result == 'cancel' }}
 
-  ci:
+  ci1:
     needs: [smoke]
     uses: ./.github/workflows/ci.yml
     secrets: inherit
 
+  ci2:
+    needs: [smoke]
+    uses: ./.github/workflows/ci-pre-reqs.yml
+    secrets: inherit
+
   put:
-    needs: [ci, smoke]
+    needs: [ci1, ci2, smoke]
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment

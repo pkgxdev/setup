@@ -16,35 +16,47 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        verbose:
+          - null
         os:
         - macos-latest
         - ubuntu-latest
-        VERBOSE:
-        - 1
-        - ~
+        include:
+        - os: ubuntu-latest
+          verbose: VERBOSE
     steps:
       - uses: actions/checkout@v3
       - run: echo foo > foo
-      - run: ./install.sh cat ./foo
+      - run: ./install.sh --yes cat ./foo
         env:
-          VERBOSE: ${{ matrix.VERBOSE }}
-          YES: 1
+          VERBOSE: ${{ matrix.verbose }}
+
   direct:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os:
-        - macos-latest
-        - ubuntu-latest
-        VERBOSE:
-        - 1
-        - ~
+          - macos-latest
+          - ubuntu-latest
+        prefix:
+          - ~
+          - foo
+        include:
+        - os: ubuntu-latest
+          verbose: VERBOSE
+          prefix: /opt/tea
+          # ^^ test absolute path (on mac this path is not writable with the
+          # default runner user)
     steps:
       - uses: actions/checkout@v3
-      - run: ./install.sh
+      - run: ./install.sh --yes --prefix ${{ matrix.prefix }}
+        if: ${{ matrix.prefix }}
         env:
-          VERBOSE: ${{ matrix.VERBOSE }}
-          YES: 1
+          VERBOSE: ${{ matrix.verbose }}
+      - run: ./install.sh --yes
+        if: ${{ matrix.prefix == null }}
+        env:
+          VERBOSE: ${{ matrix.verbose }}
       - run: tea --env --dump
       - run: tea test
       - run: which tea
@@ -96,6 +108,7 @@ jobs:
       - run: tea --version
       - uses: ./
       - run: tea --version
+      - run: ./install.sh   # also test our script does a headless update in this case
 
   # tests that we don’t require a “srcroot”
   emptier:
@@ -122,16 +135,27 @@ jobs:
       - run: brew install gum
       - uses: actions/checkout@v3
       - uses: ./
+      - run: test ! -d ~/.tea/charm.sh
 
   specific-version:
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        system:
+          - gha
+          - direct
+        version:
+          - 0.13.8
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        if: ${{ matrix.system == 'gha' }}
         with:
-          version: 0.13.8
-      - run:
-          test "$(tea --version)" = "tea 0.13.8"
+          version: ${{ matrix.version }}
+      - run: ./install.sh --yes --version ${{ matrix.version }}
+        if: ${{ matrix.system == 'direct' }}
+      - run: test "$(tea --version)" = "tea ${{ matrix.version }}"
 
   sudo-not-required:
       runs-on: ubuntu-latest
@@ -139,7 +163,7 @@ jobs:
       steps:
         - uses: actions/checkout@v3
         - run: apt-get update && apt-get --yes install curl
-        - run: ./install.sh
+        - run: ./install.sh --yes
 
   sudo-required:
       runs-on: ubuntu-latest
@@ -147,7 +171,9 @@ jobs:
         - uses: actions/checkout@v3
         - run: sudo chmod go-w /usr/local/bin
         # ^^ we run as `runner` but this dir has 999 perms
-        - run: ./install.sh
+        - run: ./install.sh --yes
+        - run: .github/smoke-test.sh
+        - run: test $(which tea) = /usr/local/bin/tea
 
   no-usr-local:
       runs-on: ubuntu-latest
@@ -155,7 +181,9 @@ jobs:
         - uses: actions/checkout@v3
         - run: sudo rm -rf /usr/local # this is fine, right?
         - run: sudo chmod 777 /usr    # and this
-        - run: ./install.sh
+        - run: ./install.sh --yes
+        - run: .github/smoke-test.sh
+        - run: test $(which tea) = /usr/local/bin/tea
 
   installs-if-gitea-found:
     runs-on: ubuntu-latest
@@ -174,12 +202,13 @@ jobs:
           which tea
           tea --help
       - uses: actions/checkout@v3
-      - run: ./install.sh
-      - run: test $(~/.tea/tea.xyz/v0/bin/tea --prefix) = $HOME/.tea
+      - run: ./install.sh --yes
+      - run: .github/smoke-test.sh
 
   run-without-which:
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:
         - uses: actions/checkout@v3
-        - run: ./install.sh
+        - run: ./install.sh --yes
+        - run: .github/smoke-test.sh

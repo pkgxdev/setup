@@ -1,4 +1,5 @@
 on:
+  workflow_call:
   pull_request:
     paths:
       - pre-reqs.ts
