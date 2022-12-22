@@ -135,9 +135,10 @@ jobs:
 
   sudo-not-required:
       runs-on: ubuntu-latest
+      container: debian:buster-slim
       steps:
         - uses: actions/checkout@v3
-        - run: sudo apt-get remove sudo
+        - run: apt-get update && apt-get --yes install curl
         - run: ./install.sh
 
   sudo-required:
