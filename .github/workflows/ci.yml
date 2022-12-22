@@ -32,10 +32,11 @@ jobs:
           VERBOSE: ${{ matrix.verbose }}
   direct:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
       matrix:
         verbose:
-          - null
+          - VERBOSE
         os:
           - macos-latest
           - ubuntu-latest
@@ -132,16 +133,26 @@ jobs:
       - run: brew install gum
       - uses: actions/checkout@v3
       - uses: ./
+      - run: test ! -d ~/.tea/charm.sh
 
   specific-version:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        system:
+          - gha
+          - direct
+        version:
+          - 0.13.8
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        if: ${{ matrix.system == 'gha' }}
         with:
-          version: 0.13.8
-      - run:
-          test "$(tea --version)" = "tea 0.13.8"
+          version: ${{ matrix.version }}
+      - run: ./install.sh --version ${{ matrix.version }}
+        if: ${{ matrix.system == 'direct' }}
+      - run: test "$(tea --version)" = "${{ matrix.version }}"
 
   sudo-not-required:
       runs-on: ubuntu-latest
@@ -159,6 +170,7 @@ jobs:
         # ^^ we run as `runner` but this dir has 999 perms
         - run: ./install.sh --yes
         - run: .github/smoke-test.sh
+        - run: test $(which tea) = /usr/local/bin/tea
 
   no-usr-local:
       runs-on: ubuntu-latest
@@ -168,6 +180,7 @@ jobs:
         - run: sudo chmod 777 /usr    # and this
         - run: ./install.sh --yes
         - run: .github/smoke-test.sh
+        - run: test $(which tea) = /usr/local/bin/tea
 
   installs-if-gitea-found:
     runs-on: ubuntu-latest

@@ -209,10 +209,10 @@ gum_func() {
 	case "$1" in
 	confirm)
 		if test -n "$TEA_YES"; then
-      set +e  # waiting on: https://github.com/charmbracelet/gum/pull/148
-      $TEA_GUM "$@" --timeout=1ms --default=yes
-      set -e
-      return 0
+			set +e  # waiting on: https://github.com/charmbracelet/gum/pull/148
+			$TEA_GUM "$@" --timeout=1ms --default=yes
+			set -e
+			return 0
 		fi;;
 	spin)
 		if test ! -t 1; then
@@ -369,7 +369,7 @@ check_path() {
 				> you’ll need to fix that yourself.
 				> sorry 😞
 
-            \`PATH=$PATH\`
+				\`PATH=$PATH\`
 				EOMD
 		fi
 	fi
@@ -468,7 +468,7 @@ if ! test -f "$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"; then
 else
 	fix_links  # be proactive in repairing the user installation just in case that's what they ran this for
 	TEA_IS_CURRENT=1
-	tea="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"
+	TEA_EXENAME="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"
 fi
 
 if ! test -d "$TEA_DESTDIR/tea.xyz/var/pantry"; then
@@ -476,7 +476,7 @@ if ! test -d "$TEA_DESTDIR/tea.xyz/var/pantry"; then
 elif command -v git >/dev/null 2>&1; then
 	title="syncing"
 fi
-gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync --dump
+gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync true
 
 case $MODE in
 install)
