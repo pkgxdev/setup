@@ -44,8 +44,12 @@ jobs:
           - ~
           - foo
         include:
-        - os: ubuntu-latest
+        - os: macos-latest
           verbose: VERBOSE
+        - os: ubuntu-latest
+          prefix: /opt/tea
+          # ^^ test absolute path (on mac this path is not writable with
+          # the default runner user)
     steps:
       - uses: actions/checkout@v3
       - run: ./install.sh --yes --prefix ${{ matrix.prefix }}
