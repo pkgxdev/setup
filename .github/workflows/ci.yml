@@ -155,6 +155,7 @@ jobs:
           version: ${{ matrix.version }}
       - run: ./install.sh --yes --version ${{ matrix.version }}
         if: ${{ matrix.system == 'direct' }}
+      - run: tea --version
       - run: test "$(tea --version)" = "${{ matrix.version }}"
 
   sudo-not-required:
