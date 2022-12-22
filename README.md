@@ -33,7 +33,7 @@ sh <(curl tea.xyz) +charm.sh/gum gum spin -- sleep 5
 ### Options
 
 * `sh <(curl tea.xyz) --yes` assumes affirmative for all prompts
-* `sh <(curl tea.xyz) --prefix foo` change install location
+* `sh <(curl tea.xyz) --prefix foo` change install location (you can use this option to false a re-install)
 * `sh <(curl tea.xyz) --version 1.2.3` install a specific version
 
 

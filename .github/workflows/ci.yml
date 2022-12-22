@@ -150,7 +150,7 @@ jobs:
         if: ${{ matrix.system == 'gha' }}
         with:
           version: ${{ matrix.version }}
-      - run: ./install.sh --version ${{ matrix.version }}
+      - run: ./install.sh --yes --version ${{ matrix.version }}
         if: ${{ matrix.system == 'direct' }}
       - run: test "$(tea --version)" = "${{ matrix.version }}"
 

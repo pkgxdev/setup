@@ -312,6 +312,7 @@ install() {
 	#NOTE using script instead of passing args to gum because
 	# periodically the data didn’t pipe to tar causing it to error
 	mkdir -p "$TEA_DESTDIR"
+	TEA_DESTDIR="$(cd $TEA_DESTDIR && pwd)"  # we need this PATH to be an absolute path for later stuff
 	TEA_TMP_SCRIPT="$(mktemp)"
 	URL="https://dist.tea.xyz/tea.xyz/$MIDFIX/v$TEA_VERSION.tar.$ZZ"
 	echo "set -e; $CURL '$URL' | tar '$TAR_FLAGS' -C '$TEA_DESTDIR'" > "$TEA_TMP_SCRIPT"
