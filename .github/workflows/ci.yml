@@ -30,13 +30,11 @@ jobs:
       - run: ./install.sh --yes cat ./foo
         env:
           VERBOSE: ${{ matrix.verbose }}
+
   direct:
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
     strategy:
       matrix:
-        verbose:
-          - VERBOSE
         os:
           - macos-latest
           - ubuntu-latest
@@ -44,12 +42,11 @@ jobs:
           - ~
           - foo
         include:
-        - os: macos-latest
-          verbose: VERBOSE
         - os: ubuntu-latest
+          verbose: VERBOSE
           prefix: /opt/tea
-          # ^^ test absolute path (on mac this path is not writable with
-          # the default runner user)
+          # ^^ test absolute path (on mac this path is not writable with the
+          # default runner user)
     steps:
       - uses: actions/checkout@v3
       - run: ./install.sh --yes --prefix ${{ matrix.prefix }}
@@ -111,6 +108,7 @@ jobs:
       - run: tea --version
       - uses: ./
       - run: tea --version
+      - run: ./install.sh   # also test our script does a headless update in this case
 
   # tests that we don’t require a “srcroot”
   emptier:
@@ -141,6 +139,7 @@ jobs:
 
   specific-version:
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
         system:
