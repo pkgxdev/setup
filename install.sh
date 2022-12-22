@@ -362,11 +362,14 @@ check_path() {
 
 		if ! command -v tea >/dev/null 2>&1
 		then
+
 			echo  #spacer
 			gum_func format -- <<-EOMD
 				> hmmm, \`/usr/local/bin\` isn’t in your path,
 				> you’ll need to fix that yourself.
 				> sorry 😞
+
+            \`PATH=$PATH\`
 				EOMD
 		fi
 	fi
