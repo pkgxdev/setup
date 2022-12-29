@@ -7,7 +7,9 @@ const os = require("os")
 async function go() {
   process.stderr.write("determining latest tea version…\n")
 
-  const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/opt`
+  const HOMEDIR = process.env['GITHUB_WORKSPACE'] || os.homedir()
+
+  const PREFIX = process.env['INPUT_PREFIX'] || `${HOMEDIR}/opt`
   const TEA_DIR = (() => {
     let TEA_DIR = process.env['INPUT_SRCROOT']
     if (!TEA_DIR) return
