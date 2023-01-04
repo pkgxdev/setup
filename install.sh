@@ -469,7 +469,8 @@ if ! test -f "$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"; then
 else
 	fix_links  # be proactive in repairing the user installation just in case that's what they ran this for
 	TEA_IS_CURRENT=1
-	TEA_EXENAME="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"
+  TEA_VERSION_MAJOR="$(echo "$TEA_VERSION" | cut -d. -f1)"
+	TEA_EXENAME="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION_MAJOR/bin/tea"
 fi
 
 if ! test -d "$TEA_DESTDIR/tea.xyz/var/pantry"; then
