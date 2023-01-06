@@ -219,6 +219,7 @@ gum_func() {
 			set -e
 			return 0
 		elif test ! -t 1; then
+			echo "can't get confirmation without a tty; run with TEA_YES=1 to confirm prompts" >&2
 			return 1
 		fi;;
 	spin)
