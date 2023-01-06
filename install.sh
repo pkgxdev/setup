@@ -218,6 +218,8 @@ gum_func() {
 			$TEA_GUM "$@" --timeout=1ms --default=yes
 			set -e
 			return 0
+		elif test ! -t 1; then
+			return 1
 		fi;;
 	spin)
 		if test ! -t 1; then
