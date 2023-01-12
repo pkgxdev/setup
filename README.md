@@ -23,12 +23,14 @@ sh <(curl tea.xyz)
 ```
 
 ```sh
-sh <(curl tea.xyz) +charm.sh/gum gum spin -- sleep 5
+sh <(curl tea.xyz) gum spin -- sleep 5
 
 # - if tea is installed, uses that installation to run gum
 # - if tea is *not* installed, downloads gum and its deps to a safe and
 #   temporary location and executes the command
 ```
+
+> NOTE we omit `https://` for clarity, *please* include it in all your usages.
 
 ### Options
 
@@ -41,17 +43,15 @@ sh <(curl tea.xyz) +charm.sh/gum gum spin -- sleep 5
 
 ```yaml
 - uses: teaxyz/setup@v0
-  with:
-    target: build
 ```
 
-Is the equivalent of `tea build`, ie. runs the executable markdown from your
-project’s README for the `# build` section. Of course we install your
-dependencies first.
+Installs tea, your dependencies (listed in your `README.md`), adds your deps
+to `PATH` and exports some other *tea’ish* variables like `VERSION`.
 
-There is no need to specify a target, `- uses: teaxyz/setup@v0` by itself
-installs your deps and exports some variables like `VERSION`. See [`action.yml`]
-for all inputs and outputs.
+See [`action.yml`] for all inputs and outputs.
+
+> NOTE: we cannot install our shell magic, so if eg. `npx` is not listed in
+> your dependencies you will need to invoke it as `tea npx` to use it.
 
 [action.yml]: ../../action.yml
 

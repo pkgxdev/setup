@@ -2,10 +2,6 @@ name: tea/setup
 description: >
   Installs tea.xyz to your GitHub Actions runner.
 inputs:
-  target:
-    description: >
-      The executable markdown target.
-    required: false
   prefix:
     description: >
       Where tea installs.
@@ -27,7 +23,6 @@ inputs:
 
       You will need this if you depend on the virtual environment tea
       provides.
-
 outputs:
   version:
     description: Your project’s version.
