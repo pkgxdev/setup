@@ -91,11 +91,14 @@ async function go() {
     const GITHUB_ENV = process.env['GITHUB_ENV']
 
     out = execSync(`${teafile} -SEkn`, {env}).toString()
-    const match = out.match(/export VERSION=['"]?(\d+\.\d+\.\d+)/)
-    if (match && match[1]) {
-      const version = match[1]
-      process.stdout.write(`::set-output name=version::${version}\n`)
-      fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
+    const matches = out.matchAll(/export ([A-Z_]+)=['"]?(\d+\.\d+\.\d+)/)
+    for (const match of matches) {
+      const key = match[1]
+      const value = match[2]
+      if (key == 'VERSION') {
+        process.stdout.write(`::set-output name=version::${version}\n`)
+      }
+      fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
     }
 
     if (TEA_DIR) {
