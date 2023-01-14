@@ -1,6 +1,6 @@
 on:
   release:
-    types: [published, edited]
+    types: [created, edited]
 jobs:
   retag:
     runs-on: ubuntu-latest

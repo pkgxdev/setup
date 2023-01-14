@@ -519,7 +519,7 @@ install)
 	elif test -n "$TEA_IS_CURRENT"; then
 		gum_func format -- <<-EoMD
 			# the latest version of tea was already installed
-			> $TEA_EXENAME
+			> $TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea
 			EoMD
 	fi
 	echo  #spacer

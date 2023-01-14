@@ -90,7 +90,7 @@ async function go() {
   try {
     const GITHUB_ENV = process.env['GITHUB_ENV']
 
-    out = execSync(`${teafile} -SEds`, {env}).toString()
+    out = execSync(`${teafile} -SEkn`, {env}).toString()
     const match = out.match(/export VERSION=['"]?(\d+\.\d+\.\d+)/)
     if (match && match[1]) {
       const version = match[1]
