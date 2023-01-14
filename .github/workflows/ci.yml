@@ -58,7 +58,7 @@ jobs:
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env --dump
-      - run: tea test
+      - run: tea node --check ./action.js  #TODO use xc
       - run: which tea
       - run: find "$(tea --silent --prefix)"/tea.xyz
       - run: find /opt/tea.xyz -name v0.? -o -name v0.?? -mindepth 1 -maxdepth 1 -print0 | xargs -0 test -L
