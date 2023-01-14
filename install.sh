@@ -3,7 +3,6 @@
 set -e
 set -o noglob
 
-
 # prevent existing env breaking this script
 unset TEA_DESTDIR
 unset TEA_VERSION
@@ -42,6 +41,7 @@ unset stop
 ####################################################################### funcs
 prepare() {
 	# ensure ⌃C works
+	#FIXME doesn’t seem to work through `gum` prompts
 	trap "echo; exit" INT
 
 	if ! command -v tar >/dev/null 2>&1; then
@@ -114,11 +114,9 @@ prepare() {
 
 	case "$ZZ" in
 	gz)
-		TAR_FLAGS=xz # confusingly
-		;;
+		TAR_FLAGS=xz;; # confusingly
 	xz)
-		TAR_FLAGS=xJ
-		;;
+		TAR_FLAGS=xJ;;
 	esac
 
 	if test -z "$TEA_DESTDIR"; then
@@ -129,6 +127,7 @@ prepare() {
 			if test $? -eq 0 -a -n "$TEA_DESTDIR"; then
 				ALREADY_INSTALLED=1
 			else
+				# probably it’s actually gitea and not teaxyz
 				unset TEA_DESTDIR
 			fi
 			set -e
@@ -140,8 +139,14 @@ prepare() {
 				TEA_DESTDIR="$(mktemp -dt tea-XXXXXX)"
 			else
 				TEA_DESTDIR="$HOME/.tea"
+				# make our configurations portable
+				TEA_DESTDIR_WRITABLE="\$HOME/.tea"
 			fi
 		fi
+	fi
+
+	if test -z "$TEA_DESTDIR_WRITABLE"; then
+		TEA_DESTDIR_WRITABLE="$TEA_DESTDIR"
 	fi
 
 	if test -z "$CURL"; then
@@ -192,15 +197,15 @@ get_gum() {
 		fi
 	fi
 
-	if test -f "$TEA_DESTDIR/charm.sh/gum/v0.8.0/bin/gum"; then
-		TEA_GUM="$TEA_DESTDIR/charm.sh/gum/v0.8.0/bin/gum"
+	if test -f "$TEA_DESTDIR/charm.sh/gum/v0.9.0/bin/gum"; then
+		TEA_GUM="$TEA_DESTDIR/charm.sh/gum/v0.9.0/bin/gum"
 	else
-		URL="https://dist.tea.xyz/charm.sh/gum/$MIDFIX/v0.8.0.tar.$ZZ"
+		URL="https://dist.tea.xyz/charm.sh/gum/$MIDFIX/v0.9.0.tar.$ZZ"
 		mkdir -p "$TEA_DESTDIR"
 		# shellcheck disable=SC2291
 		printf "one moment, just steeping some leaves…"
 		$CURL "$URL" | tar "$TAR_FLAGS" -C "$TEA_DESTDIR"
-		TEA_GUM="$TEA_DESTDIR/charm.sh/gum/v0.8.0/bin/gum"
+		TEA_GUM="$TEA_DESTDIR/charm.sh/gum/v0.9.0/bin/gum"
 		printf "\r                                      "
 	fi
 }
@@ -232,10 +237,19 @@ gum_func() {
 	esac
 
 	$TEA_GUM "$@"
+
+	RV="$?"
+
+	if test -z "$__TEA_WE_ABORT" -a "$1" = confirm -a "$RV" -eq 130; then
+		echo 'aborting…'
+		exit 130
+	else
+		return "$RV"
+	fi
 }
 
 welcome() {
-	gum_func format -- <<-EOMD
+	gum_func format -- <<-EoMD
 		# hi 👋 let’s set up tea
 
 		* we’ll put it here: \`$TEA_DESTDIR\`
@@ -243,21 +257,21 @@ welcome() {
 		* (we won’t touch anything else)
 
 		> docs https://github.com/teaxyz/cli#getting-started
-		EOMD
+		EoMD
 
 	echo  #spacer
 
-	if ! gum_func confirm "how about it?" --affirmative="install tea" --negative="cancel"
+	if ! __TEA_WE_ABORT=1 gum_func confirm "how about it?" --affirmative="install tea" --negative="cancel"
 	then
 			#0123456789012345678901234567890123456789012345678901234567890123456789012
-		gum_func format -- <<-EOMD
+		gum_func format -- <<-EoMD
 			# kk, aborting
 
 			btw \`tea\`’s just a standalone executable; you can run it anywhere; you \\
 			don’t need to install it
 
 			> check it https://github.com/teaxyz/cli
-			EOMD
+			EoMD
 		echo  #spacer
 		exit 1
 	fi
@@ -269,9 +283,9 @@ get_tea_version() {
 	fi
 
 	v_sh="$(mktemp)"
-	cat <<-EOMD >"$v_sh"
+	cat <<-EoMD >"$v_sh"
 		$CURL "https://dist.tea.xyz/tea.xyz/$MIDFIX/versions.txt" | tail -n1 > "$v_sh"
-		EOMD
+		EoMD
 
 	gum_func spin --title 'determining tea version' -- sh "$v_sh"
 
@@ -331,11 +345,11 @@ install() {
 }
 
 check_path() {
-	gum_func format -- <<-EOMD
+	gum_func format -- <<-EoMD
 		# one second!
-		tea’s not in your path!
+		without magic, tea’s not in your path!
 		> *we may need to ask for your **root password*** (via \`sudo\` obv.)
-		EOMD
+		EoMD
 
 	if gum_func confirm "create /usr/local/bin/tea?" --affirmative="make symlink" --negative="skip"
 	then
@@ -355,23 +369,23 @@ check_path() {
 			sudo ln -sf "$TEA_EXENAME" /usr/local/bin/tea
 		else
 			echo  #spacer
-			gum_func format -- <<-EOMD
+			gum_func format -- <<-EoMD
 				> hmmm, sudo command not found.
 				> try installing sudo
-				EOMD
+				EoMD
 		fi
 
 		if ! command -v tea >/dev/null 2>&1
 		then
 
 			echo  #spacer
-			gum_func format -- <<-EOMD
+			gum_func format -- <<-EoMD
 				> hmmm, \`/usr/local/bin\` isn’t in your path,
 				> you’ll need to fix that yourself.
 				> sorry 😞
 
 				\`PATH=$PATH\`
-				EOMD
+				EoMD
 		fi
 	fi
 
@@ -379,6 +393,14 @@ check_path() {
 }
 
 check_shell_magic() {
+	if test $TEA_VERSION_MAJOR -eq 0; then
+		__TEA_MINOR_VERSION=$(echo $TEA_VERSION | cut -d. -f2)
+		if test $__TEA_MINOR_VERSION -lt 19; then
+			# we cannot any longer support magic below 0.19.0
+			return 1
+		fi
+	fi
+
 	# foo knows I cannot tell you why $SHELL may be unset
 	if test -z "$SHELL"; then
 		if command -v finger >/dev/null 2>&1; then
@@ -392,69 +414,72 @@ check_shell_magic() {
 		fi
 	fi
 
-	case "$(basename "$SHELL")" in
+	__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source <(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic --silent)"
+
+	case $(basename "$SHELL") in
 	zsh)
-		gum_func format -- <<-EOMD
-			# want magic?
-			tea’s shell magic works via a one-line addition to your \`~/.zshrc\` \\
-			it’s not required, **but we do recommend it**.
-
-			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
-			EOMD
-
-		if gum_func confirm 'magic?' --affirmative="add one-liner" --negative="skip"
-		then
-			cat <<-EOSH >> ~/.zshrc
-
-				add-zsh-hook -Uz chpwd(){ source <(tea -Eds) }  #tea
-				EOSH
+		if test -n "$ZDOTDIR"; then
+			__TEA_ZSHRC="$ZDOTDIR/.zshrc"
+			__TEA_SH_FILE="$__TEA_ZSHRC"
+		else
+			# shellcheck disable=SC2088
+			__TEA_ZSHRC="~/.zshrc"
+			__TEA_SH_FILE="$HOME/.zshrc"
 		fi
-		;;
-	fish)
-		gum_func format -- <<-EOMD
-			# want magic?
-			tea’s shell magic works via a simple hook function in fish \\
-			it’s not required, **but we do recommend it**.
-
-			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
-			EOMD
-
-		if gum_func confirm 'magic?' --affirmative="add one-liner" --negative="skip"
-		then
-			cat <<-EOSH >> "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
-
-				function add_tea_environment --on-variable PWD; tea -Eds | source; end  #tea
-				EOSH
-		fi
+		__TEA_BTN_TXT="add one-liner to your \`$__TEA_ZSHRC\`?"
 		;;
 	bash)
-		gum_func format -- <<-EOMD
-			# want magic?
-			tea’s shell magic works via a simple function in bash \\
-			it’s not required, **but we do recommend it**.
-
-			> docs https://github.com/teaxyz/cli#usage-as-an-environment-manager
-			EOMD
-
-		if gum_func confirm 'magic?' --affirmative="add one-liner" --negative="skip"
-		then
-			cat <<-EOSH >> ~/.bashrc
-
-				cd() { builtin cd "\$@" || return; [ "\$OLDPWD" = "\$PWD" ] || source <(tea -Eds); }
-				EOSH
-		fi
+		__TEA_SH_FILE="$HOME/.bashrc"
+		__TEA_BTN_TXT="add one-liner to your \`~/.bashrc\`?"
+		;;
+	fish)
+		__TEA_SH_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
+		__TEA_BTN_TXT="add one-liner to your \`config.fish\`?"
+		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && \"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic --silent | source"
 		;;
 	*)
-		gum_func format -- <<-EOMD
+		gum_func format -- <<-EoMD
 			# we need your help 🙏
 
-			our shell magic doesn’t support \`$SHELL\` yet, can you make a pull request?
+			tea’s magic is optional but it’s the way it’s meant to be used.
+
+			we don’t know how to support \`$SHELL\` yet. can you make a pull request?
 
 			> https://github.com/teaxyz/cli/pulls
-			EOMD
+			EoMD
+		return 1
 	esac
 
-	echo  #spacer
+	if command -v grep >/dev/null 2>&1 && grep --fixed-strings "$__TEA_ONE_LINER" "$__TEA_SH_FILE" --silent; then
+		# shell magic already installed
+		return 0
+	fi
+
+	gum_func format -- <<-EoMD
+		# may we interest you in some magic?
+
+		tea’s shell magic is optional but it’s the way it’s meant to be used.
+
+		> docs https://github.com/teaxyz/cli#magic
+		EoMD
+
+	if gum_func confirm "$__TEA_BTN_TXT" --affirmative="add one-liner" --negative="skip"; then
+		echo >> "$__TEA_SH_FILE"
+		echo "$__TEA_ONE_LINER" >> "$__TEA_SH_FILE"
+
+		echo  #spacer
+
+		gum_func format -- <<-EoMD
+			Added:
+
+			\`$__TEA_ONE_LINER\`
+			EoMD
+
+		echo  #spacer
+
+	else
+		return 1  # we need to offer a symlink to tea instead
+	fi
 }
 
 ########################################################################## go
@@ -469,7 +494,7 @@ if ! test -f "$TEA_DESTDIR/tea.xyz/v$TEA_VERSION/bin/tea"; then
 else
 	fix_links  # be proactive in repairing the user installation just in case that's what they ran this for
 	TEA_IS_CURRENT=1
-  TEA_VERSION_MAJOR="$(echo "$TEA_VERSION" | cut -d. -f1)"
+	TEA_VERSION_MAJOR="$(echo "$TEA_VERSION" | cut -d. -f1)"
 	TEA_EXENAME="$TEA_DESTDIR/tea.xyz/v$TEA_VERSION_MAJOR/bin/tea"
 fi
 
@@ -483,19 +508,35 @@ gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync true
 case $MODE in
 install)
 	if ! test -n "$ALREADY_INSTALLED"; then
-		check_path
-		check_shell_magic
-		gum_func format -- <<-EOMD
-			# you’re all set!
-			try it out:
+		if ! check_shell_magic; then
+			check_path
+			gum_func format -- <<-EoMD
+				# you’re all set!
 
-			\`tea +gnu.org/wget wget -qO- tea.xyz/white-paper | tea +charm.sh/glow glow -\`
-		EOMD
+				try it out:
+
+				\`tea wget -qO- tea.xyz/white-paper | tea glow -\`
+				EoMD
+		else
+			if test -n "$GITHUB_ACTIONS"; then
+				# if the user did call us directly from GHA may as well help them out
+				echo "$TEA_DESTDIR/tea.xyz/v$TEA_VERSION_MAJOR/bin" >> "$GITHUB_PATH"
+			fi
+
+			gum_func format -- <<-EoMD
+				# you’re all set!
+
+				this terminal session doesn’t have tea’s magic loaded.
+				**open a new tab** and try \`tea\` out:
+
+				\`wget -qO- tea.xyz/white-paper | glow -\`
+				EoMD
+		fi
 	elif test -n "$TEA_IS_CURRENT"; then
-		gum_func format -- <<-EOMD
+		gum_func format -- <<-EoMD
 			# the latest version of tea was already installed
 			> $TEA_EXENAME
-			EOMD
+			EoMD
 	fi
 	echo  #spacer
 	;;
@@ -508,9 +549,9 @@ exec)
 
 		echo  #spacer
 
-		gum_func format <<-EOMD >&2
-			> powered by [tea](https://tea.xyz); brew2 for equitable open-source
-			EOMD
+		gum_func format <<-EoMD >&2
+			> powered by [tea](https://tea.xyz)
+			EoMD
 
 		echo  #spacer
 	else

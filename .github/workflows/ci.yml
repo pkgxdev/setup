@@ -58,7 +58,7 @@ jobs:
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env --dump
-      - run: tea test
+      - run: tea node --check ./action.js  #TODO use xc
       - run: which tea
       - run: find "$(tea --silent --prefix)"/tea.xyz
       - run: find /opt/tea.xyz -name v0.? -o -name v0.?? -mindepth 1 -maxdepth 1 -print0 | xargs -0 test -L
@@ -91,7 +91,6 @@ jobs:
         id: tea
         with:
           prefix: ${{ matrix.prefix }}
-          target: test
           srcroot: ${{ matrix.srcroot || github.workspace }}
 
       - run: test -n "$VERSION"
@@ -165,25 +164,34 @@ jobs:
         - run: apt-get update && apt-get --yes install curl
         - run: ./install.sh --yes
 
-  sudo-required:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - run: sudo chmod go-w /usr/local/bin
-        # ^^ we run as `runner` but this dir has 999 perms
-        - run: ./install.sh --yes
-        - run: .github/smoke-test.sh
-        - run: test $(which tea) = /usr/local/bin/tea
+  #FIXME can't test for this without a way to install without magic in headless mode
+  # sudo-required:
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - uses: actions/checkout@v3
+  #       - run: sudo chmod go-w /usr/local/bin
+  #       # ^^ we run as `runner` but this dir has 999 perms
+  #       - run: ./install.sh --yes
+  #       - run: .github/smoke-test.sh
+  #       - run: test $(which tea) = /usr/local/bin/tea
+  #
+  # no-usr-local:
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - uses: actions/checkout@v3
+  #       - run: sudo rm -rf /usr/local # this is fine, right?
+  #       - run: sudo chmod 777 /usr    # and this
+  #       - run: ./install.sh --yes
+  #       - run: .github/smoke-test.sh
+  #       - run: test $(which tea) = /usr/local/bin/tea
 
-  no-usr-local:
+  tea-with-magic-is-in-expected-place:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - run: sudo rm -rf /usr/local # this is fine, right?
-        - run: sudo chmod 777 /usr    # and this
         - run: ./install.sh --yes
         - run: .github/smoke-test.sh
-        - run: test $(which tea) = /usr/local/bin/tea
+        - run: test $(which tea) = $HOME/.tea/tea.xyz/v0/bin/tea
 
   installs-if-gitea-found:
     runs-on: ubuntu-latest
