@@ -91,7 +91,6 @@ jobs:
         id: tea
         with:
           prefix: ${{ matrix.prefix }}
-          target: test
           srcroot: ${{ matrix.srcroot || github.workspace }}
 
       - run: test -n "$VERSION"
