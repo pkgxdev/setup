@@ -1,6 +1,9 @@
 on:
   release:
     types: [created, edited]
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   retag:
     runs-on: ubuntu-latest
