@@ -162,25 +162,6 @@ prepare() {
 	fi
 }
 
-gum_no_tty() {
-	cmd="$1"
-	while test "$1" != -- -a -n "$1"; do
-		shift
-	done
-	if test -n "$1"; then shift; fi  # remove the --
-	case "$cmd" in
-	format|style)
-		echo "$@";;
-	confirm)
-		if test -n "$TEA_YES"; then
-			echo "tea: error: no tty detected, re-run with \`YES=1\` set" >&2
-			return 1
-		fi;;
-	*)
-		"$@";;
-	esac
-}
-
 get_gum() {
 	if command -v gum >/dev/null 2>&1; then
 		TEA_GUM=gum
@@ -218,6 +199,9 @@ gum_func() {
 			$TEA_GUM "$@" --timeout=1ms --default=yes
 			set -e
 			return 0
+		elif test ! -t 1; then
+			echo "tea: error: no tty detected, re-run with \`TEA_YES=1\` set" >&2
+			return 1
 		fi;;
 	spin)
 		if test ! -t 1; then
