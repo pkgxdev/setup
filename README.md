@@ -70,11 +70,4 @@ See our CI scripts for details.
 node --check ./action.js
 ```
 
-## Dependencies
-
-|   Project   | Version |
-|-------------|---------|
-| nodejs.org  | ^16     |
-
-
 [`action.yml`]: ./action.yml

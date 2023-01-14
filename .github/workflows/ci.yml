@@ -5,6 +5,7 @@ on:
       - install.sh
       - .github/workflows/ci.yml
       - action.js
+      - README.md
   workflow_call:
 
 concurrency:
