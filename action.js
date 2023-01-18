@@ -89,6 +89,7 @@ async function go() {
 
   try {
     const GITHUB_ENV = process.env['GITHUB_ENV']
+    const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
     out = execSync(`${teafile} -SEkn`, {env}).toString()
     const matches = out.matchAll(/export ([A-Z_]+)=['"]?(\d+\.\d+\.\d+)/)
@@ -96,13 +97,13 @@ async function go() {
       const key = match[1]
       const value = match[2]
       if (key == 'VERSION') {
-        process.stdout.write(`::set-output name=version::${version}\n`)
+        fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
       }
       fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
     }
 
     if (TEA_DIR) {
-      process.stdout.write(`::set-output name=srcroot::${TEA_DIR}\n`)
+      fs.appendFileSync(GITHUB_OUTPUT, `srcroot=${TEA_DIR}\n`, {encoding: 'utf8'})
       fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
     }
   } catch {
@@ -124,7 +125,7 @@ async function go() {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})
   }
 
-  process.stdout.write(`::set-output name=prefix::${PREFIX}\n`)
+  fs.appendFileSync(GITHUB_OUTPUT, `prefix=${PREFIX}\n`, {encoding: 'utf8'})
   process.stderr.write(`installed ${PREFIX}/tea.xyz/v${v}\n`)
 }
 
