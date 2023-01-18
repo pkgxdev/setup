@@ -99,6 +99,7 @@ jobs:
       - run: test v$VERSION = v${{ steps.tea.outputs.version }}
       - run: tea --env --dump
       - run: which tea
+      - run: node --check ./action.js
 
   multiple-apply:
     runs-on: ubuntu-latest
