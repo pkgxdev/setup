@@ -87,10 +87,10 @@ async function go() {
     ...process.env
   }
 
-  try {
-    const GITHUB_ENV = process.env['GITHUB_ENV']
-    const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
+  const GITHUB_ENV = process.env['GITHUB_ENV']
+  const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
+  try {
     out = execSync(`${teafile} -SEkn`, {env}).toString()
     const matches = out.matchAll(/export ([A-Z_]+)=['"]?(\d+\.\d+\.\d+)/)
     for (const match of matches) {
