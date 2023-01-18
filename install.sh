@@ -174,7 +174,7 @@ get_gum() {
 			# apparently this gum is broken
 			unset TEA_GUM
 		else
-			return
+			return 0
 		fi
 	fi
 
