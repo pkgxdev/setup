@@ -98,6 +98,7 @@ async function go() {
     for (const match of matches) {
       const key = match[1]
       const value = match[2]
+      console.log(key, value)
       if (key == 'VERSION') {
         fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
       }
