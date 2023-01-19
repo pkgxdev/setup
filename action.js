@@ -94,8 +94,10 @@ async function go() {
     execSync(`${teafile} --sync --env --keep-going echo`, {env})
 
     out = execSync(`${teafile} -SEkn`, {env}).toString()
-    const matches = out.matchAll(/export ([A-Z_]+)=(.*)/)
-    for (const match of matches) {
+
+    let regex = /export (\S+)='(.+)'/g;
+    let match;
+    while (match = regex.exec(str)) {
       const key = match[1]
       const value = match[2]
       console.log(key, value)
