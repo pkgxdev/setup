@@ -98,9 +98,11 @@ async function go() {
     out = execSync(`${teafile} -SEkn`, {env}).toString()
 
     console.error(out)
-    console.error(out.split("\n").length)
 
-    for (const line of lines.split("\n")) {
+    const lines = lines.split("\n")
+    console.error(lines.length)
+
+    for (const line of lines) {
       console.error(line)
       if (!line.startsWith("export ")) continue
       const parts = line.split("=");
