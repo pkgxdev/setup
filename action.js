@@ -91,19 +91,16 @@ async function go() {
   const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
   try {
+    // install packages
     execSync(`${teafile} --sync --env --keep-going echo`, {env})
 
+    // get env FIXME one call should do init
     out = execSync(`${teafile} -SEkn`, {env}).toString()
-
-    console.error('hi', out)
-
-    const regex = /export (\S+)='(.+)'/g;
-    let match;
-    while (match = regex.exec(str)) {
-      console.error('hi', match)
-      const key = match[1]
-      const value = match[2]
-      console.log(key, value)
+    for (const line of lines.split("\n")) {
+      if (!line.startsWith("export ")) continue;
+      const parts = line.split("=");
+      const key = parts[0].split(" ")[1];
+      const value = parts[1].slice(0, -1);
       if (key == 'VERSION') {
         fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
       }
