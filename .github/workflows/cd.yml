@@ -73,6 +73,7 @@ jobs:
       - uses: fischerscode/tagger@v0
         with:
           prefix: v
+          tag: v${{ needs.smoke.outputs.version }}
 
       - name: Seal Deployment
         uses: bobheadxi/deployments@v1
