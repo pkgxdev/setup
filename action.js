@@ -104,7 +104,13 @@ async function go() {
     if (key == 'VERSION') {
       fs.appendFileSync(GITHUB_OUTPUT, `version=${value}\n`, {encoding: 'utf8'})
     }
-    fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
+    if (key == 'PATH') {
+      for (const part of value.split(":").reverse()) {
+        fs.appendFileSync(GITHUB_PATH, `${part}\n`, {encoding: 'utf8'})
+      }
+    } else {
+      fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
+    }
   }
 
   if (TEA_DIR) {
