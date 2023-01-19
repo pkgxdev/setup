@@ -97,7 +97,8 @@ async function go() {
     // get env FIXME one call should do init
     out = execSync(`${teafile} -SEkn`, {env}).toString()
     for (const line of lines.split("\n")) {
-      if (!line.startsWith("export ")) continue;
+      console.error(line)
+      if (!line.startsWith("export ")) continue
       const parts = line.split("=");
       const key = parts[0].split(" ")[1];
       const value = parts[1].slice(0, -1);
@@ -105,6 +106,7 @@ async function go() {
         fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
       }
       fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
+      console.error(key, value)
     }
 
     if (TEA_DIR) {
