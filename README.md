@@ -23,7 +23,7 @@ sh <(curl tea.xyz)
 ```
 
 ```sh
-sh <(curl tea.xyz) gum spin -- sleep 5
+sh <(curl -Ssf tea.xyz) gum spin -- sleep 5
 
 # - if tea is installed, uses that installation to run gum
 # - if tea is *not* installed, downloads gum and its deps to a safe and
@@ -35,8 +35,8 @@ sh <(curl tea.xyz) gum spin -- sleep 5
 ### Options
 
 * `sh <(curl tea.xyz) --yes` assumes affirmative for all prompts
-* `sh <(curl tea.xyz) --prefix foo` change install location (you can use this option to false a re-install)
-* `sh <(curl tea.xyz) --version 1.2.3` install a specific version
+* `sh <(curl tea.xyz) --prefix foo` change install location (you can use this option to force a re-install)
+* `sh <(curl tea.xyz) --version 1.2.3` install a specific version of tea
 
 
 ## Via GitHub Actions
@@ -53,8 +53,6 @@ See [`action.yml`] for all inputs and outputs.
 > NOTE: we cannot install our shell magic, so if eg. `npx` is not listed in
 > your dependencies you will need to invoke it as `tea npx` to use it.
 
-[action.yml]: ../../action.yml
-
 ### Interesting Usages
 
 At tea, we consider the version in the `README` the definitive version.
@@ -64,7 +62,9 @@ the README is edited and the version changes.
 See our CI scripts for details.
 
 
-# Test
+# Tasks
+
+## Test
 
 ```sh
 node --check ./action.js
