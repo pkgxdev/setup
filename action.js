@@ -87,24 +87,35 @@ async function go() {
     ...process.env
   }
 
-  try {
-    const GITHUB_ENV = process.env['GITHUB_ENV']
+  const GITHUB_ENV = process.env['GITHUB_ENV']
+  const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
-    out = execSync(`${teafile} -SEkn`, {env}).toString()
-    const match = out.match(/export VERSION=['"]?(\d+\.\d+\.\d+)/)
-    if (match && match[1]) {
-      const version = match[1]
-      process.stdout.write(`::set-output name=version::${version}\n`)
-      fs.appendFileSync(GITHUB_ENV, `VERSION=${version}\n`, {encoding: 'utf8'})
-    }
+  // install packages
+  execSync(`${teafile} --sync --env --keep-going echo`, {env})
 
-    if (TEA_DIR) {
-      process.stdout.write(`::set-output name=srcroot::${TEA_DIR}\n`)
-      fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
+  // get env FIXME one call should do init
+  out = execSync(`${teafile} --sync --env --keep-going --dry-run`, {env}).toString()
+
+  const lines = out.split("\n")
+  for (const line of lines) {
+    const match = line.match(/export ([A-Za-z0-9_]+)=['"](.*)['"]/)
+    if (!match) continue
+    const [,key, value] = match
+    if (key == 'VERSION') {
+      fs.appendFileSync(GITHUB_OUTPUT, `version=${value}\n`, {encoding: 'utf8'})
     }
-  } catch {
-    // `tea -Eds` returns exit code 1 if no SRCROOT is found
-    //TODO a flag so it returns 0 so we can not just swallow all errors lol
+    if (key == 'PATH') {
+      for (const part of value.split(":").reverse()) {
+        fs.appendFileSync(GITHUB_PATH, `${part}\n`, {encoding: 'utf8'})
+      }
+    } else {
+      fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
+    }
+  }
+
+  if (TEA_DIR) {
+    fs.appendFileSync(GITHUB_OUTPUT, `srcroot=${TEA_DIR}\n`, {encoding: 'utf8'})
+    fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
   }
 
   if (os.platform() != 'darwin') {
@@ -121,7 +132,7 @@ async function go() {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})
   }
 
-  process.stdout.write(`::set-output name=prefix::${PREFIX}\n`)
+  fs.appendFileSync(GITHUB_OUTPUT, `prefix=${PREFIX}\n`, {encoding: 'utf8'})
   process.stderr.write(`installed ${PREFIX}/tea.xyz/v${v}\n`)
 }
 

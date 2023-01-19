@@ -2,7 +2,7 @@
 
 [`install.sh`](./install.sh) is delivered when you `curl tea.xyz`.
 
-# GitHub Action 0.11.2
+# GitHub Action 0.12.0
 
 This repository also provides the `tea` GitHub Action.
 

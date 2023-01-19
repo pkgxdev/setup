@@ -69,8 +69,10 @@ jobs:
         with:
           files: ./install.sh
           tag_name: v${{ needs.smoke.outputs.version }}
-          token: ${{ secrets.TEMP_JACOBS_GITHUB_PAT }}
-          # ^^ using our own PAT since otherwise vx-tagger won’t run
+
+      - uses: fischerscode/tagger@v0
+        with:
+          prefix: v
 
       - name: Seal Deployment
         uses: bobheadxi/deployments@v1
