@@ -98,7 +98,7 @@ async function go() {
 
   console.error(out)
 
-  const lines = lines.split("\n")
+  const lines = out.split("\n")
   console.error(lines.length)
 
   for (const line of lines) {
