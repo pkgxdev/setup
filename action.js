@@ -96,22 +96,15 @@ async function go() {
   // get env FIXME one call should do init
   out = execSync(`${teafile} --sync --env --keep-going --dry-run`, {env}).toString()
 
-  console.error(out)
-
   const lines = out.split("\n")
-  console.error(lines.length)
-
   for (const line of lines) {
-    console.error(line)
-    if (!line.startsWith("export ")) continue
-    const parts = line.split("=");
-    const key = parts[0].split(" ")[1];
-    const value = parts[1].slice(0, -1);
+    const match = line.match(/export ([A-Za-z0-9_])+=['"](.*)['"]/)
+    if (!match) continue
+    const [,key, value] = match
     if (key == 'VERSION') {
       fs.appendFileSync(GITHUB_OUTPUT, `version=${value}\n`, {encoding: 'utf8'})
     }
     fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
-    console.error(key, value)
   }
 
   if (TEA_DIR) {
