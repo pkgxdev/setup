@@ -108,7 +108,7 @@ async function go() {
     const key = parts[0].split(" ")[1];
     const value = parts[1].slice(0, -1);
     if (key == 'VERSION') {
-      fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
+      fs.appendFileSync(GITHUB_OUTPUT, `version=${value}\n`, {encoding: 'utf8'})
     }
     fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
     console.error(key, value)
