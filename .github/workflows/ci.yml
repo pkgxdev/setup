@@ -147,7 +147,7 @@ jobs:
           - gha
           - direct
         version:
-          - 0.13.8
+          - 0.19.4
     steps:
       - uses: actions/checkout@v3
       - uses: ./
