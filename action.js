@@ -95,6 +95,8 @@ async function go() {
 
     out = execSync(`${teafile} -SEkn`, {env}).toString()
 
+    console.error('hi', out)
+
     const regex = /export (\S+)='(.+)'/g;
     let match;
     while (match = regex.exec(str)) {
