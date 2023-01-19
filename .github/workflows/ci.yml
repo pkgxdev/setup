@@ -59,7 +59,7 @@ jobs:
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env --dump
-      - run: tea node --check ./action.js  #TODO use xc
+      - run: tea --env xc test
       - run: which tea
       - run: find "$(tea --silent --prefix)"/tea.xyz
       - run: find /opt/tea.xyz -name v0.? -o -name v0.?? -mindepth 1 -maxdepth 1 -print0 | xargs -0 test -L
@@ -99,7 +99,7 @@ jobs:
       - run: test v$VERSION = v${{ steps.tea.outputs.version }}
       - run: tea --env --dump
       - run: which tea
-      - run: node --check ./action.js
+      - run: tea --env xc test
 
   multiple-apply:
     runs-on: ubuntu-latest
