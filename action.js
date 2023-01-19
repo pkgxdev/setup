@@ -98,7 +98,7 @@ async function go() {
 
   const lines = out.split("\n")
   for (const line of lines) {
-    const match = line.match(/export ([A-Za-z0-9_])+=['"](.*)['"]/)
+    const match = line.match(/export ([A-Za-z0-9_]+)=['"](.*)['"]/)
     if (!match) continue
     const [,key, value] = match
     if (key == 'VERSION') {
