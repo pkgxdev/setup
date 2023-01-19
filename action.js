@@ -90,38 +90,33 @@ async function go() {
   const GITHUB_ENV = process.env['GITHUB_ENV']
   const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
-  try {
-    // install packages
-    execSync(`${teafile} --sync --env --keep-going echo`, {env})
+  // install packages
+  execSync(`${teafile} --sync --env --keep-going echo`, {env})
 
-    // get env FIXME one call should do init
-    out = execSync(`${teafile} -SEkn`, {env}).toString()
+  // get env FIXME one call should do init
+  out = execSync(`${teafile} --sync --env --keep-going --dry-run`, {env}).toString()
 
-    console.error(out)
+  console.error(out)
 
-    const lines = lines.split("\n")
-    console.error(lines.length)
+  const lines = lines.split("\n")
+  console.error(lines.length)
 
-    for (const line of lines) {
-      console.error(line)
-      if (!line.startsWith("export ")) continue
-      const parts = line.split("=");
-      const key = parts[0].split(" ")[1];
-      const value = parts[1].slice(0, -1);
-      if (key == 'VERSION') {
-        fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
-      }
-      fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
-      console.error(key, value)
+  for (const line of lines) {
+    console.error(line)
+    if (!line.startsWith("export ")) continue
+    const parts = line.split("=");
+    const key = parts[0].split(" ")[1];
+    const value = parts[1].slice(0, -1);
+    if (key == 'VERSION') {
+      fs.appendFileSync(GITHUB_OUTPUT, `version=${version}\n`, {encoding: 'utf8'})
     }
+    fs.appendFileSync(GITHUB_ENV, `${key}=${value}\n`, {encoding: 'utf8'})
+    console.error(key, value)
+  }
 
-    if (TEA_DIR) {
-      fs.appendFileSync(GITHUB_OUTPUT, `srcroot=${TEA_DIR}\n`, {encoding: 'utf8'})
-      fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
-    }
-  } catch {
-    // `tea -Eds` returns exit code 1 if no SRCROOT is found
-    //TODO a flag so it returns 0 so we can not just swallow all errors lol
+  if (TEA_DIR) {
+    fs.appendFileSync(GITHUB_OUTPUT, `srcroot=${TEA_DIR}\n`, {encoding: 'utf8'})
+    fs.appendFileSync(GITHUB_ENV, `TEA_DIR=${TEA_DIR}\n`, {encoding: 'utf8'})
   }
 
   if (os.platform() != 'darwin') {
