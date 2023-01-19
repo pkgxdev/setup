@@ -96,6 +96,10 @@ async function go() {
 
     // get env FIXME one call should do init
     out = execSync(`${teafile} -SEkn`, {env}).toString()
+
+    console.error(out)
+    console.error(out.split("\n").length)
+
     for (const line of lines.split("\n")) {
       console.error(line)
       if (!line.startsWith("export ")) continue
