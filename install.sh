@@ -487,7 +487,8 @@ if ! test -d "$TEA_DESTDIR/tea.xyz/var/pantry"; then
 elif command -v git >/dev/null 2>&1; then
 	title="syncing"
 fi
-gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync true
+
+gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync --cd / echo
 
 case $MODE in
 install)

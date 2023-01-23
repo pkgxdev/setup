@@ -90,17 +90,26 @@ async function go() {
   const GITHUB_ENV = process.env['GITHUB_ENV']
   const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
+  const vv = parseFloat(v)
+  const env_flag = vv >= 0.19 ? '--env --keep-going' : '--env'
+
   // install packages
-  execSync(`${teafile} --sync --env --keep-going echo`, {env})
+  execSync(`${teafile} --sync ${env_flag} echo`, {env})
 
   // get env FIXME one call should do init
-  out = execSync(`${teafile} --sync --env --keep-going --dry-run`, {env}).toString()
+
+  const args = vv >= 0.21
+    ? ""
+    : vv >= 0.19
+      ? "--dry-run"
+      : "--dump"
+  out = execSync(`${teafile} --sync ${env_flag} ${args}`, {env}).toString()
 
   const lines = out.split("\n")
   for (const line of lines) {
-    const match = line.match(/export ([A-Za-z0-9_]+)=['"](.*)['"]/)
+    const match = line.match(/(export )?([A-Za-z0-9_]+)=['"](.*)['"]/)
     if (!match) continue
-    const [,key, value] = match
+    const [,,key,value] = match
     if (key == 'VERSION') {
       fs.appendFileSync(GITHUB_OUTPUT, `version=${value}\n`, {encoding: 'utf8'})
     }
