@@ -97,7 +97,7 @@ async function go() {
   const vv = parseFloat(v)
   const args = vv > 0.21
     ? "--keep-going"
-    : v >= 0.19
+    : vv >= 0.19
       ? "--keep-going --dry-run"
       : "--dump"
   out = execSync(`${teafile} --sync --env ${args}`, {env}).toString()
