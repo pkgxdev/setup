@@ -7,6 +7,7 @@ on:
       - action.js
       - README.md
   workflow_call:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}/1
