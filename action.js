@@ -94,14 +94,14 @@ async function go() {
   const env_flag = vv >= 0.19 ? '--env --keep-going' : '--env'
 
   // install packages
-  execSync(`${teafile} --sync ${env_flag} --keep-going echo`, {env})
+  execSync(`${teafile} --sync ${env_flag} echo`, {env})
 
   // get env FIXME one call should do init
 
-  const args = vv > 0.21
+  const args = vv >= 0.21
     ? ""
     : vv >= 0.19
-      ? "--keep-going --dry-run"
+      ? "--dry-run"
       : "--dump"
   out = execSync(`${teafile} --sync ${env_flag} ${args}`, {env}).toString()
 
