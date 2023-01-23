@@ -90,17 +90,20 @@ async function go() {
   const GITHUB_ENV = process.env['GITHUB_ENV']
   const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
+  const vv = parseFloat(v)
+  const env_flag = vv >= 0.19 ? '--env --keep-going' : '--env'
+
   // install packages
-  execSync(`${teafile} --sync --env --keep-going echo`, {env})
+  execSync(`${teafile} --sync ${env_flag} --keep-going echo`, {env})
 
   // get env FIXME one call should do init
-  const vv = parseFloat(v)
+
   const args = vv > 0.21
-    ? "--keep-going"
+    ? ""
     : vv >= 0.19
       ? "--keep-going --dry-run"
       : "--dump"
-  out = execSync(`${teafile} --sync --env ${args}`, {env}).toString()
+  out = execSync(`${teafile} --sync ${env_flag} ${args}`, {env}).toString()
 
   const lines = out.split("\n")
   for (const line of lines) {
