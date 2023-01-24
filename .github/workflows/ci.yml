@@ -255,15 +255,14 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: [transitory, direct, gha, multiple-apply, emptier, shellcheck, check-external-gum, specific-version, sudo-not-required, tea-with-magic-is-in-expected-place, installs-if-gitea-found, run-without-which, run-with-existing-gum]
-    # if: always() && inputs.cli-release == 'true'
-    if: always()
+    if: always() && inputs.cli-release == 'true'
     steps:
       - uses: martialonline/workflow-status@v3
         id: status
       - uses: actions/checkout@v3
-        # if: ${{ steps.status.outputs.status == 'failure' }}
+        if: ${{ steps.status.outputs.status == 'failure' }}
       - uses: JasonEtco/create-an-issue@v2
-        # if: ${{ steps.status.outputs.status == 'failure' }}
+        if: ${{ steps.status.outputs.status == 'failure' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
