@@ -1,5 +1,5 @@
 ---
-title: teaxyz/cli release: CI run failed
+title: "teaxyz/cli release: CI run failed"
 assignees: mxcl
 labels: bug
 ---

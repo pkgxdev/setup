@@ -19,6 +19,10 @@ concurrency:
   group: ${{ github.ref }}/1
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   transitory:
     runs-on: ${{ matrix.os }}
