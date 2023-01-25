@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: echo foo > foo
-      - run: ./install.sh --yes cat ./foo
+      - run: ./install.sh --yes node --eval 'console.log(1)'
         env:
           VERBOSE: ${{ matrix.verbose }}
 
