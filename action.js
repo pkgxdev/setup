@@ -107,12 +107,9 @@ async function go() {
 
   const lines = out.split("\n")
   for (const line of lines) {
-    console.log('hi', line)
-    const match = line.match(/(export )?([A-Za-z0-9_]+)=['"](.*)['"]/)
-    console.log(match)
+    const match = line.match(/(export )?([A-Za-z0-9_]+)=['"]?(.*)/)
     if (!match) continue
     const [,,key,value] = match
-    console.log(key,value)
     if (key == 'VERSION') {
       fs.appendFileSync(GITHUB_OUTPUT, `version=${value}\n`, {encoding: 'utf8'})
     }
