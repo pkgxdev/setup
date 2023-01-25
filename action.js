@@ -103,11 +103,11 @@ async function go() {
     : vv >= 0.19
       ? "--dry-run"
       : "--dump"
-  out = execSync(`${teafile} --sync ${env_flag} ${args}`, {env}).toString()
+  out = execSync(`${teafile} ${env_flag} ${args}`, {env}).toString()
 
   const lines = out.split("\n")
   for (const line of lines) {
-    const match = line.match(/(export )?([A-Za-z0-9_]+)=['"](.*)['"]/)
+    const match = line.match(/(export )?([A-Za-z0-9_]+)=['"]?(.*)/)
     if (!match) continue
     const [,,key,value] = match
     if (key == 'VERSION') {
