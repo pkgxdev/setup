@@ -416,6 +416,10 @@ check_shell_magic() {
 		__TEA_SH_FILE="$HOME/.bashrc"
 		__TEA_BTN_TXT="add one-liner to your \`~/.bashrc\`?"
 		;;
+	elvish)
+		__TEA_SH_FILE="$HOME/.config/elvish/rc.elv"
+		__TEA_BTN_TXT="add one-liner to your \`~/.config/elvish/rc.elv\`?"
+		;;
 	fish)
 		__TEA_SH_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
 		__TEA_BTN_TXT="add one-liner to your \`config.fish\`?"
