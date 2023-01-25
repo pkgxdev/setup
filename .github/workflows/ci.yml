@@ -98,9 +98,10 @@ jobs:
       - run: test -n "$VERSION"
       - run: test -n "${{ steps.tea.outputs.version }}"
       - run: test v$VERSION = v${{ steps.tea.outputs.version }}
-      - run: tea --env --dump
+      - run: tea --env
       - run: which tea
       - run: tea --env xc test
+      - run: node --eval 'console.log(1)'
 
   multiple-apply:
     runs-on: ubuntu-latest
