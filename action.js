@@ -141,7 +141,9 @@ async function go() {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})
   }
 
+  fs.appendFileSync(GITHUB_ENV, `TEA_PREFIX=${PREFIX}\n`, {encoding: 'utf8'})
   fs.appendFileSync(GITHUB_OUTPUT, `prefix=${PREFIX}\n`, {encoding: 'utf8'})
+
   process.stderr.write(`installed ${PREFIX}/tea.xyz/v${v}\n`)
 }
 
