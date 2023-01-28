@@ -511,10 +511,10 @@ install)
 			gum_func format -- <<-EoMD
 				# you’re all set!
 
-				this terminal session doesn’t have tea’s magic loaded.
-				**open a new tab** and try \`tea\` out:
+				try it out:
 
-				\`wget -qO- tea.xyz/white-paper | glow -\`
+				\`exec $SHELL\`  # or open a new tab
+        \`wget -qO- tea.xyz/white-paper | glow -\`
 				EoMD
 		fi
 	elif test -n "$TEA_IS_CURRENT"; then
