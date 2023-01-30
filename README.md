@@ -66,6 +66,8 @@ See our CI scripts for details.
 
 ## Test
 
+Run this with `xc test`.
+
 ```sh
 node --check ./action.js
 ```
