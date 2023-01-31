@@ -4,9 +4,8 @@ description: >
 inputs:
   prefix:
     description: >
-      Where tea installs.
-      Set to `null` to install to the tea default (~/.tea).
-      For GHA we default to `~/opt`.
+      Where tea stows its packages.
+      Defaults to `$HOME/.tea`.
     required: false
   version:
     description: >
