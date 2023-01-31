@@ -3,9 +3,10 @@ description: >
   Installs tea.xyz to your GitHub Actions runner.
 inputs:
   prefix:
-    description: Where tea stows its packages.
-    required: true
-    default: ${{ github.home }}/.tea
+    description: >
+      Where tea stows its packages.
+      Defaults to `$HOME/.tea`.
+    required: false
   version:
     description: >
       The version of teaxyz/cli to install.
