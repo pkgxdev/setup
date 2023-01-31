@@ -65,10 +65,15 @@ jobs:
             --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} \
             --paths / /pour.sh
 
+      - run: |
+          git tag v${{ needs.smoke.outputs.version }}
+          git push origin v${{ needs.smoke.outputs.version }}
+
       - uses: softprops/action-gh-release@v1
         with:
           files: ./install.sh
           tag_name: v${{ needs.smoke.outputs.version }}
+          fail_on_unmatched_files: true
 
       - uses: fischerscode/tagger@v0
         with:
