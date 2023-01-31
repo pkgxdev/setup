@@ -74,17 +74,17 @@ jobs:
           - macos-latest
           - ubuntu-latest
         prefix:
-          - ~
+          - null
           - /opt
         container:
-          - ~
+          - null
         include:
         - os: ubuntu-latest
           container: debian:buster-slim
           srcroot: .
         - os: ubuntu-latest
           container: debian:buster-slim
-          srcroot: ~
+          srcroot: null
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
