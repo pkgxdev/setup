@@ -263,6 +263,8 @@ jobs:
         if: ${{ steps.status.outputs.status == 'failure' }}
       - uses: JasonEtco/create-an-issue@v2
         if: ${{ steps.status.outputs.status == 'failure' }}
+        with:
+          filename: .github/CI_FAILURE_ISSUE_TEMPLATE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
