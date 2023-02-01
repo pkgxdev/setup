@@ -390,17 +390,22 @@ check_shell_magic() {
 		if command -v finger >/dev/null 2>&1; then
 			SHELL="$(finger "$USER" | grep Shell | cut -d: -f3 | tr -d ' ')"
 		elif command -v getent >/dev/null 2>&1; then
-			SHELL="$(basename "$(getent passwd "$USER")")"
-		fi
-		if test -z "$SHELL"; then
-			# well dang
-			SHELL="unknown"
+			SHELL="$(getent passwd "$USER")"
+		elif command -v id >/dev/null 2>&1; then
+			SHELL="$(id -P | cut -d ':' -f 10)"
+		# Try to fall back with some level of normalcy
+		elif test "$(uname)" == "Darwin"; then
+			SHELL=zsh
+		else
+			SHELL=bash
 		fi
 	fi
 
-	__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source <(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic --silent)"
+	SHELL=$(basename "$SHELL") # just in case
 
-	case $(basename "$SHELL") in
+	__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source <(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=$SHELL --silent)"
+
+	case "$SHELL" in
 	zsh)
 		if test -n "$ZDOTDIR"; then
 			__TEA_ZSHRC="$ZDOTDIR/.zshrc"
@@ -423,7 +428,7 @@ check_shell_magic() {
 	fish)
 		__TEA_SH_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
 		__TEA_BTN_TXT="add one-liner to your \`config.fish\`?"
-		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && \"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic --silent | source"
+		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && \"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=fish --silent | source"
 		;;
 	*)
 		gum_func format -- <<-EoMD
