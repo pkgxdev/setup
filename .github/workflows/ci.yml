@@ -40,6 +40,8 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
+          - [self-hosted, macOS, ARM64]
+          - [self-hosted, linux, ARM64]
         prefix:
           - ~
           - foo
@@ -73,6 +75,8 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
+          - [self-hosted, macOS, ARM64]
+          - [self-hosted, linux, ARM64]
         prefix:
           - null
           - /opt
