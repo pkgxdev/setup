@@ -62,7 +62,9 @@ jobs:
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env
-      - run: tea xc test
+      - run: tea --env xc test
+      # ^^ tea -E necessary because we run the install script and not the action
+      # so no additions to PATH or magic is installed
       - run: which tea
       - run: find "$(tea --silent --prefix)"/tea.xyz
       - run: find /opt/tea.xyz -name v0.? -o -name v0.?? -mindepth 1 -maxdepth 1 -print0 | xargs -0 test -L
