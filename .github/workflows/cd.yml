@@ -3,6 +3,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
@@ -37,6 +40,9 @@ jobs:
     secrets: inherit
 
   put:
+    permissions:
+      contents: write
+      deployments: write
     needs: [ci1, ci2, smoke]
     runs-on: ubuntu-latest
     steps:
