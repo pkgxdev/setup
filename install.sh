@@ -522,8 +522,8 @@ install)
 
 				try it out:
 
-				\`exec $SHELL\`  # or open a new tab
-        \`wget -qO- tea.xyz/white-paper | glow -\`
+				\`exec $SHELL -i\`  # or open a new tab
+				\`wget -qO- tea.xyz/white-paper | glow -\`
 				EoMD
 		fi
 	elif test -n "$TEA_IS_CURRENT"; then
