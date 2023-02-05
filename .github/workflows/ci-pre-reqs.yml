@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.ref }}/2
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   pre-reqs:
     continue-on-error: true
