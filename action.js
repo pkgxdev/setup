@@ -30,9 +30,9 @@ async function go() {
   }
   if (process.env["INPUT_+"]) {
     for (const item of process.env["INPUT_+"].split(/\s+/)) {
-      additional_pkgs.push(`+${item}`)
-    }
-  }
+      if (item.trim()) {
+        additional_pkgs.push(`+${item}`)
+  }}}
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed

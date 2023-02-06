@@ -129,6 +129,9 @@ jobs:
       - uses: ./
         with:
           +deno.land: ^1.30
+        # ^^ produces a warning, but we like this syntax
+        # we're hoping GH allows us to suppress this warning in the future
+        # discussion: https://github.com/octokit/request-action/issues/26
       - run: deno --version
 
   additional-pkgs-2:
