@@ -112,7 +112,7 @@ async function go() {
     args += " --chaste"
   }
 
-  out = execSync(`${teafile} ${env_flag} ${args} ${additional_pkgs.join(" ")}`, {env}).toString()
+  out = execSync(`${teafile} --sync ${env_flag} ${args} ${additional_pkgs.join(" ")}`, {env}).toString()
 
   const lines = out.split("\n")
   for (const line of lines) {
