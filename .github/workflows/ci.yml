@@ -62,7 +62,7 @@ jobs:
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env
-      - run: tea --env xc test
+      - run: tea --env xc check
       # ^^ tea -E necessary because we run the install script and not the action
       # so no additions to PATH or magic is installed
       - run: which tea
@@ -106,7 +106,7 @@ jobs:
       - run: test v$VERSION = v${{ steps.tea.outputs.version }}
       - run: tea --env
       - run: which tea
-      - run: tea xc test
+      - run: tea xc check
       - run: node --eval 'console.log(1)'
 
   chaste:

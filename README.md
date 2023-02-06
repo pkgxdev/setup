@@ -64,9 +64,9 @@ See our CI scripts for details.
 
 # Tasks
 
-## Test
+## Check
 
-Run this with `xc test`.
+Run this with `xc check`.
 
 ```sh
 node --check ./action.js
