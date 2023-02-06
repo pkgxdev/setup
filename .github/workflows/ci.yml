@@ -109,6 +109,24 @@ jobs:
       - run: tea xc test
       - run: node --eval 'console.log(1)'
 
+  chaste:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          chaste: true
+      - run: test ! which node
+
+  additional-pkgs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          +deno.land: ^1.30
+      - run: deno --version
+
   multiple-apply:
     runs-on: ubuntu-latest
     steps:
