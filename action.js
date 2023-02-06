@@ -100,9 +100,6 @@ async function go() {
   const vv = parseFloat(v)
   const env_flag = vv >= 0.19 ? '--env --keep-going' : '--env'
 
-  // install packages
-  execSync(`${teafile} --sync ${env_flag} echo`, {env})
-
   // get env FIXME one call should do init
 
   let args = vv >= 0.21
@@ -111,7 +108,7 @@ async function go() {
       ? "--dry-run"
       : "--dump"
 
-  if (process.env["INPUT_CHASTE"] && vv >= 0.19) {
+  if (process.env["INPUT_CHASTE"] == "true") {
     args += " --chaste"
   }
 
@@ -148,6 +145,7 @@ async function go() {
     }
   }
 
+  //TODO deprecated exe/md
   const target = process.env['INPUT_TARGET']
   if (target) {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})
