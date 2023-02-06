@@ -105,7 +105,7 @@ async function go() {
 
   // get env FIXME one call should do init
 
-  const args = vv >= 0.21
+  let args = vv >= 0.21
     ? ""
     : vv >= 0.19
       ? "--dry-run"
