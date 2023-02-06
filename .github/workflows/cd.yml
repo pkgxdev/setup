@@ -7,6 +7,7 @@ permissions:
   contents: read
 
 jobs:
+  # check if this is a new release
   smoke:
     runs-on: ubuntu-latest
     outputs:
@@ -29,12 +30,12 @@ jobs:
       - uses: andymckay/cancel-action@0.2
         if: ${{ steps.rev-parse.outputs.result == 'cancel' }}
 
-  ci1:
+  ci:
     needs: [smoke]
     uses: ./.github/workflows/ci.yml
     secrets: inherit
 
-  ci2:
+  ci-pre-reqs:
     needs: [smoke]
     uses: ./.github/workflows/ci-pre-reqs.yml
     secrets: inherit
@@ -43,7 +44,7 @@ jobs:
     permissions:
       contents: write
       deployments: write
-    needs: [ci1, ci2, smoke]
+    needs: [ci, ci-pre-reqs, smoke]
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment

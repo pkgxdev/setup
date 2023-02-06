@@ -20,6 +20,19 @@ async function go() {
     return path.normalize(TEA_DIR)
   })()
 
+  const additional_pkgs = []
+  for (let key in process.env) {
+    if (key.startsWith("INPUT_+")) {
+      const value = process.env[key]
+      if (key == 'INPUT_+') {
+        for (const item of value.split(/\s+/)) {
+          if (item.trim()) {
+            additional_pkgs.push(`+${item}`)
+      }}} else {
+        key = key.slice(6).toLowerCase()
+        additional_pkgs.push(key+value)
+  }}}
+
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
   if (PREFIX == '/opt' && os.platform == 'darwin') {
@@ -91,17 +104,19 @@ async function go() {
   const vv = parseFloat(v)
   const env_flag = vv >= 0.19 ? '--env --keep-going' : '--env'
 
-  // install packages
-  execSync(`${teafile} --sync ${env_flag} echo`, {env})
-
   // get env FIXME one call should do init
 
-  const args = vv >= 0.21
+  let args = vv >= 0.21
     ? ""
     : vv >= 0.19
       ? "--dry-run"
       : "--dump"
-  out = execSync(`${teafile} ${env_flag} ${args}`, {env}).toString()
+
+  if (process.env["INPUT_CHASTE"] == "true") {
+    args += " --chaste"
+  }
+
+  out = execSync(`${teafile} --sync ${env_flag} ${args} ${additional_pkgs.join(" ")}`, {env}).toString()
 
   const lines = out.split("\n")
   for (const line of lines) {
@@ -134,6 +149,7 @@ async function go() {
     }
   }
 
+  //TODO deprecated exe/md
   const target = process.env['INPUT_TARGET']
   if (target) {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})

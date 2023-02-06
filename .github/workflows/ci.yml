@@ -62,7 +62,7 @@ jobs:
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env
-      - run: tea --env xc test
+      - run: tea --env xc check
       # ^^ tea -E necessary because we run the install script and not the action
       # so no additions to PATH or magic is installed
       - run: which tea
@@ -106,8 +106,45 @@ jobs:
       - run: test v$VERSION = v${{ steps.tea.outputs.version }}
       - run: tea --env
       - run: which tea
-      - run: tea xc test
+      - run: tea xc check
       - run: node --eval 'console.log(1)'
+
+  chaste:
+    runs-on: ubuntu-latest
+    container: debian:buster-slim
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          chaste: true
+      - run:
+          if node --version; then
+            exit 1;
+          fi
+
+  additional-pkgs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          +deno.land: ^1.30
+        # ^^ produces a warning, but we like this syntax
+        # we're hoping GH allows us to suppress this warning in the future
+        # discussion: https://github.com/octokit/request-action/issues/26
+      - run: deno --version
+
+  additional-pkgs-2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          +: |
+            deno.land^1.30
+            cli.github.com
+      - run: deno --version
+      - run: gh --version
 
   multiple-apply:
     runs-on: ubuntu-latest

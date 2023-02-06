@@ -12,6 +12,24 @@ inputs:
       The version of teaxyz/cli to install.
       Defaults to the most recent published version.
     required: false
+  chaste:
+    description: >
+      Do not install packages.
+      Defaults to `false`.
+    default: false
+  +:
+    description: |
+      Whitespace separated, pkgs to supplement the environment. eg.
+
+      ```yaml
+      +: |
+        deno.land^1.30
+        rust-lang.org^1.60
+      ```
+
+      By default tea reads your developer environment and adds those packages.
+      Specifying additional packages here is a way to augment that.
+    required: false
   srcroot:
     description: |
       Override detection of `$SRCROOT`.
