@@ -20,6 +20,15 @@ async function go() {
     return path.normalize(TEA_DIR)
   })()
 
+  const additional_pkgs = []
+  for (let key in process.env) {
+    if (key.startsWith("INPUT_+")) {
+      const value = process.env[key]
+      key = key.slice(6).toLowerCase()
+      additional_pkgs.push(key+value)
+    }
+  }
+
   // we build to /opt and special case this action so people new to
   // building aren’t immediatelyt flumoxed
   if (PREFIX == '/opt' && os.platform == 'darwin') {
@@ -101,7 +110,12 @@ async function go() {
     : vv >= 0.19
       ? "--dry-run"
       : "--dump"
-  out = execSync(`${teafile} ${env_flag} ${args}`, {env}).toString()
+
+  if (process.env["INPUT_CHASTE"]) {
+    args.push("--chaste")
+  }
+
+  out = execSync(`${teafile} ${env_flag} ${args} ${additional_pkgs.join(" ")}`, {env}).toString()
 
   const lines = out.split("\n")
   for (const line of lines) {

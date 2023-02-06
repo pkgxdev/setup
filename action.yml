@@ -12,6 +12,11 @@ inputs:
       The version of teaxyz/cli to install.
       Defaults to the most recent published version.
     required: false
+  chaste:
+    description: >
+      Do not install packages.
+      Defaults to `false`.
+    default: false
   srcroot:
     description: |
       Override detection of `$SRCROOT`.
