@@ -112,7 +112,7 @@ async function go() {
       : "--dump"
 
   if (process.env["INPUT_CHASTE"]) {
-    args.push("--chaste")
+    args += " --chaste"
   }
 
   out = execSync(`${teafile} ${env_flag} ${args} ${additional_pkgs.join(" ")}`, {env}).toString()
