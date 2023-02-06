@@ -24,14 +24,13 @@ async function go() {
   for (let key in process.env) {
     if (key.startsWith("INPUT_+")) {
       const value = process.env[key]
-      key = key.slice(6).toLowerCase()
-      additional_pkgs.push(key+value)
-    }
-  }
-  if (process.env["INPUT_+"]) {
-    for (const item of process.env["INPUT_+"].split(/\s+/)) {
-      if (item.trim()) {
-        additional_pkgs.push(`+${item}`)
+      if (key == 'INPUT_+') {
+        for (const item of value.split(/\s+/)) {
+          if (item.trim()) {
+            additional_pkgs.push(`+${item}`)
+      }}} else {
+        key = key.slice(6).toLowerCase()
+        additional_pkgs.push(key+value)
   }}}
 
   // we build to /opt and special case this action so people new to
