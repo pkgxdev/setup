@@ -111,7 +111,7 @@ async function go() {
       ? "--dry-run"
       : "--dump"
 
-  if (process.env["INPUT_CHASTE"]) {
+  if (process.env["INPUT_CHASTE"] && vv >= 0.19) {
     args += " --chaste"
   }
 
