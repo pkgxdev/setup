@@ -32,14 +32,11 @@ inputs:
     required: false
   srcroot:
     description: |
-      Override detection of `$SRCROOT`.
+      Override detection of the developer-environment’s `$SRCROOT`.
 
-      tea normally finds your `$SRCROOT` by looking for a `.git` directory.
-      However, if git is not installed the checkout action uses the GitHub
-      API to download the repository.
-
-      You will need this if you depend on the virtual environment tea
-      provides.
+      Set to `null` to disable the developer-environment.
+    default: .
+    required: false
 outputs:
   version:
     description: Your project’s version.

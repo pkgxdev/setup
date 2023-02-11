@@ -102,7 +102,7 @@ async function go() {
   const GITHUB_OUTPUT = process.env['GITHUB_OUTPUT']
 
   const vv = parseFloat(v)
-  const env_flag = vv >= 0.19 ? '--env --keep-going' : '--env'
+  const env_flag = TEA_DIR ? vv >= 0.19 ? '--env --keep-going' : '--env' : ''
 
   // get env FIXME one call should do init
 
@@ -150,6 +150,7 @@ async function go() {
   }
 
   //TODO deprecated exe/md
+  //NOTE BUT LEAVE BECAUSE WE ONCE SUPPORTED THIS
   const target = process.env['INPUT_TARGET']
   if (target) {
     execSync(`${teafile} ${target}`, {stdio: "inherit", env})
