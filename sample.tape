@@ -16,15 +16,11 @@ Sleep 1s
 
 Enter
 
-Sleep 1s
+Sleep 4s
 
 Enter
 
 Sleep 13s
-
-Enter
-
-Sleep 4s
 
 Enter
 

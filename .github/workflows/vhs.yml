@@ -1,6 +1,7 @@
 on:
   pull_request:
     paths:
+      - sample.tape
       - .github/workflows/vhs.yml
   release:
     types: [published, edited]
