@@ -3,7 +3,7 @@
 * [`install.sh`](./install.sh) is delivered when you `curl tea.xyz`.
 * This repository also provides the `tea` GitHub Action.
 
-# GitHub Action 0.15.0
+# GitHub Action 0.15.1
 
 ```yaml
 - uses: teaxyz/setup@v0
