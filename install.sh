@@ -453,7 +453,7 @@ check_shell_magic() {
 
 		tea’s shell magic is optional but it’s the way it’s meant to be used.
 
-		> docs https://github.com/teaxyz/cli#magic
+		> docs https://docs.tea.xyz/features/magic
 		EoMD
 
 	if gum_func confirm "$__TEA_BTN_TXT" --affirmative="add one-liner" --negative="skip"; then
