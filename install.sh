@@ -420,6 +420,7 @@ check_shell_magic() {
 	bash)
 		__TEA_SH_FILE="$HOME/.bashrc"
 		__TEA_BTN_TXT="add one-liner to your \`~/.bashrc\`?"
+		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source /dev/stdin <<<\"\$(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=$SHELL --silent)\""
 		;;
 	elvish)
 		__TEA_SH_FILE="$HOME/.config/elvish/rc.elv"
