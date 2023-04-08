@@ -32,6 +32,7 @@ jobs:
       - run: ./install.sh --yes node --eval 'console.log(1)'
         env:
           VERBOSE: ${{ matrix.verbose }}
+      - run: ./install.sh sh -c "which tea"
 
   direct:
     runs-on: ${{ matrix.os }}
