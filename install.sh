@@ -550,7 +550,7 @@ exec)
 
 		echo  #spacer
 	else
-		# don’t hog resources
+    export PATH="$TEA_PREFIX/tea.xyz/v*/bin:$PATH"
 		exec $TEA_EXENAME "$@"
 	fi
 	;;

@@ -32,6 +32,7 @@ jobs:
       - run: ./install.sh --yes node --eval 'console.log(1)'
         env:
           VERBOSE: ${{ matrix.verbose }}
+      - run: ./install.sh sh -c "which tea"
 
   direct:
     runs-on: ${{ matrix.os }}
@@ -192,8 +193,7 @@ jobs:
           - gha
           - direct
         version:
-          - 0.21.0
-          - 0.19.4
+          - 0.26.3
           - 0.18.1
           - 0.17.3
     steps:
