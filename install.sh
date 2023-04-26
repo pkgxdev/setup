@@ -444,7 +444,7 @@ check_shell_magic() {
 		return 1
 	esac
 
-	if test -f "__TEA_SH_FILE" && command -v grep >/dev/null && grep --fixed-strings "$__TEA_ONE_LINER" "$__TEA_SH_FILE" --silent; then
+	if test -f "$__TEA_SH_FILE" && command -v grep >/dev/null && grep --fixed-strings "$__TEA_ONE_LINER" "$__TEA_SH_FILE" --silent; then
 		# shell magic already installed
 		return 0
 	fi
