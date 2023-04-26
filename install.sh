@@ -498,7 +498,7 @@ elif command -v git >/dev/null 2>&1; then
 	title="syncing"
 fi
 
-gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync --cd / echo
+gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync --cd / /bin/echo
 
 case $MODE in
 install)
