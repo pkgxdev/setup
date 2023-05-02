@@ -6,6 +6,7 @@ set -o noglob
 # prevent existing env breaking this script
 unset TEA_DESTDIR
 unset TEA_VERSION
+unset TEA_MAGIC
 
 unset stop
 while test "$#" -gt 0 -a -z "$stop"; do
@@ -27,6 +28,9 @@ while test "$#" -gt 0 -a -z "$stop"; do
 		shift;shift;;
 	--yes|-y)
 		TEA_YES=1
+		shift;;
+	--magic)
+		TEA_INSTALL_MAGIC=1
 		shift;;
 	--help|-h)
 		echo "tea: docs: https://github.com/teaxyz/setup"
@@ -139,15 +143,19 @@ prepare() {
 				TEA_DESTDIR="$(mktemp -dt tea-XXXXXX)"
 			else
 				TEA_DESTDIR="$HOME/.tea"
-				# make our configurations portable
-				TEA_DESTDIR_WRITABLE="\$HOME/.tea"
 			fi
 		fi
 	fi
 
-	if test -z "$TEA_DESTDIR_WRITABLE"; then
-		TEA_DESTDIR_WRITABLE="$TEA_DESTDIR"
-	fi
+	# be portable
+	case "$TEA_DESTDIR" in
+		"$HOME"/*)
+			TEA_DESTDIR_WRITABLE="\$HOME${TEA_DESTDIR#$HOME}"
+			;;
+		*)
+			TEA_DESTDIR_WRITABLE="$TEA_DESTDIR"
+			;;
+	esac
 
 	if test -z "$CURL"; then
 		if command -v curl >/dev/null 2>&1; then
@@ -502,7 +510,7 @@ gum_func spin --title "$title pantry" -- "$TEA_EXENAME" --sync --cd / /bin/echo
 
 case $MODE in
 install)
-	if ! test -n "$ALREADY_INSTALLED"; then
+	if ! test -n "$ALREADY_INSTALLED" -a "$TEA_INSTALL_MAGIC" != 1; then
 		if ! check_shell_magic; then
 			check_path
 			gum_func format -- <<-EoMD
@@ -550,7 +558,7 @@ exec)
 
 		echo  #spacer
 	else
-    export PATH="$TEA_PREFIX/tea.xyz/v*/bin:$PATH"
+		export PATH="$TEA_PREFIX/tea.xyz/v*/bin:$PATH"
 		exec $TEA_EXENAME "$@"
 	fi
 	;;
