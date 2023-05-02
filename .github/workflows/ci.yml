@@ -278,3 +278,20 @@ jobs:
         - run: brew install gum
         - run: ./install.sh --yes
         - run: .github/smoke-test.sh
+
+  check-indentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - uses: jannekem/run-python-script-action@v1
+        with:
+          script: |
+            import sys
+            with open('install.sh') as f:
+              for line_number, line in enumerate(f, start=1):
+                if line.startswith(' '):
+                  print(f'Error: Space indentation found on line {line_number}')
+                  sys.exit(1)
