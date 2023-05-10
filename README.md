@@ -29,9 +29,9 @@ can browse the pantry on our website:
 
 ## Magic
 
-We cannot install our shell magic into GitHub Actions. So unless you manually
-add a package with `+:` you will need to ensure it is called with a `tea`
-prefix, eg. `tea npx`.
+We cannot install our shell magic into GitHub Actions. So unless your dev-env
+includes the package or you manually add the package with `+:` you will need
+to ensure it is called with a `tea` prefix, eg. `tea npx`.
 
 ## Interesting Usages
 
