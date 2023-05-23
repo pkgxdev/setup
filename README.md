@@ -3,7 +3,7 @@
 * [`install.sh`](./install.sh) is delivered when you `curl tea.xyz`.
 * This repository also provides the `tea` GitHub Action.
 
-# GitHub Action 0.17.0
+# GitHub Action 0.17.1
 
 ```yaml
 - uses: teaxyz/setup@v0
@@ -32,6 +32,11 @@ can browse the pantry on our website:
 We cannot install our shell magic into GitHub Actions. So unless your dev-env
 includes the package or you manually add the package with `+:` you will need
 to ensure it is called with a `tea` prefix, eg. `tea npx`.
+
+## Should you Cache `~/.tea`?
+
+No. tea packages are just tarballs. Caching is just a tarball. You’ll likely
+just slow things down.
 
 ## Interesting Usages
 
