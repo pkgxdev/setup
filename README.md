@@ -33,6 +33,11 @@ We cannot install our shell magic into GitHub Actions. So unless your dev-env
 includes the package or you manually add the package with `+:` you will need
 to ensure it is called with a `tea` prefix, eg. `tea npx`.
 
+## Should you Cache `~/.tea`?
+
+No. tea packages are just tarballs. Caching is just a tarball. You’ll likely
+just slow things down.
+
 ## Interesting Usages
 
 At tea, we consider the version in the `README` the definitive version.
