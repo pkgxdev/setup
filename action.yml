@@ -42,4 +42,4 @@ outputs:
     description: Your project’s version.
 runs:
   using: node16
-  main: action.js
+  main: dist/out/index.js

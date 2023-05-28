@@ -28,8 +28,7 @@ jobs:
           verbose: VERBOSE
     steps:
       - uses: actions/checkout@v3
-      - run: echo foo > foo
-      - run: ./install.sh --yes node --eval 'console.log(1)'
+      - run: ./install.sh node --eval 'console.log(1)'
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: ./install.sh sh -c "which tea"
@@ -44,7 +43,7 @@ jobs:
           - [self-hosted, macOS, ARM64]
           - [self-hosted, linux, ARM64]
         prefix:
-          - ~
+          - null
           - foo
         include:
         - os: ubuntu-latest
@@ -74,6 +73,7 @@ jobs:
   gha:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - macos-latest
@@ -196,6 +196,9 @@ jobs:
           - 0.26.3
           - 0.18.1
           - 0.17.3
+        include:
+          - version: ^0.33
+            system: gha
     steps:
       - uses: actions/checkout@v3
       - uses: ./
@@ -204,7 +207,8 @@ jobs:
           version: ${{ matrix.version }}
       - run: ./install.sh --yes --version ${{ matrix.version }}
         if: ${{ matrix.system == 'direct' }}
-      - run: test "$(tea --version)" = "tea ${{ matrix.version }}"
+      - run: tea --version | grep ${{ matrix.version }}
+        if: ${{ matrix.version != '^0.33' }}
 
   sudo-not-required:
       runs-on: ubuntu-latest
