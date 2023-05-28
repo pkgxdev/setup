@@ -169,9 +169,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ludeeus/action-shellcheck@1.1.0
+      - uses: ludeeus/action-shellcheck@2.0.0
         with:
           severity: warning
+          ignore_paths: scripts/dist.sh
         env:
           SHELLCHECK_OPTS: --shell dash
 
@@ -299,3 +300,11 @@ jobs:
                 if line.startswith(' '):
                   print(f'Error: Space indentation found on line {line_number}')
                   sys.exit(1)
+
+  check-dist-was-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: ./scripts/dist.sh
+      - run: git diff --exit-code
