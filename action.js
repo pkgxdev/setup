@@ -65,13 +65,13 @@ async function go() {
   const teafile = tea.path.join('bin/tea').string
   const env_args = ['--env']
 
-  if (TEA_DIR && tea.pkg.version.gt(new SemVer("0.18.99"))) {
+  if (TEA_DIR && tea.pkg.version.gte(new SemVer("0.19"))) {
     env_args.push('--keep-going')
   }
 
-  let args = tea.pkg.version.gt(new SemVer("0.20.99"))
+  let args = tea.pkg.version.gte(new SemVer("0.21"))
     ? []
-    : tea.pkg.version.gt(new SemVer("0.18.99"))
+    : tea.pkg.version.gte(new SemVer("0.19"))
       ? ["--dry-run"]
       : ["--dump"]
 
