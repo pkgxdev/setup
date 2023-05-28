@@ -63,10 +63,12 @@ async function go() {
 
   const tea = await useCellar().resolve({project: 'tea.xyz', constraint: new semver.Range('*')})
   const teafile = tea.path.join('bin/tea').string
-  const env_args = ['--env']
+  const env_args = []
 
   if (TEA_DIR && tea.pkg.version.gte(new SemVer("0.19"))) {
-    env_args.push('--keep-going')
+    env_args.push('--env', '--keep-going')
+  } else if (TEA_DIR) {
+    env_args.push('--env')
   }
 
   let args = tea.pkg.version.gte(new SemVer("0.21"))
