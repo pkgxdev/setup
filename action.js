@@ -54,7 +54,7 @@ async function go() {
   })
   await useSync()
   const { pkgs: tree } = await hydrate(pkgs.map(utils.pkg.parse))
-  const { pkgs: pending } = await resolve(tree)
+  const { pending } = await resolve(tree)
   for (const pkg of pending) {
     core.info(`installing ${utils.pkg.str(pkg)}`)
     const installation = await install(pkg)
