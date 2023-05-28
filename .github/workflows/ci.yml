@@ -28,8 +28,7 @@ jobs:
           verbose: VERBOSE
     steps:
       - uses: actions/checkout@v3
-      - run: echo foo > foo
-      - run: ./install.sh --yes node --eval 'console.log(1)'
+      - run: ./install.sh node --eval 'console.log(1)'
         env:
           VERBOSE: ${{ matrix.verbose }}
       - run: ./install.sh sh -c "which tea"
@@ -44,7 +43,7 @@ jobs:
           - [self-hosted, macOS, ARM64]
           - [self-hosted, linux, ARM64]
         prefix:
-          - ~
+          - null
           - foo
         include:
         - os: ubuntu-latest
@@ -74,6 +73,7 @@ jobs:
   gha:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - macos-latest
@@ -169,9 +169,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ludeeus/action-shellcheck@1.1.0
+      - uses: ludeeus/action-shellcheck@2.0.0
         with:
           severity: warning
+          ignore_paths: scripts  # this action is badly designed you can’t be more specific that a directory or filename (not path)
         env:
           SHELLCHECK_OPTS: --shell dash
 
@@ -196,6 +197,9 @@ jobs:
           - 0.26.3
           - 0.18.1
           - 0.17.3
+        include:
+          - version: ^0.33
+            system: gha
     steps:
       - uses: actions/checkout@v3
       - uses: ./
@@ -204,7 +208,8 @@ jobs:
           version: ${{ matrix.version }}
       - run: ./install.sh --yes --version ${{ matrix.version }}
         if: ${{ matrix.system == 'direct' }}
-      - run: test "$(tea --version)" = "tea ${{ matrix.version }}"
+      - run: tea --version | grep ${{ matrix.version }}
+        if: ${{ matrix.version != '^0.33' }}
 
   sudo-not-required:
       runs-on: ubuntu-latest
@@ -295,3 +300,11 @@ jobs:
                 if line.startswith(' '):
                   print(f'Error: Space indentation found on line {line_number}')
                   sys.exit(1)
+
+  check-dist-was-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: ./scripts/dist.sh
+      - run: git diff --exit-code

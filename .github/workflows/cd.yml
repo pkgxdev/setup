@@ -27,7 +27,7 @@ jobs:
             echo "::set-output name=result::cancel"
           fi
 
-      - uses: andymckay/cancel-action@0.2
+      - uses: andymckay/cancel-action@0.3
         if: ${{ steps.rev-parse.outputs.result == 'cancel' }}
 
   ci:
