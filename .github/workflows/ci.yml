@@ -172,7 +172,7 @@ jobs:
       - uses: ludeeus/action-shellcheck@2.0.0
         with:
           severity: warning
-          ignore_paths: scripts/dist.sh
+          ignore_paths: scripts  # this action is badly designed you can’t be more specific that a directory or filename (not path)
         env:
           SHELLCHECK_OPTS: --shell dash
 
