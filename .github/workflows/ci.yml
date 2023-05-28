@@ -308,3 +308,8 @@ jobs:
       - uses: ./
       - run: ./scripts/dist.sh
       - run: git diff --exit-code
+
+  check-run-no-dev-env:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: teaxyz/setup@${{ github.sha }}
