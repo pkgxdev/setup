@@ -1,8 +1,8 @@
-const { plumbing, hooks, Path, utils, semver, SemVer } = require("@teaxyz/lib")
+const { porcelain, hooks, Path, utils, semver, SemVer } = require("@teaxyz/lib")
 const { getExecOutput, exec } = require("@actions/exec")
-const { install, link, resolve, hydrate } = plumbing
 const { useConfig, useSync, useCellar } = hooks
 const core = require('@actions/core')
+const { install } = porcelain
 const path = require('path')
 const os = require("os")
 
@@ -27,7 +27,7 @@ async function go() {
   const pkgs = [`tea.xyz${vtea}`]
   for (let key in process.env) {
     if (key.startsWith("INPUT_+")) {
-      const value = process.env[key]
+      const value = process.env[key]!
       if (key == 'INPUT_+') {
         for (const item of value.split(/\s+/)) {
           if (item.trim()) {
@@ -52,14 +52,8 @@ async function go() {
     UserAgent: 'tea.setup/0.1.0', //TODO version
     options: { compression: 'gz' }
   })
-  await useSync()
-  const { pkgs: tree } = await hydrate(pkgs.map(utils.pkg.parse))
-  const { pending } = await resolve(tree)
-  for (const pkg of pending) {
-    core.info(`installing ${utils.pkg.str(pkg)}`)
-    const installation = await install(pkg)
-    await link(installation)
-  }
+
+  await install(pkgs)
 
   const tea = await useCellar().resolve({project: 'tea.xyz', constraint: new semver.Range('*')})
   const teafile = tea.path.join('bin/tea').string
@@ -112,7 +106,7 @@ async function go() {
 
   if (os.platform() != 'darwin') {
     const sh = path.join(path.dirname(__filename), "install-pre-reqs.sh")
-    if (process.getuid() == 0) {
+    if (process.getuid && process.getuid() == 0) {
       await exec(sh)
     } else {
       await exec('sudo', [sh])
