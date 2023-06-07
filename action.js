@@ -1,6 +1,6 @@
-const { prefab, hooks, Path, utils, semver, SemVer } = require("@teaxyz/lib")
-const { install, link, resolve, hydrate } = prefab
+const { plumbing, hooks, Path, utils, semver, SemVer } = require("@teaxyz/lib")
 const { getExecOutput, exec } = require("@actions/exec")
+const { install, link, resolve, hydrate } = plumbing
 const { useConfig, useSync, useCellar } = hooks
 const core = require('@actions/core')
 const path = require('path')

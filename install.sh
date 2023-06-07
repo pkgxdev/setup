@@ -48,7 +48,7 @@ prepare() {
 	#FIXME doesn’t seem to work through `gum` prompts
 	trap "echo; exit" INT
 
-	if ! command -v tar >/dev/null 2>&1; then
+	if ! command -v tar >/dev/null; then
 		echo "tea: error: sorry. pls install tar :(" >&2
 	fi
 
@@ -94,12 +94,12 @@ prepare() {
 	fi
 
 	if test $ZZ = 'gz'; then
-		if command -v base64 >/dev/null 2>&1; then
+		if command -v base64 >/dev/null; then
 			BASE64_TARXZ="/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4AX/AFNdADMb7AG6cMNAaNMVK8FvZMaza8QKKTQY6wZ3kG/F814lHE9ruhkFO5DAG7XNamN7JMHavgmbbLacr72NaAzgGUXOstqUaGb6kbp7jrkF+3aQT12CAAB8Uikc1gG8RwABb4AMAAAAeGbHwbHEZ/sCAAAAAARZWg=="
 			if echo "$BASE64_TARXZ" | base64 -d | tar Jtf - >/dev/null 2>&1; then
 				ZZ=xz
 			fi
-		elif command -v uudecode >/dev/null 2>&1; then
+		elif command -v uudecode >/dev/null; then
 			TMPFILE=$(mktemp)
 			cat >"$TMPFILE" <<-EOF
 				begin 644 foo.tar.xz
@@ -125,7 +125,7 @@ prepare() {
 
 	if test -z "$TEA_DESTDIR"; then
 		# update existing installation if found
-		if command -v tea >/dev/null 2>&1; then
+		if command -v tea >/dev/null; then
 			set +e
 			TEA_DESTDIR="$(tea --prefix --silent)"
 			if test $? -eq 0 -a -n "$TEA_DESTDIR"; then
@@ -158,7 +158,7 @@ prepare() {
 	esac
 
 	if test -z "$CURL"; then
-		if command -v curl >/dev/null 2>&1; then
+		if command -v curl >/dev/null; then
 			CURL="curl -Ssf"
 		elif test -f "$TEA_DESTDIR/curl.se/v*/bin/curl"; then
 			CURL="$TEA_DESTDIR/curl.se/v*/bin/curl -Ssf"
@@ -171,7 +171,7 @@ prepare() {
 }
 
 get_gum() {
-	if command -v gum >/dev/null 2>&1; then
+	if command -v gum >/dev/null; then
 		TEA_GUM=gum
 	elif test -n "$ALREADY_INSTALLED"; then
 		TEA_GUM="tea --silent +charm.sh/gum gum"
@@ -354,7 +354,7 @@ check_path() {
 		then
 			mkdir -p /usr/local/bin
 			ln -sf "$TEA_EXENAME" /usr/local/bin/tea
-		elif command -v sudo >/dev/null 2>&1
+		elif command -v sudo >/dev/null
 		then
 			sudo --reset-timestamp
 			sudo mkdir -p /usr/local/bin
@@ -367,7 +367,7 @@ check_path() {
 				EoMD
 		fi
 
-		if ! command -v tea >/dev/null 2>&1
+		if ! command -v tea >/dev/null
 		then
 
 			echo  #spacer
@@ -395,11 +395,20 @@ check_shell_magic() {
 
 	# foo knows I cannot tell you why $SHELL may be unset
 	if test -z "$SHELL"; then
-		if command -v finger >/dev/null 2>&1; then
+		if test -z "$USER"; then
+			if ! command -v whoami >/dev/null; then
+				SHELL=bash
+			else
+				USER="$(whoami)"
+			fi
+		fi
+		if test -n "$SHELL"; then
+			: #noop: set above
+		elif command -v finger >/dev/null; then
 			SHELL="$(finger "$USER" | grep Shell | cut -d: -f3 | tr -d ' ')"
-		elif command -v getent >/dev/null 2>&1; then
+		elif command -v getent >/dev/null; then
 			SHELL="$(getent passwd "$USER")"
-		elif command -v id >/dev/null 2>&1; then
+		elif command -v id >/dev/null; then
 			SHELL="$(id -P | cut -d ':' -f 10)"
 		# Try to fall back with some level of normalcy
 		elif test "$(uname)" == "Darwin"; then
@@ -409,7 +418,7 @@ check_shell_magic() {
 		fi
 	fi
 
-	SHELL=$(basename "$SHELL") # just in case
+	SHELL=$(basename "$SHELL")
 
 	__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source <(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=$SHELL --silent)"
 
@@ -502,7 +511,7 @@ fi
 
 if ! test -d "$TEA_DESTDIR/tea.xyz/var/pantry"; then
 	title="prefetching"
-elif command -v git >/dev/null 2>&1; then
+elif command -v git >/dev/null; then
 	title="syncing"
 fi
 

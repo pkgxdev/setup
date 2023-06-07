@@ -2,13 +2,13 @@
 
 set -e
 
-source <(tea --magic=bash)
+# source <(tea --magic=bash)
 
-npm i
+tea npm install --include=dev
 
 rm -rf dist
 
-npx -- ncc build action.js --minify --out dist/out
+tea npx -- ncc build action.js --minify --out dist/out
 
 cp -R node_modules/koffi/build dist
 
