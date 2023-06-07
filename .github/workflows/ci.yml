@@ -306,6 +306,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./
-      - run: npm i
+      - run: npm i --dev
       - run: ./scripts/dist.sh
       - run: git diff --exit-code
