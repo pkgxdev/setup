@@ -4,7 +4,7 @@ set -e
 
 source <(tea --magic=bash)
 
-npm i
+npm i --dev
 
 rm -rf dist
 
