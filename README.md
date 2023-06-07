@@ -78,19 +78,5 @@ $ sh <(curl -Ssf tea.xyz) gum spin -- sleep 5
 * `sh <(curl tea.xyz) --version 1.2.3` install a specific version of tea
 
 
-
-&nbsp;
-
-# Tasks
-
-## Check
-
-Run this with `xc check`.
-
-```sh
-node --check ./action.js
-```
-
-
 [`action.yml`]: ./action.yml
 [tea.xyz]: https://tea.xyz
