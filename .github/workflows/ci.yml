@@ -63,7 +63,7 @@ jobs:
           VERBOSE: ${{ matrix.verbose }}
       - run: tea --env
       - run: |
-          node install --include=dev
+          npm install --include=dev
           npx tsc
       # ^^ tea -E necessary because we run the install script and not the action
       # so no additions to PATH or magic is installed
@@ -110,7 +110,7 @@ jobs:
       - run: tea --env
       - run: which tea
       - run: |
-          node install --include=dev
+          npm install --include=dev
           npx tsc
       - run: node --eval 'console.log(1)'
 
