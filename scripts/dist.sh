@@ -8,7 +8,7 @@ tea npm install --include=dev
 
 rm -rf dist
 
-tea npx -- ncc build action.js --minify --out dist/out
+tea npx -- ncc build action.ts --minify --out dist/out
 
 cp -R node_modules/koffi/build dist
 
