@@ -436,8 +436,9 @@ check_shell_magic() {
 		;;
 	bash)
 		__TEA_SH_FILE="$HOME/.bashrc"
-		__TEA_BTN_TXT="add one-liner to your \`~/.bashrc\`?"
-		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source /dev/stdin <<<\"\$(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=$SHELL --silent)\""
+		__TEA_SH_FILE2="$HOME/.bash_profile"
+		__TEA_BTN_TXT="add one-liner to your \`~/.bashrc\` and \`~/.bash_profile\`?"
+		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && test \"$TEA_HAS_RUN\" != 1 && source /dev/stdin <<<\"\$(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=$SHELL --silent)\" && export TEA_HAS_RUN=1"
 		;;
 	elvish)
 		__TEA_SH_FILE="$HOME/.config/elvish/rc.elv"
@@ -477,6 +478,13 @@ check_shell_magic() {
 	if gum_func confirm "$__TEA_BTN_TXT" --affirmative="add one-liner" --negative="skip"; then
 		echo >> "$__TEA_SH_FILE"
 		echo "$__TEA_ONE_LINER" >> "$__TEA_SH_FILE"
+
+		if test -z "$__TEA_SH_FILE2"; then
+			if test -f "$__TEA_SH_FILE2" && command -v grep >/dev/null && grep --fixed-strings "$__TEA_ONE_LINER" "$__TEA_SH_FILE2" --silent; then
+				echo >> "$__TEA_SH_FILE2"
+				echo "$__TEA_ONE_LINER" >> "$__TEA_SH_FILE2"
+			fi
+		fi
 
 		echo  #spacer
 
