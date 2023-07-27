@@ -435,8 +435,8 @@ check_shell_magic() {
 		__TEA_BTN_TXT="add one-liner to your \`$__TEA_ZSHRC\`?"
 		;;
 	bash)
-		__TEA_SH_FILE="$HOME/.bashrc"
-		__TEA_BTN_TXT="add one-liner to your \`~/.bashrc\`?"
+		__TEA_SH_FILE="$HOME/.bash_profile"
+		__TEA_BTN_TXT="add one-liner to your \`~/.bash_profile\`?"
 		__TEA_ONE_LINER="test -d \"$TEA_DESTDIR_WRITABLE\" && source /dev/stdin <<<\"\$(\"$TEA_DESTDIR_WRITABLE/tea.xyz/v*/bin/tea\" --magic=$SHELL --silent)\""
 		;;
 	elvish)
