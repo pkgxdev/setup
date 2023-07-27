@@ -480,7 +480,7 @@ check_shell_magic() {
 		echo "$__TEA_ONE_LINER" >> "$__TEA_SH_FILE"
 
 		if test -z "$__TEA_SH_FILE2"; then
-			if test -f "$__TEA_SH_FILE2" && command -v grep >/dev/null && grep --fixed-strings "$__TEA_ONE_LINER" "$__TEA_SH_FILE2" --silent; then
+			if test ! -f "$__TEA_SH_FILE2" || ! command -v grep >/dev/null || ! grep --fixed-strings "$__TEA_ONE_LINER" "$__TEA_SH_FILE2" --silent; then
 				echo >> "$__TEA_SH_FILE2"
 				echo "$__TEA_ONE_LINER" >> "$__TEA_SH_FILE2"
 			fi
