@@ -1,51 +1,32 @@
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
-
-permissions:
-  contents: read
+    inputs:
+      version:
+        required: true
 
 jobs:
-  # check if this is a new release
-  smoke:
+  qa.installer:
+    uses: ./.github/workflows/ci.installer.yml
+  qa.action:
+    uses: ./.github/workflows/ci.action.yml
+
+  dist:
+    needs: [qa.installer, qa.action]
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.tea.outputs.version }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-        id: tea
-
-      - id: rev-parse
-        name: did we already publish this version?
-        run: |
-          # fetch tags since actions/checkout is a shallow checkout
-          git fetch --prune --unshallow --tags
-
-          if git show-ref --tags v${{ steps.tea.outputs.version }} --quiet; then
-            echo "::set-output name=result::cancel"
-          fi
-
-      - uses: andymckay/cancel-action@0.3
-        if: ${{ steps.rev-parse.outputs.result == 'cancel' }}
-
-  ci:
-    needs: [smoke]
-    uses: ./.github/workflows/ci.yml
-    secrets: inherit
-
-  ci-pre-reqs:
-    needs: [smoke]
-    uses: ./.github/workflows/ci-pre-reqs.yml
-    secrets: inherit
+      - uses: actions/checkout@v4
+      - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
+      - run: ./scripts/dist.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
 
   put:
     permissions:
       contents: write
       deployments: write
-    needs: [ci, ci-pre-reqs, smoke]
+    needs: dist
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment
@@ -55,38 +36,45 @@ jobs:
           step: start
           env: aws
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
 
-      - uses: aws-actions/configure-aws-credentials@v1
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - run: |
-          aws s3 cp \
-            ./install.sh s3://www.tea.xyz/pour.sh \
-            --metadata-directive REPLACE \
+      - run:
+          aws s3 cp
+            ./installer.sh s3://www.tea.xyz/pour.sh
+            --metadata-directive REPLACE
             --cache-control no-cache,must-revalidate
-      - run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} \
+      - run:
+          aws cloudfront create-invalidation
+            --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
             --paths / /pour.sh
 
+      - uses: git-actions/set-user@v1
       - run: |
-          git tag v${{ needs.smoke.outputs.version }}
-          git push origin v${{ needs.smoke.outputs.version }}
+          git add dist
+          git commit -m 'v${{ github.event.inputs.version }}
+          git tag v${{ github.event.inputs.version }}
+          git push origin v${{ github.event.inputs.version }} main
 
       - uses: softprops/action-gh-release@v1
         with:
-          files: ./install.sh
-          tag_name: v${{ needs.smoke.outputs.version }}
+          files: ./installer.sh
+          tag_name: v${{ github.event.inputs.version }}
           fail_on_unmatched_files: true
 
       - uses: fischerscode/tagger@v0
         with:
           prefix: v
-          tag: v${{ needs.smoke.outputs.version }}
+          tag: v${{ github.event.inputs.version }}
 
       - name: Seal Deployment
         uses: bobheadxi/deployments@v1
