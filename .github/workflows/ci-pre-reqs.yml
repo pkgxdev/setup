@@ -31,7 +31,7 @@ jobs:
         # - ubuntu:trusty
         # - ubuntu:xenial     glibc too old
         - fedora:latest
-        # - nixos/nix:latest  can’t exec
+        - nixos/nix:latest
         # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
