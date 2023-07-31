@@ -23,16 +23,16 @@ jobs:
         - debian:bullseye-slim
         - debian:bookworm-slim
         - archlinux:latest
-        # - ubuntu:bionic    glibc too old
+        # - ubuntu:bionic      glibc too old
         - ubuntu:focal
         - ubuntu:jammy
         - ubuntu:kinetic
-        # - ubuntu:lunar     glibc too old
+        # - ubuntu:lunar       glibc too old
         # - ubuntu:trusty
-        # - ubuntu:xenial     glibc too old
+        # - ubuntu:xenial      glibc too old
         - fedora:latest
-        # - nixos/nix:latest  can’t exec
-        # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
+        # - nixos/nix:latest   can’t exec
+        - alpine:latest      # tea binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
