@@ -18,5 +18,5 @@ rm -rf koffi_linux_arm32hf
 rm -rf koffi_linux_riscv64hf64
 
 cd ../../out
-rm install.sh
-ln -s ../../install.sh
+rm installer.sh
+ln -s ../../installer.sh

@@ -1,1 +1,0 @@
-../../install-pre-reqs.sh
