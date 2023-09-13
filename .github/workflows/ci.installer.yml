@@ -59,7 +59,7 @@ jobs:
       - run: sudo chmod go-w /usr/local/bin
       # ^^ we run as `runner` but this dir has 999 perms
       - run: ./installer.sh
-      - run: test $(which tea) = /usr/local/bin/tea
+      - run: test "$(which tea)" = /usr/local/bin/tea
 
   no-usr-local:
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: sudo rm -rf /usr/local # this is fine, right?
       - run: sudo chmod 777 /usr    # and this
-      - run: ./installer.sh --yes
+      - run: ./installer.sh
       - run: test $(which tea) = /usr/local/bin/tea
 
   no-dirs:
@@ -79,4 +79,4 @@ jobs:
       - uses: actions/checkout@v3
       - run: sudo mv ${{ matrix.dir }} .
       - run: ./installer.sh
-      - run: pkgx duf --version
+      - run: tea duf --version
