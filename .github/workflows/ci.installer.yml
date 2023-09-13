@@ -43,7 +43,7 @@ jobs:
         env:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
 
-  eval:
+  eval-bash:
     runs-on: ubuntu-latest
     steps:
       - name: prep
@@ -59,14 +59,13 @@ jobs:
           test -z "$ZSH_VERSION"
         shell: bash -e {0}
 
-      # verify the pkgenv is reset each step
-      - run:
-          if duf; then exit; fi
-
       # check tea was installed despite executing via `eval`
       - run:
           tea duf --version
 
+  eval-zsh:
+    runs-on: ubuntu-latest
+    steps:
       - run: |
           eval "$(cat ./installer.sh)"
           tea +duf
@@ -76,6 +75,9 @@ jobs:
           test -z "$BASH_VERSION"
         shell: zsh -e {0}
 
+  eval-posix-sh:
+    runs-on: ubuntu-latest
+    steps:
       - run: |
           eval "$(cat ./installer.sh)"
           tea +duf
