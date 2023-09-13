@@ -21,7 +21,7 @@ _install_tea() {
 
   curl $PROGRESS --compressed --fail --proto '=https' https://tea.xyz/$(uname)/$(uname -m) > "$1"/tea
   chmod +x "$1"/tea
-fi
+}
 
 _install_pre_reqs() {
   if test -f /etc/debian_version; then
