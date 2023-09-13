@@ -15,10 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          curl https://tea.xyz/$(uname)/$(uname -m) -o /usr/local/bin/tea
-          chmod +x /usr/local/bin/tea
-          tea --sync  # not required after 1.0.0-alpha.3
+      - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
       - run: ./scripts/dist.sh
       - run: git diff --exit-code
 
