@@ -23,11 +23,11 @@ jobs:
           - debian:bullseye-slim
           - debian:bookworm-slim
           - archlinux:latest
-          # - ubuntu:bionic    glibc too old
+          # - ubuntu:bionic     glibc too old
           - ubuntu:focal
           - ubuntu:jammy
-          - ubuntu:kinetic
-          # - ubuntu:lunar     glibc too old
+          # - ubuntu:kinetic    updates have been deactivated for this release
+          # - ubuntu:lunar      glibc too old
           # - ubuntu:trusty
           # - ubuntu:xenial     glibc too old
           - fedora:latest

@@ -49,7 +49,7 @@ _install_pre_reqs() {
   fi
 }
 
-is_ci() {
+_is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
 }
 
@@ -68,19 +68,17 @@ if ! command -v tea >/dev/null 2>&1; then
   fi
 fi
 
-if is_ci; then
+if _is_ci; then
   apt() {
     # we should use apt-get not apt in CI
-    $SUDO apt-get --quiet "$@"
+    $SUDO apt-get --quiet "$@" --quiet
   }
-elif [ "$(uname)" = Linux ]; then
-  #TODO verify if they are installed, if not then output message and say “ONLY IF SHIT BROKE DO THIS”
-  echo "ensure you have the `tea` pre-requisites installed:" >&2
-  echo >&2
-
+else
   apt() {
     case "$1" in
     update)
+      echo "ensure you have the `tea` pre-requisites installed:" >&2
+      echo >&2
       ;;
     install)
       echo "   apt-get" "$@" >&2
@@ -112,7 +110,7 @@ else
   fi
   if [ $sourced = 1 ]; then
     eval "$(tea --shellcode)"
-  elif ! is_ci; then
+  elif ! _is_ci; then
     echo "now type: tea --help" >&2
   fi
 fi
