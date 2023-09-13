@@ -38,10 +38,16 @@ jobs:
           - action
     container: ${{ matrix.container }}
     steps:
+      - run: echo x $BASH_VERSION$ZSH_VERSION x
+      - run: echo x${BASH_VERSION}x${ZSH_VERSION}x
+
       - uses: actions/checkout@v3
 
       - uses: ./
         if: ${{ matrix.mechanism == 'action' }}
+
+      - run: apt-get update && apt-get install curl
+        if: ${{ startsWith(matrix.container, 'debian') }}
 
       - run: ./installer.sh
         if: ${{ matrix.mechanism == 'installer' }}
