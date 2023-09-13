@@ -46,7 +46,7 @@ jobs:
       - uses: ./
         if: ${{ matrix.mechanism == 'action' }}
 
-      - run: apt-get update && apt-get install curl
+      - run: apt-get update && apt-get --yes install curl
         if: ${{ startsWith(matrix.container, 'debian') }}
 
       - run: ./installer.sh
