@@ -45,7 +45,7 @@ jobs:
 
       - run: ./installer.sh
         env:
-          PATH: /usr/bin:/bin:${{ github.workspace }}/bin
+          PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
         if: ${{ matrix.mechanism == 'installer' }}
 
       - run: tea node --eval 'console.log(1)'
