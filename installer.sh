@@ -71,7 +71,7 @@ fi
 if _is_ci; then
   apt() {
     # we should use apt-get not apt in CI
-    $SUDO apt-get --quiet "$@" --quiet
+    $SUDO apt-get -qq "$@" --quiet
   }
 else
   apt() {

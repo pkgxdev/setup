@@ -106,6 +106,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: sudo mv ${{ matrix.dir }} .
+      - run: sudo mv ${{ matrix.dir }} $(mktemp -d)
       - run: ./installer.sh
       - run: tea duf --version
