@@ -49,6 +49,10 @@ _install_pre_reqs() {
   fi
 }
 
+is_ci() {
+  [ -n "$CI" ] && [ $CI != 0 ]
+}
+
 ########################################################################### meat
 
 if ! command -v tea >/dev/null 2>&1; then
@@ -56,7 +60,7 @@ if ! command -v tea >/dev/null 2>&1; then
 
   _install_tea "$tmpdir"
 
-  if [ $# -gt 0 ]; then
+  if [ $# -eq 0 ]; then
     $SUDO sh -c "mkdir -p /usr/local/bin && mv $tmpdir/tea /usr/local/bin/tea"
     export PATH="/usr/local/bin:$PATH"  # just in case
   else
@@ -64,7 +68,7 @@ if ! command -v tea >/dev/null 2>&1; then
   fi
 fi
 
-if [ -n "$CI" ] && [ $CI != 0 ]; then
+if is_ci; then
   apt() {
     # we should use apt-get not apt in CI
     $SUDO apt-get --quiet "$@"
@@ -108,5 +112,7 @@ else
   fi
   if [ $sourced = 1 ]; then
     eval "$(tea --shellcode)"
+  elif !is_ci; then
+    echo "now type: tea --help" >&2
   fi
 fi
