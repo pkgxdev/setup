@@ -17,9 +17,15 @@ fi
 _install_tea() {
   if [ -z "$CI" ]; then
     PROGRESS="--progress-bar"
+  else
+    PROGRESS="-Ss"
   fi
 
-  curl $PROGRESS --compressed --fail --proto '=https' https://tea.xyz/$(uname)/$(uname -m) > "$1"/tea
+  curl \
+    $PROGRESS --compressed --fail --proto '=https' \
+    --output "$1"/tea \
+    "https://tea.xyz/$(uname)/$(uname -m)"
+
   chmod +x "$1"/tea
 }
 

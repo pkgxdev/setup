@@ -46,6 +46,9 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     steps:
+      - name: prep
+        run: apt-get update && apt-get install -y zsh
+
       - uses: actions/checkout@v3
       - run: |
           eval "$(cat ./installer.sh)"
