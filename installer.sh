@@ -112,7 +112,7 @@ else
   fi
   if [ $sourced = 1 ]; then
     eval "$(tea --shellcode)"
-  elif !is_ci; then
+  elif ! is_ci; then
     echo "now type: tea --help" >&2
   fi
 fi
