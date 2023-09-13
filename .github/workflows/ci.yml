@@ -47,7 +47,7 @@ jobs:
         if: ${{ matrix.mechanism == 'action' }}
 
       - run: apt-get update && apt-get --yes install curl
-        if: ${{ startsWith(matrix.container, 'debian') }}
+        if: ${{ (startsWith(matrix.container, 'debian') || startsWith(matrix.container, 'ubuntu')) && matrix.mechanism == 'installer' }}
 
       - run: ./installer.sh
         if: ${{ matrix.mechanism == 'installer' }}
