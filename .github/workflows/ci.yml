@@ -46,10 +46,9 @@ jobs:
       - uses: ./
         if: ${{ matrix.mechanism == 'action' }}
 
-      - run: apt-get update && apt-get --yes install curl
-        if: ${{ (startsWith(matrix.container, 'debian') || startsWith(matrix.container, 'ubuntu')) && matrix.mechanism == 'installer' }}
-
       - run: ./installer.sh
+        env:
+          PATH: ${{ github.workspace }}/bin:$PATH
         if: ${{ matrix.mechanism == 'installer' }}
 
       - run: tea node --eval 'console.log(1)'

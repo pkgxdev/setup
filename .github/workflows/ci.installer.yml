@@ -38,8 +38,9 @@ jobs:
     container: debian:buster-slim
     steps:
       - uses: actions/checkout@v3
-      - run: apt-get update && apt-get --yes install curl
       - run: ./installer.sh
+        env:
+          PATH: ${{ github.workspace }}/bin:$PATH
 
   eval:
     runs-on: ubuntu-latest
