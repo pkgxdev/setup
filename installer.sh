@@ -67,7 +67,7 @@ fi
 if [ -n "$CI" ] && [ $CI != 0 ]; then
   apt() {
     # we should use apt-get not apt in CI
-    $SUDO apt-get "$@"
+    $SUDO apt-get --quiet "$@"
   }
 elif [ "$(uname)" = Linux ]; then
   #TODO verify if they are installed, if not then output message and say “ONLY IF SHIT BROKE DO THIS”
