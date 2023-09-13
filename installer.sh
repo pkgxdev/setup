@@ -65,9 +65,6 @@ if ! command -v tea >/dev/null 2>&1; then
 fi
 
 if [ -n "$CI" ] && [ $CI != 0 ]; then
-  # if we also were eval’d then this integrates our shellcode, if not it’s a noop
-  eval "$(tea --shellcode)"
-
   apt() {
     # we should use apt-get not apt in CI
     $SUDO apt-get "$@"
@@ -96,4 +93,8 @@ _install_pre_reqs
 
 if [ $# -gt 0 ]; then
   exec tea "$@"
+else
+  case $- in
+    *e*) eval "$(tea --shellcode)";;
+  esac
 fi

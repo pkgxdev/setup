@@ -45,12 +45,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: eval "$(./installer.sh)"
       - run: |
+          eval "$(cat ./installer.sh)"
           tea +duf
           duf --version
+
+          test -n "$BASH_VERSION"
+          test -z "$ZSH_VERSION"
+        shell: bash -e {0}
+
+      # verify the pkgenv is reset each step
+      - run:
+          if duf; then exit; fi
+
+      # check tea was installed despite executing via `eval`
       - run:
           tea duf --version
+
+      - run: |
+          eval "$(cat ./installer.sh)"
+          tea +duf
+          duf --version
+
+          test -n "$ZSH_VERSION"
+          test -z "$BASH_VERSION"
+        shell: zsh -e {0}
+
+      - run: |
+          eval "$(cat ./installer.sh)"
+          tea +duf
+          duf --version
+
+          test -z "$ZSH_VERSION"
+          test -z "$BASH_VERSION"
+        shell: /bin/sh -e {0}
 
   sudo-required:
     runs-on: ubuntu-latest
