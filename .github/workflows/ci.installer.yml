@@ -23,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./installer.sh
+      - run: cat file
+        if: always()
       - run: tea --version
 
   usage-as-proxy:

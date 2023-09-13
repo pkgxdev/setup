@@ -94,6 +94,7 @@ _install_pre_reqs
 if [ $# -gt 0 ]; then
   exec tea "$@"
 else
+  echo "$- $0" > file
   case $- in
     *e*) eval "$(tea --shellcode)";;
   esac
