@@ -22,14 +22,15 @@ jobs:
           - ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: ./installer.sh
+      # using cat | sh to emulate the curl command we tell people to use
+      - run: cat ./installer.sh | sh
       - run: tea --version
 
   usage-as-proxy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: ./installer.sh node --eval 'console.log(1)'
+      - run: cat ./installer.sh | sh -s node --eval 'console.log(1)'
       - run: ./installer.sh sh -c "which tea"
       - run: if command -v tea; then exit 1; fi
 

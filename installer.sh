@@ -71,8 +71,10 @@ fi
 if _is_ci; then
   apt() {
     # we should use apt-get not apt in CI
-    # weird args ref: https://askubuntu.com/a/668859
-    $SUDO apt-get -qq -o=Dpkg::Use-Pty=0 "$@"
+    # weird shit ref: https://askubuntu.com/a/668859
+    cmd=$1
+    shift
+    $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 "$@"
   }
 else
   apt() {
