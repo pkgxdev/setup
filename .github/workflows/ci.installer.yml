@@ -1,0 +1,82 @@
+on:
+  workflow_call:
+  pull_request:
+    paths:
+      - installer.sh
+      - .github/workflows/ci.installer.yml
+
+concurrency:
+  group: ${{ github.ref || 'ci' }}/installer.sh
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  install-tea:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./installer.sh
+      - run: tea --version
+
+  usage-as-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./installer.sh node --eval 'console.log(1)'
+      - run: ./installer.sh sh -c "which tea"
+      - run: if command -v tea; then exit 1; fi
+
+  sudo-not-required:
+    runs-on: ubuntu-latest
+    container: debian:buster-slim
+    steps:
+      - uses: actions/checkout@v3
+      - run: apt-get update && apt-get --yes install curl
+      - run: ./installer.sh
+
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: eval "$(./installer.sh)"
+      - run: |
+          tea +duf
+          duf --version
+      - run:
+          tea duf --version
+
+  sudo-required:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo chmod go-w /usr/local/bin
+      # ^^ we run as `runner` but this dir has 999 perms
+      - run: ./installer.sh
+      - run: test $(which tea) = /usr/local/bin/tea
+
+  no-usr-local:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo rm -rf /usr/local # this is fine, right?
+      - run: sudo chmod 777 /usr    # and this
+      - run: ./installer.sh --yes
+      - run: test $(which tea) = /usr/local/bin/tea
+
+  no-dirs:
+    strategy:
+      matrix:
+        dir: [/usr/local, /usr/local/bin]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo mv ${{ matrix.dir }} .
+      - run: ./installer.sh
+      - run: pkgx duf --version

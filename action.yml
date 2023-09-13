@@ -11,7 +11,7 @@ inputs:
     description: >
       The version of teaxyz/cli to install.
       Defaults to the most recent published version.
-    required: false
+    default: ^0
   chaste:
     description: >
       Do not install packages.
