@@ -38,9 +38,6 @@ jobs:
           - action
     container: ${{ matrix.container }}
     steps:
-      - run: echo x $BASH_VERSION$ZSH_VERSION x
-      - run: echo x${BASH_VERSION}x${ZSH_VERSION}x
-
       - uses: actions/checkout@v3
 
       - uses: ./
@@ -48,7 +45,7 @@ jobs:
 
       - run: ./installer.sh
         env:
-          PATH: ${{ github.workspace }}/bin:/bin
+          PATH: /usr/bin:/bin:${{ github.workspace }}/bin
         if: ${{ matrix.mechanism == 'installer' }}
 
       - run: tea node --eval 'console.log(1)'
