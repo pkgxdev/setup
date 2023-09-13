@@ -31,8 +31,8 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
-          - [self-hosted, macOS, ARM64]
-          - [self-hosted, linux, ARM64]
+          - [self-hosted, macOS, ARM64]  # we need to be sure the action
+          - [self-hosted, linux, ARM64]  # works in arm64 environments
         prefix:
           - null
           - /opt
