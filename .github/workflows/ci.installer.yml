@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: prep
-        run: apt-get update && apt-get install -y zsh
+        run: sudo apt-get update && sudo apt-get install -y zsh
 
       - uses: actions/checkout@v3
       - run: |
