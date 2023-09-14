@@ -35,10 +35,10 @@ _install_pre_reqs() {
 
     # minimal but required or networking doesn’t work
     # https://packages.debian.org/buster/all/netbase/filelist
-    COMMON="netbase"
+    COMMON=netbase
 
     # difficult to pkg in our opinion
-    COMMON="libudev-dev $COMMON"
+    COMMON='libudev-dev '$COMMON
 
     case $(cat /etc/debian_version) in
     jessie/sid|8.*|stretch/sid|9.*)
