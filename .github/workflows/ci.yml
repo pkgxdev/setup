@@ -1,309 +1,62 @@
 on:
-  pull_request:
-    paths:
-      - action.yml
-      - install.sh
-      - .github/workflows/ci.yml
-      - action.js
-      - README.md
   workflow_call:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - installer.sh
+      - action.ts
+      - action.yml
+      - .github/workflows/ci.yml
 
 concurrency:
-  group: ${{ github.ref }}/1
+  group: ${{ github.ref || 'ci' }}/0
   cancel-in-progress: true
 
 jobs:
-  transitory:
-    runs-on: ${{ matrix.os }}
+  linuxen:
+    continue-on-error: true
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        verbose:
-          - null
-        os:
-        - macos-latest
-        - ubuntu-latest
-        include:
-        - os: ubuntu-latest
-          verbose: VERBOSE
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./install.sh node --eval 'console.log(1)'
-        env:
-          VERBOSE: ${{ matrix.verbose }}
-      - run: ./install.sh sh -c "which tea"
-
-  direct:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - macos-latest
-          - ubuntu-latest
-          - [self-hosted, macOS, ARM64]
-          - [self-hosted, linux, ARM64]
-        prefix:
-          - null
-          - foo
-        include:
-        - os: ubuntu-latest
-          verbose: VERBOSE
-          prefix: /opt/tea
-          # ^^ test absolute path (on mac this path is not writable with the
-          # default runner user)
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./install.sh --yes --prefix ${{ matrix.prefix }}
-        if: ${{ matrix.prefix }}
-        env:
-          VERBOSE: ${{ matrix.verbose }}
-      - run: ./install.sh --yes
-        if: ${{ matrix.prefix == null }}
-        env:
-          VERBOSE: ${{ matrix.verbose }}
-      - run: tea --env
-      # ^^ tea -E necessary because we run the install script and not the action
-      # so no additions to PATH or magic is installed
-      - run: which tea
-      - run: find "$(tea --silent --prefix)"/tea.xyz
-      - run: find /opt/tea.xyz -name v0.? -o -name v0.?? -mindepth 1 -maxdepth 1 -print0 | xargs -0 test -L
-      - run: test -L "$(tea --silent --prefix)"/tea.xyz/v0
-
-  gha:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - macos-latest
-          - ubuntu-latest
-          - [self-hosted, macOS, ARM64]
-          - [self-hosted, linux, ARM64]
-        prefix:
-          - null
-          - /opt
         container:
-          - null
-        include:
-        - os: ubuntu-latest
-          container: debian:buster-slim
-          srcroot: .
-        - os: ubuntu-latest
-          container: debian:buster-slim
-          srcroot: null
+          - debian:buster-slim
+          - debian:bullseye-slim
+          - debian:bookworm-slim
+          - archlinux:latest
+          # - ubuntu:bionic     glibc too old
+          - ubuntu:focal
+          - ubuntu:jammy
+          # - ubuntu:kinetic    updates have been deactivated for this release
+          # - ubuntu:lunar      glibc too old
+          # - ubuntu:trusty
+          # - ubuntu:xenial     glibc too old
+          - fedora:latest
+          # - nixos/nix:latest  can’t exec
+          # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
+        mechanism:
+          - installer
+          - action
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
 
       - uses: ./
-        id: tea
-        with:
-          prefix: ${{ matrix.prefix }}
-          srcroot: ${{ matrix.srcroot || github.workspace }}
+        if: ${{ matrix.mechanism == 'action' }}
 
-      - run: test -n "$VERSION"
-      - run: test -n "${{ steps.tea.outputs.version }}"
-      - run: test v$VERSION = v${{ steps.tea.outputs.version }}
-      - run: tea --env
-      - run: which tea
-      - run: node --eval 'console.log(1)'
-
-  chaste:
-    runs-on: ubuntu-latest
-    container: debian:buster-slim
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-        with:
-          chaste: true
-      - run:
-          if node --version; then
-            exit 1;
-          fi
-
-  additional-pkgs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-        with:
-          +deno.land: ^1.30
-        # ^^ produces a warning, but we like this syntax
-        # we're hoping GH allows us to suppress this warning in the future
-        # discussion: https://github.com/octokit/request-action/issues/26
-      - run: deno --version
-
-  additional-pkgs-2:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-        with:
-          +: |
-            deno.land^1.30
-            cli.github.com
-      - run: deno --version
-      - run: gh --version
-
-  multiple-apply:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-      - run: tea --version
-      - uses: ./
-      - run: tea --version
-      - run: ./install.sh   # also test our script does a headless update in this case
-
-  # tests that we don’t require a “srcroot”
-  emptier:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: sudo rm -rf .git README.md
-      - uses: ./
-
-  shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ludeeus/action-shellcheck@2.0.0
-        with:
-          severity: warning
-          ignore_paths: scripts  # this action is badly designed you can’t be more specific that a directory or filename (not path)
+      - run: ./installer.sh
         env:
-          SHELLCHECK_OPTS: --shell dash
+          PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
+        if: ${{ matrix.mechanism == 'installer' }}
 
-  check-external-gum:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: Homebrew/actions/setup-homebrew@master
-      - run: brew install gum
-      - uses: actions/checkout@v3
-      - uses: ./
-      - run: test ! -d ~/.tea/charm.sh
+      - run: tea node --eval 'console.log(1)'
 
-  specific-version:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    strategy:
-      matrix:
-        system:
-          - gha
-          - direct
-        version:
-          - 0.26.3
-          - 0.18.1
-          - 0.17.3
-        include:
-          - version: ^0.33
-            system: gha
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./
-        if: ${{ matrix.system == 'gha' }}
-        with:
-          version: ${{ matrix.version }}
-      - run: ./install.sh --yes --version ${{ matrix.version }}
-        if: ${{ matrix.system == 'direct' }}
-      - run: tea --version | grep ${{ matrix.version }}
-        if: ${{ matrix.version != '^0.33' }}
-
-  sudo-not-required:
-      runs-on: ubuntu-latest
-      container: debian:buster-slim
-      steps:
-        - uses: actions/checkout@v3
-        - run: apt-get update && apt-get --yes install curl
-        - run: ./install.sh --yes
-
-  #FIXME can't test for this without a way to install without magic in headless mode
-  # sudo-required:
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - uses: actions/checkout@v3
-  #       - run: sudo chmod go-w /usr/local/bin
-  #       # ^^ we run as `runner` but this dir has 999 perms
-  #       - run: ./install.sh --yes
-  #       - run: .github/smoke-test.sh
-  #       - run: test $(which tea) = /usr/local/bin/tea
-  #
-  # no-usr-local:
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - uses: actions/checkout@v3
-  #       - run: sudo rm -rf /usr/local # this is fine, right?
-  #       - run: sudo chmod 777 /usr    # and this
-  #       - run: ./install.sh --yes
-  #       - run: .github/smoke-test.sh
-  #       - run: test $(which tea) = /usr/local/bin/tea
-
-  tea-with-magic-is-in-expected-place:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - run: ./install.sh --yes
-        - run: .github/smoke-test.sh
-        - run: test $(which tea) = $HOME/.tea/tea.xyz/v0/bin/tea
-
-  # this is broken, but we are fixing it another way soon
-  # installs-if-gitea-found:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: install gitea
-  #       run: |
-  #         sudo curl -sL -o /etc/apt/trusted.gpg.d/morph027-gitea.asc https://packaging.gitlab.io/gitea/gpg.key
-  #         echo "deb https://packaging.gitlab.io/gitea gitea main" | sudo tee /etc/apt/sources.list.d/morph027-gitea.list
-  #         sudo apt-get update
-  #         sudo apt-get install gitea morph027-keyring
-  #         sudo mv /usr/bin/gitea /usr/bin/tea
-  #       # ^^ lol actually pretty much the only time `gitea` installs as `tea` is via `brew`
-  #     - name: test gitea is there
-  #       run: |
-  #         dpkg -L gitea
-  #         which tea
-  #         tea --help
-  #     - uses: actions/checkout@v3
-  #     - run: ./install.sh --yes
-  #     - run: .github/smoke-test.sh
-
-  run-without-which:
-    runs-on: ubuntu-latest
-    container: archlinux:latest
-    steps:
-        - uses: actions/checkout@v3
-        - run: ./install.sh --yes
-        - run: .github/smoke-test.sh
-
-  run-with-existing-gum:
-    runs-on: macos-latest
-    steps:
-        - uses: actions/checkout@v3
-        - run: brew install gum
-        - run: ./install.sh --yes
-        - run: .github/smoke-test.sh
-
-  check-indentation:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - uses: jannekem/run-python-script-action@v1
-        with:
-          script: |
-            import sys
-            with open('install.sh') as f:
-              for line_number, line in enumerate(f, start=1):
-                if line.startswith(' '):
-                  print(f'Error: Space indentation found on line {line_number}')
-                  sys.exit(1)
-
-  check-dist-was-run:
+  multiple-apply-is-ok:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
-      - run: ./scripts/dist.sh
-      - run: git diff --exit-code
+      - run: tea --version
+      - uses: ./
+      - run: tea --version
+      - run: ./installer.sh
+      - run: ./installer.sh

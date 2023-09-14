@@ -1,0 +1,100 @@
+on:
+  workflow_call:
+  pull_request:
+    paths:
+      - action.ts
+      - action.yml
+      - package.json
+
+concurrency:
+  group: ${{ github.ref || 'ci' }}/action.ts
+  cancel-in-progress: true
+
+jobs:
+  check-dist-was-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
+      - run: ./scripts/dist.sh
+      - run: git diff --exit-code
+
+  gha:
+    needs: check-dist-was-run
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - [self-hosted, macOS, ARM64]  # we need to be sure the action
+          - [self-hosted, linux, ARM64]  # works in arm64 environments
+        prefix:
+          - null
+          - /opt
+        container:
+          - null
+        include:
+        - os: ubuntu-latest
+          container: debian:buster-slim
+          srcroot: .
+        - os: ubuntu-latest
+          container: debian:buster-slim
+          srcroot: null
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./
+        id: tea
+        with:
+          prefix: ${{ matrix.prefix }}
+          srcroot: ${{ matrix.srcroot || github.workspace }}
+
+      - run: test -n "$VERSION"
+      - run: test -n "${{ steps.tea.outputs.version }}"
+      - run: test v$VERSION = v${{ steps.tea.outputs.version }}
+      - run: tea --env
+      - run: which tea
+      - run: node --eval 'console.log(1)'
+
+  chaste:
+    needs: check-dist-was-run
+    runs-on: ubuntu-latest
+    container: debian:buster-slim
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          chaste: true
+      - run:
+          if node --version; then
+            exit 1;
+          fi
+
+  additional-pkgs:
+    needs: check-dist-was-run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          +deno.land: ^1.30
+        # ^^ produces a warning, but we like this syntax
+        # we're hoping GH allows us to suppress this warning in the future
+        # discussion: https://github.com/octokit/request-action/issues/26
+      - run: deno --version
+
+  additional-pkgs-2:
+    needs: check-dist-was-run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          +: |
+            deno.land^1.30
+            cli.github.com
+      - run: deno --version
+      - run: gh --version

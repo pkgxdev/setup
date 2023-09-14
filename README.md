@@ -1,6 +1,6 @@
 ![tea](https://tea.xyz/banner.png)
 
-* [`install.sh`](./install.sh) is delivered when you `curl tea.xyz`.
+* [`installer.sh`](./installer.sh) is delivered when you `curl tea.xyz`.
 * This repository also provides the `tea` GitHub Action.
 
 # GitHub Action 0.18.3
@@ -53,30 +53,32 @@ See our CI scripts for details.
 To install tea:
 
 ```sh
-$ sh <(curl tea.xyz)
+$ curl https://tea.xyz | sh
 
-# - installs to `~/.tea`
-# - if tea is already installed, the script instead checks for updates
+# - installs to `/usr/local/bin/tea`
+# - if tea is already installed it’s a noop
 ```
 
-To use tea to run a command in a temporary sandbox:
+To use `tea` to run a command in a temporary sandbox:
 
 ```sh
-$ sh <(curl -Ssf tea.xyz) gum spin -- sleep 5
+$ curl -Ssf https://tea.xyz | sh -s -- gum spin -- sleep 5
 
 # - if tea is installed, uses that installation to run gum
-# - if tea is *not* installed, downloads gum and its deps to a safe and
-#   temporary location and executes the command
+# - if tea is *not* installed, downloads tea to a temporary location
+# - packages are still cached in `~/.tea` but tea itself is not installed
 ```
 
-> NOTE we omit `https://` for clarity, *please* include it in all your usages.
+This syntax is easier to remember:
 
-## Options
+```sh
+sh <(curl tea.xyz) gum spin -- sleep 5
+```
 
-* `sh <(curl tea.xyz) --yes` assumes affirmative for all prompts
-* `sh <(curl tea.xyz) --prefix foo` change install location (you can use this option to force a re-install)
-* `sh <(curl tea.xyz) --version 1.2.3` install a specific version of tea
-
+> There is the **notable caveat** that it will not work with bash <4
+> which is the bash that comes with macOS. Even though macOS has defaulted to
+> zsh for years it is still relatively easy for users to end up in a situation
+> where bash is the shell interpreting your commands. Your call.
 
 [`action.yml`]: ./action.yml
 [tea.xyz]: https://tea.xyz
