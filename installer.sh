@@ -35,20 +35,20 @@ _install_pre_reqs() {
 
     # minimal but required or networking doesn’t work
     # https://packages.debian.org/buster/all/netbase/filelist
-    COMMON=netbase
+    A=netbase
 
     # difficult to pkg in our opinion
-    COMMON='libudev-dev '$COMMON
+    B=libudev-dev
 
     case $(cat /etc/debian_version) in
     jessie/sid|8.*|stretch/sid|9.*)
-      apt --yes install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $COMMON;;
+      apt --yes install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B;;
     buster/sid|10.*)
-      apt --yes install libc-dev libstdc++-8-dev libgcc-8-dev $COMMON;;
+      apt --yes install libc-dev libstdc++-8-dev libgcc-8-dev $A $B;;
     bullseye/sid|11.*)
-      apt --yes install libc-dev libstdc++-10-dev libgcc-9-dev $COMMON;;
+      apt --yes install libc-dev libstdc++-10-dev libgcc-9-dev $A $B;;
     bookworm/sid|12.*|*)
-      apt --yes install libc-dev libstdc++-11-dev libgcc-11-dev $COMMON;;
+      apt --yes install libc-dev libstdc++-11-dev libgcc-11-dev $A $B;;
     esac
   elif test -f /etc/fedora-release; then
     $SUDO yum --assumeyes install libatomic
