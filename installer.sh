@@ -81,7 +81,7 @@ if _is_ci; then
     export DEBIAN_FRONTEND=noninteractive
     cmd=$1
     shift
-    $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 "$@"
+    $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 $@
   }
 else
   apt() {
