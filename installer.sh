@@ -104,11 +104,12 @@ fi
 _install_pre_reqs
 
 if [ $# -gt 0 ]; then
-  exec tea "$@"
-elif [ $(basename "$0") != "installer.sh" ]; then
-  eval "$(tea --shellcode)"
-fi
+  tea "$@"
+elif [ $(basename "/$0") != 'installer.sh' ]; then
+  # ^^ temporary exception for action.ts
+  eval "$(tea --shellcode)" 2>/dev/null
 
-if ! _is_ci; then
-  echo "now type: tea --help" >&2
+  if ! _is_ci; then
+    echo "now type: tea --help" >&2
+  fi
 fi
