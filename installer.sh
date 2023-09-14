@@ -105,7 +105,7 @@ _install_pre_reqs
 
 if [ $# -gt 0 ]; then
   exec tea "$@"
-else
+elif [ $(basename "$0") != "installer.sh" ]; then
   eval "$(tea --shellcode)"
 fi
 
