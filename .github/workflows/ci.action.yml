@@ -66,6 +66,7 @@ jobs:
           +: node@18 deno.land
 
       - run: test -f '${{ matrix.prefix }}/tea.xyz/v*/bin/tea'
+        if: ${{ matrix.prefix }}
       - run: tea --version
       - run: node --eval 'console.log(1)'
       - run: deno --version
