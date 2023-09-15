@@ -42,7 +42,7 @@ async function go() {
   })
   const { map, flatten } = useShellEnv()
 
-  hooks.useSync()
+  await hooks.useSync()
 
   const pkgrqs = await Promise.all(pkgs.map(parse))
   const installations = await install(pkgrqs)
