@@ -96,6 +96,8 @@ jobs:
       - uses: actions/checkout@v3
       - run: sudo chmod go-w /usr/local/bin
       # ^^ we run as `runner` but this dir has 999 perms
+      - name: check
+        run: if touch /usr/local/bin/foo; then exit 1; fi
       - run: ./installer.sh
       - run: test "$(which tea)" = /usr/local/bin/tea
 
