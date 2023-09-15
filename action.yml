@@ -2,44 +2,29 @@ name: tea/setup
 description: >
   Installs tea.xyz to your GitHub Actions runner.
 inputs:
-  prefix:
-    description: >
-      Where tea stows its packages.
-      Defaults to `$HOME/.tea`.
-    required: false
-  version:
-    description: >
-      The version of teaxyz/cli to install.
-      Defaults to the most recent published version.
-    default: ^0
-  chaste:
-    description: >
-      Do not install packages.
-      Defaults to `false`.
-    default: false
   +:
     description: |
       Whitespace separated, pkgs to supplement the environment. eg.
 
       ```yaml
-      +: |
-        deno.land^1.30
-        rust-lang.org^1.60
+      +:
+        deno.land@1.30
+        rust-lang.org@1.60
       ```
 
       By default tea reads your developer environment and adds those packages.
       Specifying additional packages here is a way to augment that.
     required: false
-  srcroot:
-    description: |
-      Override detection of the developer-environment’s `$SRCROOT`.
-
-      Set to `null` to disable the developer-environment.
-    default: .
+  TEA_DIR:
+    description: >
+      Where pkgs are cached.
+      Defaults to `$HOME/.tea`.
     required: false
-outputs:
   version:
-    description: Your project’s version.
+    description: >
+      The version of teaxyz/cli to install.
+      Defaults to the @latest.
+    required: false
 runs:
   using: node16
   main: dist/out/index.js

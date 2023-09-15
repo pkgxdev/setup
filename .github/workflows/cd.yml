@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
-      - run: ./scripts/dist.sh
+      - run: ./scripts/dist.sh --minify
       - uses: actions/upload-artifact@v2
         with:
           name: dist
