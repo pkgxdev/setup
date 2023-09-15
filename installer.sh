@@ -81,7 +81,7 @@ _install_tea() {
 ########################################################################### meat
 
 if ! command -v tea >/dev/null 2>&1; then
-  _install_tea
+  _install_tea "$@"
 fi
 
 if _is_ci; then
