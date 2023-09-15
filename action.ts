@@ -1,23 +1,15 @@
-const { porcelain, hooks, Path, utils, semver, SemVer } = require("@teaxyz/lib")
-const { getExecOutput, exec } = require("@actions/exec")
-const { useConfig, useSync, useCellar } = hooks
-const core = require('@actions/core')
+import { porcelain, hooks, Path, utils, PackageRequirement } from "@teaxyz/lib"
+import { exec } from "@actions/exec"
+import * as core from '@actions/core'
+import * as path from 'path'
+import * as os from "os"
+
+const { useConfig, useShellEnv } = hooks
 const { install } = porcelain
-const path = require('path')
-const os = require("os")
+const { flatmap } = utils
 
 async function go() {
-  const TEA_PREFIX = core.getInput('prefix') || `${os.homedir()}/.tea`
-
-  const TEA_DIR = (() => {
-    let TEA_DIR = core.getInput('srcroot').trim()
-    if (!TEA_DIR) return
-    if (!TEA_DIR.startsWith("/")) {
-      // for security this must be an absolute path
-      TEA_DIR = `${process.cwd()}/${TEA_DIR}`
-    }
-    return path.normalize(TEA_DIR)
-  })()
+  const TEA_DIR = core.getInput('TEA_DIR')
 
   let vtea = core.getInput('version') ?? ""
   if (vtea && !/^[*^~@=]/.test(vtea)) {
@@ -37,70 +29,41 @@ async function go() {
         pkgs.push(key+value)
   }}}
 
+
   // we build to /opt and special case this action so people new to
   // building aren’t immediately flumoxed
-  if (TEA_PREFIX == '/opt' && os.platform == 'darwin') {
+  if (TEA_DIR == '/opt' && os.platform() == 'darwin') {
     await exec('sudo', ['chown', `${os.userInfo().username}:staff`, '/opt'])
   }
 
   core.info(`fetching ${pkgs.join(", ")}…`)
 
+  const prefix = flatmap(TEA_DIR, (x: string) => new Path(x)) ?? Path.home().join(".tea")
+
   useConfig({
-    prefix: new Path(TEA_PREFIX),
+    prefix,
+    cache: prefix.join(".cache"),
     pantries: [],
-    cache: new Path(TEA_PREFIX).join('tea.xyz/var/www'),
     UserAgent: 'tea.setup/0.1.0', //TODO version
     options: { compression: 'gz' }
   })
+  const { map, flatten } = useShellEnv()
 
-  await install(pkgs)
+  await hooks.useSync()
 
-  const tea = await useCellar().resolve({project: 'tea.xyz', constraint: new semver.Range('*')})
-  const teafile = tea.path.join('bin/tea').string
-  const env_args = []
+  const pkgrqs = await Promise.all(pkgs.map(parse))
+  const installations = await install(pkgrqs)
+  const env = flatten(await map({ installations }))
 
-  if (TEA_DIR && tea.pkg.version.gte(new SemVer("0.19"))) {
-    env_args.push('--env', '--keep-going')
-  } else if (TEA_DIR) {
-    env_args.push('--env')
-  }
-
-  let args = tea.pkg.version.gte(new SemVer("0.21"))
-    ? []
-    : tea.pkg.version.gte(new SemVer("0.19"))
-      ? ["--dry-run"]
-      : ["--dump"]
-
-  if (core.getBooleanInput("chaste")) {
-    args.push('--chaste')
-  }
-
-  //FIXME we’re running tea/cli since dev-envs are not in libtea
-  // and we don’t want them in libtea, but we may need a libteacli as a result lol
-  const { stdout: out } = await getExecOutput(
-    teafile,
-    [...env_args, ...args, ...pkgs.map(x=>`+${x}`)],
-    {env: { ...process.env, TEA_DIR, TEA_PREFIX }})
-
-  const lines = out.split("\n")
-  for (const line of lines) {
-    const match = line.match(/(export )?([A-Za-z0-9_]+)=['"]?(.*)/)
-    if (!match) continue
-    const [,,key,value] = match
+  for (const [key, value] of Object.entries(env)) {
     if (key == 'PATH') {
-      for (const part of value.split(":").reverse()) {
-        core.addPath(part)
-      }
+      core.addPath(value)
     } else {
       core.exportVariable(key, value)
-      if (key == 'VERSION') {
-        core.setOutput('version', value)
-      }
     }
   }
 
   if (TEA_DIR) {
-    core.setOutput('srcroot', TEA_DIR)
     core.exportVariable('TEA_DIR', TEA_DIR)
   }
 
@@ -114,17 +77,22 @@ async function go() {
     }
   }
 
-  //TODO deprecated exe/md
-  //NOTE BUT LEAVE BECAUSE WE ONCE SUPPORTED THIS
-  const target = core.getInput('target')
-  if (target) {
-    await exec(teafile, [target], { env: { ...process.env, TEA_DIR, TEA_PREFIX } })
-  }
-
-  core.exportVariable('TEA_PREFIX', TEA_PREFIX)
-  core.setOutput('prefix', TEA_PREFIX)
-
-  core.info(`installed ${tea.path}`)
+  core.info(`installed ${installations.map(({pkg}) => utils.pkg.str(pkg)).join(', ')}`)
 }
 
 go().catch(core.setFailed)
+
+
+async function parse(input: string): Promise<PackageRequirement> {
+  const find = hooks.usePantry().find
+  const rawpkg = utils.pkg.parse(input)
+
+  const projects = await find(rawpkg.project)
+  if (projects.length <= 0) throw new Error(`not found ${rawpkg.project}`)
+  if (projects.length > 1) throw new Error(`ambiguous project ${rawpkg.project}`)
+
+  const project = projects[0].project //FIXME libtea forgets to correctly assign type
+  const constraint = rawpkg.constraint
+
+  return { project, constraint }
+}

@@ -5,18 +5,18 @@ on:
         required: true
 
 jobs:
-  qa.installer:
+  qa-installer:
     uses: ./.github/workflows/ci.installer.yml
-  qa.action:
+  qa-action:
     uses: ./.github/workflows/ci.action.yml
 
   dist:
-    needs: [qa.installer, qa.action]
+    needs: [qa-installer, qa-action]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
-      - run: ./scripts/dist.sh
+      - run: ./scripts/dist.sh --minify
       - uses: actions/upload-artifact@v2
         with:
           name: dist
@@ -61,7 +61,7 @@ jobs:
       - uses: git-actions/set-user@v1
       - run: |
           git add dist
-          git commit -m 'v${{ github.event.inputs.version }}
+          git commit -m v${{ github.event.inputs.version }}
           git tag v${{ github.event.inputs.version }}
           git push origin v${{ github.event.inputs.version }} main
 

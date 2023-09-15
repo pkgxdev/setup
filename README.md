@@ -1,56 +1,41 @@
 ![tea](https://tea.xyz/banner.png)
 
-* [`installer.sh`](./installer.sh) is delivered when you `curl tea.xyz`.
-* This repository also provides the `tea` GitHub Action.
+* This repository provides the `tea` GitHub Action.
+* It also hosts [`installer.sh`](./installer.sh); the result of `curl tea.xyz`.
 
-# GitHub Action 0.18.3
+
+# GitHub Action
 
 ```yaml
-- uses: teaxyz/setup@v0
+- uses: teaxyz/setup@v1
 ```
 
-Installs tea, your dependencies (computed from your developer environment),
-adds your deps to `PATH` and exports some other *tea’ish* variables like
-`VERSION`.
+Installs the latest version of `tea`.
 
 See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 
 ```yaml
-- uses: teaxyz/setup@v0
+- uses: teaxyz/setup@v1
   with:
-    +: |
-      deno.land^1.30
-      rust-lang.org^1.60
+    +: deno@1.30 rust@1.60
 ```
 
-Our packages are named after their homepages, to see what is available you
-can browse the pantry on our website:
-[tea.xyz] (we agree this isn’t great UX)
+### Shell Integration
 
-## Magic
+We cannot integrate with the GitHub Actions shell. But you probably don’t
+need it.
 
-We cannot install our shell magic into GitHub Actions. So unless your dev-env
-includes the package or you manually add the package with `+:` you will need
-to ensure it is called with a `tea` prefix, eg. `tea npx`.
-
-## Should you Cache `~/.tea`?
+### Should you Cache `~/.tea`?
 
 No. tea packages are just tarballs. Caching is just a tarball. You’ll likely
 just slow things down.
 
-## Interesting Usages
-
-At tea, we consider the version in the `README` the definitive version.
-Thus we use GitHub Actions to automatically tag and publish that version when
-the README is edited and the version changes.
-
-See our CI scripts for details.
-
+&nbsp;
 
 
 # `tea` Installer
 
-To install tea:
+To install `tea`:
 
 ```sh
 $ curl https://tea.xyz | sh

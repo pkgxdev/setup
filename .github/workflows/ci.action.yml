@@ -15,14 +15,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
       - run: ./scripts/dist.sh
       - uses: actions/upload-artifact@v2
         with:
           name: dist
           path: dist
 
-  gha:
+  std:
+    needs: dist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - uses: ./
+      - run: tea --version
+
+  plus-pkgs:
     needs: dist
     runs-on: ${{ matrix.os }}
     strategy:
@@ -41,10 +52,6 @@ jobs:
         include:
         - os: ubuntu-latest
           container: debian:buster-slim
-          srcroot: .
-        - os: ubuntu-latest
-          container: debian:buster-slim
-          srcroot: null
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
@@ -54,69 +61,15 @@ jobs:
           path: dist
 
       - uses: ./
-        id: tea
         with:
-          prefix: ${{ matrix.prefix }}
-          srcroot: ${{ matrix.srcroot || github.workspace }}
+          TEA_DIR: ${{ matrix.prefix }}
+          +: node@18 deno.land
 
-      - run: test -n "$VERSION"
-      - run: test -n "${{ steps.tea.outputs.version }}"
-      - run: test v$VERSION = v${{ steps.tea.outputs.version }}
-      - run: tea --env
-      - run: which tea
+      - run: test -f '${{ matrix.prefix }}/tea.xyz/v*/bin/tea'
+        if: ${{ matrix.prefix }}
+      - run: tea --version
       - run: node --eval 'console.log(1)'
-
-  chaste:
-    needs: dist
-    runs-on: ubuntu-latest
-    container: debian:buster-slim
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-      - uses: ./
-        with:
-          chaste: true
-      - run:
-          if node --version; then
-            exit 1;
-          fi
-
-  additional-pkgs:
-    needs: dist
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-      - uses: ./
-        with:
-          +deno.land: ^1.30
-        # ^^ produces a warning, but we like this syntax
-        # we're hoping GH allows us to suppress this warning in the future
-        # discussion: https://github.com/octokit/request-action/issues/26
       - run: deno --version
-
-  additional-pkgs-2:
-    needs: dist
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-      - uses: ./
-        with:
-          +: |
-            deno.land^1.30
-            cli.github.com
-      - run: deno --version
-      - run: gh --version
 
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
