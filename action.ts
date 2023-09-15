@@ -9,7 +9,7 @@ const { install } = porcelain
 const { flatmap } = utils
 
 async function go() {
-  const TEA_DIR = core.getInput('TEA_DIR') as string
+  const TEA_DIR = core.getInput('TEA_DIR')
 
   let vtea = core.getInput('version') ?? ""
   if (vtea && !/^[*^~@=]/.test(vtea)) {
@@ -28,6 +28,13 @@ async function go() {
         key = key.slice(7).toLowerCase()
         pkgs.push(key+value)
   }}}
+
+
+  // we build to /opt and special case this action so people new to
+  // building aren’t immediately flumoxed
+  if (TEA_DIR == '/opt' && os.platform() == 'darwin') {
+    await exec('sudo', ['chown', `${os.userInfo().username}:staff`, '/opt'])
+  }
 
   core.info(`fetching ${pkgs.join(", ")}…`)
 
