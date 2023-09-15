@@ -14,21 +14,6 @@ elif test -d /usr -a ! -w /usr; then
   SUDO="sudo"
 fi
 
-_install_tea() {
-  if [ -z "$CI" ]; then
-    PROGRESS="--progress-bar"
-  else
-    PROGRESS="-Ss"
-  fi
-
-  curl \
-    $PROGRESS --compressed --fail --proto '=https' \
-    --output "$1"/tea \
-    "https://tea.xyz/$(uname)/$(uname -m)"
-
-  chmod +x "$1"/tea
-}
-
 _install_pre_reqs() {
   if test -f /etc/debian_version; then
     apt update --yes
@@ -59,19 +44,45 @@ _is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
 }
 
+_install_tea() {
+  if [ $# -eq 0 ]; then
+    dst=/usr/local/bin
+    echo "Installing: /usr/local/bin/tea" >&2
+    tar="$SUDO tar"
+    if [ ! -d /usr/local/bin ]; then
+      $SUDO mkdir -p /usr/local/bin
+    fi
+    export PATH="/usr/local/bin:$PATH"  # just in case
+  else
+    dst="$(mktemp -d)"
+    tar=tar
+    export PATH="$tmpdir:$PATH"
+  fi
+
+  if _is_ci; then
+    progress="--no-progress-meter"
+  else
+    progress="--progress-bar"
+  fi
+
+  # using a named pipe to prevent curl progress output trumping the sudo password prompt
+  tmpdir=$(mktemp -d)
+  pipe="$tmpdir/pipe"
+  mkfifo "$pipe"
+
+  trap "rm -r '$tmpdir'" EXIT INT TERM
+
+  curl $progress --fail --proto '=https' "https://tea.xyz/$(uname)/$(uname -m)".tgz > "$pipe" &
+  sudo sh -c "tar xz --directory '$dst' < '$pipe'" &
+  wait
+
+  unset dst tar tmpdir pipe
+}
+
 ########################################################################### meat
 
 if ! command -v tea >/dev/null 2>&1; then
-  tmpdir="$(mktemp -d)"
-
-  _install_tea "$tmpdir"
-
-  if [ $# -eq 0 ]; then
-    $SUDO sh -c "mkdir -p /usr/local/bin && mv $tmpdir/tea /usr/local/bin/tea"
-    export PATH="/usr/local/bin:$PATH"  # just in case
-  else
-    export PATH="$tmpdir:$PATH"
-  fi
+  _install_tea
 fi
 
 if _is_ci; then
