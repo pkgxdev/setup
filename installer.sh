@@ -45,38 +45,37 @@ _is_ci() {
 }
 
 _install_tea() {
-  if [ $# -eq 0 ]; then
-    dst=/usr/local/bin
-    echo "Installing: /usr/local/bin/tea" >&2
-    tar="$SUDO tar"
-    if [ ! -d /usr/local/bin ]; then
-      $SUDO mkdir -p /usr/local/bin
-    fi
-    export PATH="/usr/local/bin:$PATH"  # just in case
-  else
-    dst="$(mktemp -d)"
-    tar=tar
-    export PATH="$tmpdir:$PATH"
-  fi
-
   if _is_ci; then
     progress="--no-progress-meter"
   else
     progress="--progress-bar"
   fi
 
-  # using a named pipe to prevent curl progress output trumping the sudo password prompt
   tmpdir=$(mktemp -d)
-  pipe="$tmpdir/pipe"
-  mkfifo "$pipe"
 
-  trap "rm -r '$tmpdir'" EXIT INT TERM
+  if [ $# -eq 0 ]; then
+    echo "Installing: /usr/local/bin/tea" >&2
 
-  curl $progress --fail --proto '=https' "https://tea.xyz/$(uname)/$(uname -m)".tgz > "$pipe" &
-  sudo sh -c "tar xz --directory '$dst' < '$pipe'" &
-  wait
+    # using a named pipe to prevent curl progress output trumping the sudo password prompt
+    pipe="$tmpdir/pipe"
+    mkfifo "$pipe"
 
-  unset dst tar tmpdir pipe
+    curl $progress --fail --proto '=https' "https://tea.xyz/$(uname)/$(uname -m)".tgz > "$pipe" &
+    $SUDO sh -c "tar xz --directory /usr/local/bin < '$pipe'" &
+    wait
+
+    rm -r "$tmpdir"
+
+    export PATH="/usr/local/bin:$PATH"  # just in case
+  else
+    curl $progress --fail --proto '=https' \
+        "https://tea.xyz/$(uname)/$(uname -m)".tgz \
+      | tar xz --directory "$tmpdir"
+
+    export PATH="$tmpdir:$PATH"
+  fi
+
+  unset tmpdir pipe
 }
 
 ########################################################################### meat
