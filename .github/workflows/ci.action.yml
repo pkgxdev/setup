@@ -63,11 +63,12 @@ jobs:
       - uses: ./
         with:
           TEA_DIR: ${{ matrix.prefix }}
-          +: node@18
+          +: node@18 deno.land
 
       - run: test -f '${{ matrix.prefix }}/tea.xyz/v*/bin/tea'
       - run: tea --version
       - run: node --eval 'console.log(1)'
+      - run: deno --version
 
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
