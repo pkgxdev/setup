@@ -5,18 +5,28 @@ on:
         required: true
 
 jobs:
-  qa1:
-    uses: ./.github/workflows/ci.yml
-  qa2:
+  qa.installer:
     uses: ./.github/workflows/ci.installer.yml
-  qa3:
+  qa.action:
     uses: ./.github/workflows/ci.action.yml
+
+  dist:
+    needs: [qa.installer, qa.action]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
+      - run: ./scripts/dist.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
 
   put:
     permissions:
       contents: write
       deployments: write
-    needs: [qa1, qa2, qa3]
+    needs: dist
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment
@@ -26,7 +36,11 @@ jobs:
           step: start
           env: aws
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -44,9 +58,12 @@ jobs:
             --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
             --paths / /pour.sh
 
+      - uses: git-actions/set-user@v1
       - run: |
+          git add dist
+          git commit -m 'v${{ github.event.inputs.version }}
           git tag v${{ github.event.inputs.version }}
-          git push origin v${{ github.event.inputs.version }}
+          git push origin v${{ github.event.inputs.version }} main
 
       - uses: softprops/action-gh-release@v1
         with:

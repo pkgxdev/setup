@@ -1,3 +1,0 @@
-#!/bin/sh
-# because we test on dozens of containers and most have no ca-certs installed by default
-exec $(cd $(dirname $0) && pwd)/curl.bin --insecure "$@"
