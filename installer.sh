@@ -61,7 +61,10 @@ _install_tea() {
     mkfifo "$pipe"
 
     curl $progress --fail --proto '=https' "https://tea.xyz/$(uname)/$(uname -m)".tgz > "$pipe" &
-    $SUDO sh -c "tar xz --directory /usr/local/bin < '$pipe'" &
+    $SUDO sh -c "
+      mkdir -p /usr/local/bin
+      tar xz --directory /usr/local/bin < '$pipe'
+    " &
     wait
 
     rm -r "$tmpdir"
