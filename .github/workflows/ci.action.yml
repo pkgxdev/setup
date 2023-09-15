@@ -14,7 +14,7 @@ jobs:
   dist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
       - run: ./scripts/dist.sh
       - uses: actions/upload-artifact@v2
@@ -47,7 +47,7 @@ jobs:
           srcroot: null
     container: ${{ matrix.container }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v2
         with:
           name: dist
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     container: debian:buster-slim
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v2
         with:
           name: dist
@@ -88,7 +88,7 @@ jobs:
     needs: dist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v2
         with:
           name: dist
@@ -105,7 +105,7 @@ jobs:
     needs: dist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v2
         with:
           name: dist
@@ -121,7 +121,7 @@ jobs:
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v2
         with:
           name: dist

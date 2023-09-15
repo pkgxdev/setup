@@ -21,7 +21,7 @@ jobs:
           - macos-latest
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # using cat | sh to emulate the curl command we tell people to use
       - run: cat ./installer.sh | sh
       - run: tea --version
@@ -29,7 +29,7 @@ jobs:
   usage-as-proxy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: cat ./installer.sh | sh -s node --eval 'console.log(1)'
       - run: ./installer.sh sh -c "which tea"
       - run: source <(cat ./installer.sh) duf
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     container: debian:buster-slim
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./installer.sh
         env:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
@@ -47,7 +47,7 @@ jobs:
   eval-bash:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           eval "$(cat ./installer.sh)"
           tea +duf
@@ -67,7 +67,7 @@ jobs:
       - name: prep
         run: sudo apt-get update && sudo apt-get install -y zsh
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           eval "$(cat ./installer.sh)"
           tea +duf
@@ -80,7 +80,7 @@ jobs:
   eval-posix-sh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           eval "$(cat ./installer.sh)"
           tea +duf
@@ -93,7 +93,7 @@ jobs:
   sudo-required:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: sudo chmod go-w /usr/local/bin
       # ^^ we run as `runner` but this dir has 999 perms
       - name: check
@@ -107,7 +107,7 @@ jobs:
         dir: [/usr/local, /usr/local/bin]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: sudo mv ${{ matrix.dir }} $(mktemp -d)
       - run: ./installer.sh
       - run: tea duf --version
@@ -115,7 +115,7 @@ jobs:
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: cat ./installer.sh | sh
       - run: cat ./installer.sh | sh
 
