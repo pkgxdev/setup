@@ -111,3 +111,45 @@ jobs:
       - run: sudo mv ${{ matrix.dir }} $(mktemp -d)
       - run: ./installer.sh
       - run: tea duf --version
+
+  multiple-apply-is-ok:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: cat ./installer.sh | sh
+      - run: cat ./installer.sh | sh
+
+  linuxen:
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+          - debian:buster-slim
+          - debian:bullseye-slim
+          - debian:bookworm-slim
+          - archlinux:latest
+          # - ubuntu:bionic     glibc too old
+          - ubuntu:focal
+          - ubuntu:jammy
+          # - ubuntu:kinetic    updates have been deactivated for this release
+          # - ubuntu:lunar      glibc too old
+          # - ubuntu:trusty
+          # - ubuntu:xenial     glibc too old
+          - fedora:latest
+          # - nixos/nix:latest  can’t exec
+          # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          ref: curl
+          path: bin
+
+      - run: ./installer.sh
+        env:
+          PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
+
+      - run: tea node --eval 'console.log(1)'

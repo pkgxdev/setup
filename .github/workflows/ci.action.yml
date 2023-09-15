@@ -11,16 +11,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-dist-was-run:
+  dist:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
       - run: ./scripts/dist.sh
-      - run: git diff --exit-code
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
 
   gha:
-    needs: check-dist-was-run
+    needs: dist
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -45,6 +48,10 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
 
       - uses: ./
         id: tea
@@ -60,11 +67,15 @@ jobs:
       - run: node --eval 'console.log(1)'
 
   chaste:
-    needs: check-dist-was-run
+    needs: dist
     runs-on: ubuntu-latest
     container: debian:buster-slim
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
       - uses: ./
         with:
           chaste: true
@@ -74,10 +85,14 @@ jobs:
           fi
 
   additional-pkgs:
-    needs: check-dist-was-run
+    needs: dist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
       - uses: ./
         with:
           +deno.land: ^1.30
@@ -87,10 +102,14 @@ jobs:
       - run: deno --version
 
   additional-pkgs-2:
-    needs: check-dist-was-run
+    needs: dist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
       - uses: ./
         with:
           +: |
@@ -98,3 +117,16 @@ jobs:
             cli.github.com
       - run: deno --version
       - run: gh --version
+
+  multiple-apply-is-ok:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - uses: ./
+      - run: tea --version
+      - uses: ./
+      - run: tea --version
