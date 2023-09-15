@@ -1,4 +1,4 @@
-import { porcelain, hooks, Path, utils } from "@teaxyz/lib"
+import { porcelain, hooks, Path, utils, PackageRequirement } from "@teaxyz/lib"
 import { exec } from "@actions/exec"
 import * as core from '@actions/core'
 import * as path from 'path'
@@ -42,7 +42,8 @@ async function go() {
   })
   const { map, flatten } = useShellEnv()
 
-  const installations = await install(pkgs)
+  const pkgrqs = await Promise.all(pkgs.map(parse))
+  const installations = await install(pkgrqs)
   const env = flatten(await map({ installations }))
 
   for (const [key, value] of Object.entries(env)) {
@@ -71,3 +72,18 @@ async function go() {
 }
 
 go().catch(core.setFailed)
+
+
+async function parse(input: string): Promise<PackageRequirement> {
+  const find = hooks.usePantry().find
+  const rawpkg = utils.pkg.parse(input)
+
+  const projects = await find(rawpkg.project)
+  if (projects.length <= 0) throw new Error(`not found ${rawpkg.project}`)
+  if (projects.length > 1) throw new Error(`ambiguous project ${rawpkg.project}`)
+
+  const project = projects[0].project //FIXME libtea forgets to correctly assign type
+  const constraint = rawpkg.constraint
+
+  return { project, constraint }
+}
