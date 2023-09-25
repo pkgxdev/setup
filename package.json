@@ -5,7 +5,7 @@
     "@teaxyz/lib": "^0.13.0"
   },
   "devDependencies": {
-    "@types/node": "^20.6.2",
+    "@types/node": "^20.6.5",
     "@vercel/ncc": "^0.38.0",
     "typescript": "^5.2.2"
   }
