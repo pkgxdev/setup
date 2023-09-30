@@ -1,6 +1,6 @@
-name: tea/setup
+name: pkgx/setup
 description: >
-  Installs tea.xyz to your GitHub Actions runner.
+  Installs pkgx.sh to your GitHub Actions runner.
 inputs:
   +:
     description: |
@@ -11,18 +11,15 @@ inputs:
         deno.land@1.30
         rust-lang.org@1.60
       ```
-
-      By default tea reads your developer environment and adds those packages.
-      Specifying additional packages here is a way to augment that.
     required: false
-  TEA_DIR:
+  PKGX_DIR:
     description: >
       Where pkgs are cached.
-      Defaults to `$HOME/.tea`.
+      Defaults to `$HOME/.pkgx`.
     required: false
   version:
     description: >
-      The version of teaxyz/cli to install.
+      The version of `pkgx` to install.
       Defaults to the @latest.
     required: false
 runs:

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: curl -Ssf https://tea.xyz/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
+      - run: curl -Ssf https://pkgx.sh/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
       - run: ./scripts/dist.sh --minify
       - uses: actions/upload-artifact@v3
         with:
@@ -50,13 +50,13 @@ jobs:
 
       - run:
           aws s3 cp
-            ./installer.sh s3://www.tea.xyz/pour.sh
+            ./installer.sh s3://www.pkgx.sh/installer.sh
             --metadata-directive REPLACE
             --cache-control no-cache,must-revalidate
       - run:
           aws cloudfront create-invalidation
             --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
-            --paths / /pour.sh
+            --paths / /installer.sh
 
       - uses: git-actions/set-user@v1
       - run: |

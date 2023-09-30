@@ -44,7 +44,7 @@ _is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
 }
 
-_install_tea() {
+_install_pkgx() {
   if _is_ci; then
     progress="--no-progress-meter"
   else
@@ -54,13 +54,13 @@ _install_tea() {
   tmpdir=$(mktemp -d)
 
   if [ $# -eq 0 ]; then
-    echo "Installing: /usr/local/bin/tea" >&2
+    echo "Installing: /usr/local/bin/pkgx" >&2
 
     # using a named pipe to prevent curl progress output trumping the sudo password prompt
     pipe="$tmpdir/pipe"
     mkfifo "$pipe"
 
-    curl $progress --fail --proto '=https' "https://tea.xyz/$(uname)/$(uname -m)".tgz > "$pipe" &
+    curl $progress --fail --proto '=https' "https://pkgx.sh/$(uname)/$(uname -m)".tgz > "$pipe" &
     $SUDO sh -c "
       mkdir -p /usr/local/bin
       tar xz --directory /usr/local/bin < '$pipe'
@@ -72,7 +72,7 @@ _install_tea() {
     export PATH="/usr/local/bin:$PATH"  # just in case
   else
     curl $progress --fail --proto '=https' \
-        "https://tea.xyz/$(uname)/$(uname -m)".tgz \
+        "https://pkgx.sh/$(uname)/$(uname -m)".tgz \
       | tar xz --directory "$tmpdir"
 
     export PATH="$tmpdir:$PATH"
@@ -83,8 +83,8 @@ _install_tea() {
 
 ########################################################################### meat
 
-if ! command -v tea >/dev/null 2>&1; then
-  _install_tea "$@"
+if ! command -v pkgx >/dev/null 2>&1; then
+  _install_pkgx "$@"
 fi
 
 if _is_ci; then
@@ -100,7 +100,7 @@ else
   apt() {
     case "$1" in
     update)
-      echo "ensure you have the `tea` pre-requisites installed:" >&2
+      echo "ensure you have the `pkgx` pre-requisites installed:" >&2
       echo >&2
       ;;
     install)
@@ -117,12 +117,12 @@ fi
 _install_pre_reqs
 
 if [ $# -gt 0 ]; then
-  tea "$@"
+  pkgx "$@"
 elif [ $(basename "/$0") != 'installer.sh' ]; then
   # ^^ temporary exception for action.ts
-  eval "$(tea --shellcode)" 2>/dev/null
+  eval "$(pkgx --shellcode)" 2>/dev/null
 
   if ! _is_ci; then
-    echo "now type: tea --help" >&2
+    echo "now type: pkgx --help" >&2
   fi
 fi
