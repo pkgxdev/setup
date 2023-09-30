@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  install-tea:
+  install-pkgx:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -24,16 +24,16 @@ jobs:
       - uses: actions/checkout@v4
       # using cat | sh to emulate the curl command we tell people to use
       - run: cat ./installer.sh | sh
-      - run: tea --version
+      - run: pkgx --version
 
   usage-as-proxy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: cat ./installer.sh | sh -s node --eval 'console.log(1)'
-      - run: ./installer.sh sh -c "which tea"
+      - run: ./installer.sh sh -c "which pkgx"
       - run: source <(cat ./installer.sh) duf
-      - run: if command -v tea; then exit 1; fi
+      - run: if command -v pkgx; then exit 1; fi
 
   sudo-not-required:
     runs-on: ubuntu-latest
@@ -50,16 +50,16 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           eval "$(cat ./installer.sh)"
-          tea +duf
+          env +duf
           duf --version
 
           test -n "$BASH_VERSION"
           test -z "$ZSH_VERSION"
         shell: bash -e {0}
 
-      # check tea was installed despite executing via `eval`
+      # check pkgx was installed despite executing via `eval`
       - run:
-          tea duf --version
+          pkgx duf --version
 
   eval-zsh:
     runs-on: ubuntu-latest
@@ -70,7 +70,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           eval "$(cat ./installer.sh)"
-          tea +duf
+          env +duf
           duf --version
 
           test -n "$ZSH_VERSION"
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           eval "$(cat ./installer.sh)"
-          tea +duf
+          env +duf
           duf --version
 
           test -z "$ZSH_VERSION"
@@ -99,7 +99,7 @@ jobs:
       - name: check
         run: if touch /usr/local/bin/foo; then exit 1; fi
       - run: ./installer.sh
-      - run: test "$(which tea)" = /usr/local/bin/tea
+      - run: test "$(which pkgx)" = /usr/local/bin/pkgx
 
   no-dirs:
     strategy:
@@ -110,7 +110,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo mv ${{ matrix.dir }} $(mktemp -d)
       - run: ./installer.sh
-      - run: tea duf --version
+      - run: pkgx duf --version
 
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
@@ -141,7 +141,7 @@ jobs:
           - fedora:latest
 
           # - nixos/nix:latest  can’t exec
-          # - alpine:latest     tea binary doesn’t actually end up on the system (wtf)
+          # - alpine:latest     pkgx binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
@@ -155,4 +155,4 @@ jobs:
         env:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
 
-      - run: tea node --eval 'console.log(1)'
+      - run: pkgx node --eval 'console.log(1)'

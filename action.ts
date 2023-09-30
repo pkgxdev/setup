@@ -1,4 +1,4 @@
-import { porcelain, hooks, Path, utils, PackageRequirement } from "@teaxyz/lib"
+import { porcelain, hooks, Path, utils, PackageRequirement } from "libpkgx"
 import { exec } from "@actions/exec"
 import * as core from '@actions/core'
 import * as path from 'path'
@@ -9,14 +9,14 @@ const { install } = porcelain
 const { flatmap } = utils
 
 async function go() {
-  const TEA_DIR = core.getInput('TEA_DIR')
+  const PKGX_DIR = core.getInput('PKGX_DIR') || core.getInput('TEA_DIR')
 
-  let vtea = core.getInput('version') ?? ""
-  if (vtea && !/^[*^~@=]/.test(vtea)) {
-    vtea = `@${vtea}`
+  let vpkgx = core.getInput('version') ?? ""
+  if (vpkgx && !/^[*^~@=]/.test(vpkgx)) {
+    vpkgx = `@${vpkgx}`
   }
 
-  const pkgs = [`tea.xyz${vtea}`]
+  const pkgs = [`pkgx.sh${vpkgx}`]
   for (let key in process.env) {
     if (key.startsWith("INPUT_+")) {
       const value = process.env[key]!
@@ -32,19 +32,20 @@ async function go() {
 
   // we build to /opt and special case this action so people new to
   // building aren’t immediately flumoxed
-  if (TEA_DIR == '/opt' && os.platform() == 'darwin') {
+  if (PKGX_DIR == '/opt' && os.platform() == 'darwin') {
     await exec('sudo', ['chown', `${os.userInfo().username}:staff`, '/opt'])
   }
 
   core.info(`fetching ${pkgs.join(", ")}…`)
 
-  const prefix = flatmap(TEA_DIR, (x: string) => new Path(x)) ?? Path.home().join(".tea")
+  const prefix = flatmap(PKGX_DIR, (x: string) => new Path(x)) ?? Path.home().join(".pkgx")
 
   useConfig({
     prefix,
+    data: prefix.join(".data"),
     cache: prefix.join(".cache"),
     pantries: [],
-    UserAgent: 'tea.setup/0.1.0', //TODO version
+    UserAgent: 'pkgx.setup/0.1.0', //TODO version
     options: { compression: 'gz' }
   })
   const { map, flatten } = useShellEnv()
@@ -63,8 +64,8 @@ async function go() {
     }
   }
 
-  if (TEA_DIR) {
-    core.exportVariable('TEA_DIR', TEA_DIR)
+  if (PKGX_DIR) {
+    core.exportVariable('PKGX_DIR', PKGX_DIR)
   }
 
   if (os.platform() != 'darwin') {
@@ -91,7 +92,7 @@ async function parse(input: string): Promise<PackageRequirement> {
   if (projects.length <= 0) throw new Error(`not found ${rawpkg.project}`)
   if (projects.length > 1) throw new Error(`ambiguous project ${rawpkg.project}`)
 
-  const project = projects[0].project //FIXME libtea forgets to correctly assign type
+  const project = projects[0].project //FIXME libpkgx forgets to correctly assign type
   const constraint = rawpkg.constraint
 
   return { project, constraint }

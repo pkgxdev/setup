@@ -1,21 +1,21 @@
-![tea](https://tea.xyz/banner.png)
+![pkgx](https://pkgx.dev/banner.png)
 
-* This repository provides the `tea` GitHub Action.
-* It also hosts [`installer.sh`](./installer.sh); the result of `curl tea.xyz`.
+* This repository provides the `pkgx` GitHub Action.
+* It also hosts [`installer.sh`](./installer.sh); the result of `curl pkgx.sh`.
 
 
 # GitHub Action
 
 ```yaml
-- uses: teaxyz/setup@v1
+- uses: pkgxdev/setup@v1
 ```
 
-Installs the latest version of `tea`.
+Installs the latest version of `pkgx`.
 
 See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 
 ```yaml
-- uses: teaxyz/setup@v1
+- uses: pkgxdev/setup@v1
   with:
     +: deno@1.30 rust@1.60
 ```
@@ -25,39 +25,39 @@ See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 We cannot integrate with the GitHub Actions shell. But you probably don’t
 need it.
 
-### Should you Cache `~/.tea`?
+### Should you Cache `~/.pkgx`?
 
-No. tea packages are just tarballs. Caching is just a tarball. You’ll likely
+No. pkgx packages are just tarballs. Caching is just a tarball. You’ll likely
 just slow things down.
 
 &nbsp;
 
 
-# `tea` Installer
+# `pkgx` Installer
 
-To install `tea`:
+To install `pkgx`:
 
 ```sh
-$ curl https://tea.xyz | sh
+$ curl https://pkgx.sh | sh
 
-# - installs to `/usr/local/bin/tea`
-# - if tea is already installed it’s a noop
+# - installs to `/usr/local/bin/pkgx`
+# - if pkgx is already installed it’s a noop
 ```
 
-To use `tea` to run a command in a temporary sandbox:
+To use `pkgx` to run a command in a temporary sandbox:
 
 ```sh
-$ curl -Ssf https://tea.xyz | sh -s -- gum spin -- sleep 5
+$ curl -Ssf https://pkgx.sh | sh -s -- gum spin -- sleep 5
 
-# - if tea is installed, uses that installation to run gum
-# - if tea is *not* installed, downloads tea to a temporary location
-# - packages are still cached in `~/.tea` but tea itself is not installed
+# - if pkgx is installed, uses that installation to run gum
+# - if pkgx is *not* installed, downloads pkgx to a temporary location
+# - packages are still cached in `~/.pkgx` but pkgx itself is not installed
 ```
 
 This syntax is easier to remember:
 
 ```sh
-sh <(curl tea.xyz) gum spin -- sleep 5
+sh <(curl -L pkgx.sh) gum spin -- sleep 5
 ```
 
 > There is the **notable caveat** that it will not work with bash <4
@@ -66,4 +66,3 @@ sh <(curl tea.xyz) gum spin -- sleep 5
 > where bash is the shell interpreting your commands. Your call.
 
 [`action.yml`]: ./action.yml
-[tea.xyz]: https://tea.xyz
