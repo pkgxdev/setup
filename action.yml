@@ -1,15 +1,13 @@
 name: pkgx/setup
 description: >
-  Installs pkgx.sh to your GitHub Actions runner.
+  Installs `pkgx` to your GitHub Actions runner.
 inputs:
   +:
     description: |
       Whitespace separated, pkgs to supplement the environment. eg.
 
       ```yaml
-      +:
-        deno.land@1.30
-        rust-lang.org@1.60
+      +: deno@1.36 rust@1.60
       ```
     required: false
   PKGX_DIR:

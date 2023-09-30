@@ -31,7 +31,7 @@ jobs:
           name: dist
           path: dist
       - uses: ./
-      - run: tea --version
+      - run: pkgx --version
 
   plus-pkgs:
     needs: dist
@@ -62,12 +62,12 @@ jobs:
 
       - uses: ./
         with:
-          TEA_DIR: ${{ matrix.prefix }}
+          PKGX_DIR: ${{ matrix.prefix }}
           +: node@18 deno.land
 
-      - run: test -f '${{ matrix.prefix }}/tea.xyz/v*/bin/tea'
+      - run: test -f '${{ matrix.prefix }}/pkgx.sh/v*/bin/pkgx'
         if: ${{ matrix.prefix }}
-      - run: tea --version
+      - run: pkgx --version
       - run: node --eval 'console.log(1)'
       - run: deno --version
 
@@ -81,6 +81,6 @@ jobs:
           name: dist
           path: dist
       - uses: ./
-      - run: tea --version
+      - run: pkgx --version
       - uses: ./
-      - run: tea --version
+      - run: pkgx --version
