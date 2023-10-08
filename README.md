@@ -17,7 +17,16 @@ See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 ```yaml
 - uses: pkgxdev/setup@v1
   with:
-    +: deno@1.30 rust@1.60
+    +: deno@1.30
+       rust@1.60   # we understand colloquial names, generally just type what you know
+       clang       # versions aren’t necessary if you don’t care
+```
+
+The easiest way to know if it will work in the action is to try it locally on your computer:
+
+```
+$ pkgx +rust
+# if there’s output, we got it
 ```
 
 ### Shell Integration
