@@ -81,9 +81,23 @@ _install_pkgx() {
   unset tmpdir pipe
 }
 
+_should_install_pkgx() {
+  if ! command -v pkgx >/dev/null 2>&1; then
+    return 0
+  elif [ $(/usr/bin/which pkgx) != /usr/local/bin/pkgx ]; then
+    # if pkgx is not installed to /usr/local/bin then we’re not getting involved
+    return 1
+  fi
+
+  # if the installed version is less than the available version then upgrade
+  pkgx --silent semverator lt \
+    $(curl -Ssf https://pkgx.sh/VERSION) \
+    $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
+}
+
 ########################################################################### meat
 
-if ! command -v pkgx >/dev/null 2>&1; then
+if _should_install_pkgx; then
   _install_pkgx "$@"
 fi
 
