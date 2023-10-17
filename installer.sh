@@ -90,7 +90,7 @@ _should_install_pkgx() {
   fi
 
   # if the installed version is less than the available version then upgrade
-  pkgx --silent semverator lt \
+  pkgx --silent semverator gt \
     $(curl -Ssf https://pkgx.sh/VERSION) \
     $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
 }
