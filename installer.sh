@@ -76,26 +76,37 @@ _install_pkgx() {
       | tar xz --directory "$tmpdir"
 
     export PATH="$tmpdir:$PATH"
+    export PKGX_DIR="$tmpdir"
   fi
 
   unset tmpdir pipe
 }
 
 _should_install_pkgx() {
-  if [ -x /usr/local/bin/pkgx ] && [ -f /usr/local/bin/pkgx ]; then
-    # if the installed version is less than the available version then upgrade
-    /usr/local/bin/pkgx --silent semverator gt \
-      $(curl -Ssf https://pkgx.sh/VERSION) \
-      $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
-  else
+  if ! command -v pkgx >/dev/null 2>&1; then
     return 0
+  elif [ $(/usr/bin/which pkgx) != /usr/local/bin/pkgx ]; then
+    # if pkgx is not installed to /usr/local/bin then we’re not getting involved
+    return 1
   fi
+
+  # if the installed version is less than the available version then upgrade
+  /usr/local/bin/pkgx --silent semverator gt \
+    $(curl -Ssf https://pkgx.sh/VERSION) \
+    $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
 }
 
 ########################################################################### meat
 
 if _should_install_pkgx; then
   _install_pkgx "$@"
+
+  # tell the user what version we just installed
+  /usr/local/bin/pkgx --version
+
+  if "$(/usr/bin/which pkgx)" != /usr/local/bin; then
+    echo "warning: active pkgx is not /usr/local/bin/pkgx"
+  fi
 fi
 
 if _is_ci; then
