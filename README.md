@@ -29,6 +29,9 @@ $ pkgx +rust
 # if there’s output, we got it
 ```
 
+> See [`@pkgxdev/dev`] to run the `dev` command in a GitHub Actions compatible manner
+
+
 ### Shell Integration
 
 We cannot integrate with the GitHub Actions shell. But you probably don’t
@@ -42,7 +45,7 @@ just slow things down.
 &nbsp;
 
 
-# `pkgx` Installer
+# The `pkgx` Installer
 
 To install `pkgx`:
 
@@ -53,15 +56,20 @@ $ curl https://pkgx.sh | sh
 # - if pkgx is already installed it’s a noop
 ```
 
+## Temporary Sandboxes
+
 To use `pkgx` to run a command in a temporary sandbox:
 
 ```sh
 $ curl -Ssf https://pkgx.sh | sh -s -- gum spin -- sleep 5
 
 # - if pkgx is installed, uses that installation to run gum
-# - if pkgx is *not* installed, downloads pkgx to a temporary location
-# - packages are still cached in `~/.pkgx` but pkgx itself is not installed
+# - if pkgx *isn’t* installed, downloads pkgx to a temporary location
+# - if pkgx *isn’t* installed, packages are also cached to a temporary location
 ```
+
+> This usage of our installer can be useful for demonstrative purposes in
+> READMEs and gists.
 
 This syntax is easier to remember:
 
@@ -69,9 +77,13 @@ This syntax is easier to remember:
 sh <(curl -L pkgx.sh) gum spin -- sleep 5
 ```
 
-> There is the **notable caveat** that it will not work with bash <4
+> There is the **notable caveat** that the above easier syntax will not work with bash <4
 > which is the bash that comes with macOS. Even though macOS has defaulted to
 > zsh for years it is still relatively easy for users to end up in a situation
-> where bash is the shell interpreting your commands. Your call.
+> where bash is the shell interpreting your commands. **Your call**.
+>
+> Additionally, use of `-L` is subject to man-in-the-middle attacks.
+> Again **your call**.
 
 [`action.yml`]: ./action.yml
+[`@pkgxdev/dev`]: https://github.com/pkgxdev/dev
