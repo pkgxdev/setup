@@ -40,6 +40,10 @@ jobs:
     container: debian:buster-slim
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: curl
+          path: bin
       - run: ./installer.sh
         env:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin

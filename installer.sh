@@ -54,7 +54,11 @@ _install_pkgx() {
   tmpdir=$(mktemp -d)
 
   if [ $# -eq 0 ]; then
-    echo "Installing: /usr/local/bin/pkgx" >&2
+    if [ -f /usr/local/bin/pkgx ]; then
+      echo "upgrading: /usr/local/bin/pkgx" >&2
+    else
+      echo "installing: /usr/local/bin/pkgx" >&2
+    fi
 
     # using a named pipe to prevent curl progress output trumping the sudo password prompt
     pipe="$tmpdir/pipe"
@@ -90,23 +94,22 @@ _install_pkgx() {
 }
 
 _should_install_pkgx() {
-  if ! command -v pkgx >/dev/null 2>&1; then
+  if [ ! -f /usr/local/bin/pkgx ]; then
     return 0
-  elif [ $(/usr/bin/which pkgx) != /usr/local/bin/pkgx ]; then
-    # if pkgx is not installed to /usr/local/bin then we’re not getting involved
-    return 1
+  else
+    # if the installed version is less than the available version then upgrade
+    /usr/local/bin/pkgx --silent semverator gt \
+      $(curl -Ssf https://pkgx.sh/VERSION) \
+      $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
   fi
-
-  # if the installed version is less than the available version then upgrade
-  /usr/local/bin/pkgx --silent semverator gt \
-    $(curl -Ssf https://pkgx.sh/VERSION) \
-    $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
 }
 
 ########################################################################### meat
 
 if _should_install_pkgx; then
   _install_pkgx "$@"
+elif [ $# -eq 0 ]; then
+  echo "pkgx already up-to-date" >&2
 fi
 
 if _is_ci; then
