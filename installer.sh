@@ -69,7 +69,14 @@ _install_pkgx() {
 
     rm -r "$tmpdir"
 
-    export PATH="/usr/local/bin:$PATH"  # just in case
+    if "$(/usr/bin/which pkgx 2>&1 >/dev/null)" != /usr/local/bin/pkgx; then
+      echo "warning: active pkgx is not /usr/local/bin/pkgx" >&2
+      export PATH="/usr/local/bin:$PATH"  # so we can exec if required
+    fi
+
+    # tell the user what version we just installed
+    pkgx --version
+
   else
     curl $progress --fail --proto '=https' \
         "https://pkgx.sh/$(uname)/$(uname -m)".tgz \
@@ -100,13 +107,6 @@ _should_install_pkgx() {
 
 if _should_install_pkgx; then
   _install_pkgx "$@"
-
-  # tell the user what version we just installed
-  /usr/local/bin/pkgx --version
-
-  if "$(/usr/bin/which pkgx)" != /usr/local/bin; then
-    echo "warning: active pkgx is not /usr/local/bin/pkgx"
-  fi
 fi
 
 if _is_ci; then
