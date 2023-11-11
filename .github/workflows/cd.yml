@@ -48,16 +48,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - run:
-          aws s3 cp
-            ./installer.sh s3://www.pkgx.sh/installer.sh
-            --metadata-directive REPLACE
-            --cache-control no-cache,must-revalidate
-      - run:
-          aws cloudfront create-invalidation
-            --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
-            --paths / /installer.sh
-
       - uses: git-actions/set-user@v1
       - run: |
           git add dist
