@@ -96,11 +96,13 @@ _install_pkgx() {
 _should_install_pkgx() {
   if [ ! -f /usr/local/bin/pkgx ]; then
     return 0
+  elif /usr/local/bin/pkgx --silent semverator gt \
+    $(curl -Ssf https://pkgx.sh/VERSION) \
+    $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
+  then
+    return 0
   else
-    # if the installed version is less than the available version then upgrade
-    /usr/local/bin/pkgx --silent semverator gt \
-      $(curl -Ssf https://pkgx.sh/VERSION) \
-      $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
+    return 1
   fi
 }
 
@@ -109,7 +111,7 @@ _should_install_pkgx() {
 if _should_install_pkgx; then
   _install_pkgx "$@"
 elif [ $# -eq 0 ]; then
-  echo "pkgx already up-to-date" >&2
+  echo "$(pkgx --version) already installed" >&2
 fi
 
 if _is_ci; then
