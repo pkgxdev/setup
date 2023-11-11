@@ -160,3 +160,15 @@ jobs:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
 
       - run: pkgx node --eval 'console.log(1)'
+
+  upgrades:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run:
+          curl https://dist.pkgx.dev/pkgx.sh/linux/x86-64/v1.0.0.tar.gz |
+          tar xz --strip-components=3
+      - run: mv pkgx /usr/local/bin
+      - run: test "$(pkgx --version)" = 'pkgx 1.0.0'
+      - run: ./installer.sh
+      - run: pkgx semverator gt $(pkgx --version | awk '{print $2}') 1.0.0
