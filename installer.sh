@@ -145,7 +145,11 @@ if [ $# -gt 0 ]; then
   pkgx "$@"
 elif [ $(basename "/$0") != 'installer.sh' ]; then
   # ^^ temporary exception for action.ts
-  eval "$(pkgx --shellcode)" 2>/dev/null
+
+  if type eval >/dev/null 2>&1; then
+    # we `type eval` as on Travis there was no `eval`!
+    eval "$(pkgx --shellcode)" 2>/dev/null
+  fi
 
   if ! _is_ci; then
     echo "now type: pkgx --help" >&2
