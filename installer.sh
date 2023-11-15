@@ -93,13 +93,17 @@ _install_pkgx() {
   unset tmpdir pipe
 }
 
+_pkgx_is_old() {
+  v="$(/usr/local/bin/pkgx --version || echo pkgx 0)"
+  /usr/local/bin/pkgx --silent semverator gt \
+    $(curl -Ssf https://pkgx.sh/VERSION) \
+    $(echo $v | awk '{print $2}')
+}
+
 _should_install_pkgx() {
   if [ ! -f /usr/local/bin/pkgx ]; then
     return 0
-  elif /usr/local/bin/pkgx --silent semverator gt \
-    $(curl -Ssf https://pkgx.sh/VERSION) \
-    $(/usr/local/bin/pkgx --version | awk '{print $2}') >/dev/null 2>&1
-  then
+  elif _pkgx_is_old >/dev/null 2>&1; then
     return 0
   else
     return 1
