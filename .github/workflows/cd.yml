@@ -42,18 +42,15 @@ jobs:
           name: dist
           path: dist
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
       - uses: git-actions/set-user@v1
+
       - run: |
-          git add dist
-          git commit -m v${{ github.event.inputs.version }}
-          git tag v${{ github.event.inputs.version }}
-          git push origin v${{ github.event.inputs.version }} main
+          if ! git diff --exit-code; then
+            git add dist
+            git commit -m v${{ github.event.inputs.version }}
+            git tag v${{ github.event.inputs.version }}
+            git push origin v${{ github.event.inputs.version }} main
+          fi
 
       - uses: softprops/action-gh-release@v1
         with:
