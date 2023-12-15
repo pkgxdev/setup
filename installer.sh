@@ -38,7 +38,10 @@ _install_pre_reqs() {
   elif test -f /etc/fedora-release; then
     $SUDO yum --assumeyes install libatomic
   elif test -f /etc/arch-release; then
-    $SUDO pacman --noconfirm -Sy gcc-libs libc++ libatomic_ops libxcrypt-compat
+    # installing gcc isn't my favorite thing, but even clang depends on it
+    # on archlinux. it provides libgcc. since we use it for testing, the risk
+    # to our builds is very low.
+    $SUDO pacman --noconfirm -Sy gcc libc++ libatomic_ops libxcrypt-compat
   fi
 }
 
