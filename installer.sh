@@ -37,6 +37,8 @@ _install_pre_reqs() {
     esac
   elif test -f /etc/fedora-release; then
     $SUDO yum --assumeyes install libatomic
+  elif test -f /etc/arch-release; then
+    $SUDO pacman --noconfirm -Sy gcc-libs libc++ libatomic_ops libxcrypt-compat
   fi
 }
 
