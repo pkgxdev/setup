@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: curl -Ssf https://pkgx.sh/$(uname)/$(uname -m).tgz | sudo tar xz -C /usr/local/bin
       - run: ./scripts/dist.sh --minify
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
