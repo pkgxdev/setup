@@ -147,6 +147,9 @@ else
   yum() {
     echo "   yum" "$@" >&2
   }
+  pacman() {
+    echo "   pacman" "$@" >&2
+  }
   unset SUDO
 fi
 
