@@ -52,7 +52,7 @@ jobs:
             git push origin v${{ github.event.inputs.version }} main
           fi
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         with:
           files: ./installer.sh
           tag_name: v${{ github.event.inputs.version }}
