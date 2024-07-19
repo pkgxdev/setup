@@ -41,7 +41,7 @@ _install_pre_reqs() {
     # installing gcc isn't my favorite thing, but even clang depends on it
     # on archlinux. it provides libgcc. since we use it for testing, the risk
     # to our builds is very low.
-    $SUDO pacman --noconfirm -Sy gcc libc++ libatomic_ops libxcrypt-compat
+    $SUDO pacman --noconfirm -Sy gcc libatomic_ops libxcrypt-compat
   fi
 }
 
