@@ -63,6 +63,10 @@ jobs:
           prefix: v
           tag: v${{ github.event.inputs.version }}
 
+      - run: |
+          git tag --force latest
+          git push origin latest
+
       - name: Seal Deployment
         uses: bobheadxi/deployments@v1
         if: always()
