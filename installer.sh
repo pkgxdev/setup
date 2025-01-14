@@ -29,11 +29,10 @@ _install_pre_reqs() {
       $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 $@
     }
   else
-    echo "ensure you have the `pkgx` pre-requisites installed:" >&2
     apt() {
       case "$1" in
       update)
-        echo >&2
+        echo "ensure you have the `pkgx` pre-requisites installed:" >&2
         ;;
       install)
         echo "   apt-get" "$@" >&2
@@ -41,9 +40,11 @@ _install_pre_reqs() {
       esac
     }
     yum() {
+      echo "ensure you have the `pkgx` pre-requisites installed:" >&2
       echo "   yum" "$@" >&2
     }
     pacman() {
+      echo "ensure you have the `pkgx` pre-requisites installed:" >&2
       echo "   pacman" "$@" >&2
     }
   fi
@@ -107,7 +108,7 @@ _install_pkgx() {
 
     rm -r "$tmpdir"
 
-    if [ "$(command -v pkgx)" != /usr/local/bin/pkgx ]; then
+    if [ "$(command -v pkgx 2>&1)" != /usr/local/bin/pkgx ]; then
       echo "warning: active pkgx is not /usr/local/bin/pkgx" >&2
       export PATH="/usr/local/bin:$PATH"  # so we can exec if required
     fi
