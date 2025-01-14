@@ -107,7 +107,7 @@ _install_pkgx() {
 
     rm -r "$tmpdir"
 
-    if [ "$(command which pkgx)" != /usr/local/bin/pkgx ]; then
+    if [ "$(command -v pkgx)" != /usr/local/bin/pkgx ]; then
       echo "warning: active pkgx is not /usr/local/bin/pkgx" >&2
       export PATH="/usr/local/bin:$PATH"  # so we can exec if required
     fi
