@@ -196,5 +196,7 @@ jobs:
           tar xz --strip-components=3
       - run: mv pkgx /usr/local/bin
       - run: test "$(pkgx --version)" = 'pkgx 1.0.0'
+      - run: PKGX_UPDATE=no ./installer.sh
+      - run: test "$(pkgx --version)" = 'pkgx 1.0.0'
       - run: ./installer.sh
       - run: pkgx semverator gt $(pkgx --version | awk '{print $2}') 1.0.0
