@@ -58,15 +58,17 @@ _install_pre_reqs() {
     # difficult to pkg in our opinion
     B=libudev-dev
 
+    # NOTE ffi is only needed for pkgx’s built with deno^2 and on arm64
+
     case $(cat /etc/debian_version) in
     jessie/sid|8.*|stretch/sid|9.*)
-      apt --yes install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B;;
+      apt --yes install libc-dev libstdc++-4.8-dev libgcc-4.7-dev libffi5 $A $B;;
     buster/sid|10.*)
-      apt --yes install libc-dev libstdc++-8-dev libgcc-8-dev $A $B;;
+      apt --yes install libc-dev libstdc++-8-dev libgcc-8-dev libffi6 $A $B;;
     bullseye/sid|11.*)
-      apt --yes install libc-dev libstdc++-10-dev libgcc-9-dev $A $B;;
+      apt --yes install libc-dev libstdc++-10-dev libgcc-9-dev libffi7 $A $B;;
     bookworm/sid|12.*|*)
-      apt --yes install libc-dev libstdc++-11-dev libgcc-11-dev $A $B;;
+      apt --yes install libc-dev libstdc++-11-dev libgcc-11-dev libffi8 $A $B;;
     esac
   elif test -f /etc/fedora-release; then
     $SUDO yum --assumeyes install libatomic

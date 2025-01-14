@@ -132,22 +132,11 @@ jobs:
           - debian:buster-slim
           - debian:bullseye-slim
           - debian:bookworm-slim
-
           - archlinux:latest
-
-          # - ubuntu:trusty     glibc too old
-          # - ubuntu:xenial     glibc too old
-          # - ubuntu:bionic     glibc too old
-          # - ubuntu:lunar      out of support
           - ubuntu:focal
           - ubuntu:jammy
-          - ubuntu:24.04
-          - ubuntu:24.10
-
+          - ubuntu:noble
           - fedora:latest
-
-          # - nixos/nix:latest  can’t exec
-          # - alpine:latest     pkgx binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
