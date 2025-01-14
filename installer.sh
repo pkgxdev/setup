@@ -54,20 +54,23 @@ _install_pre_reqs() {
 
     # minimal but required or networking doesn’t work
     # https://packages.debian.org/buster/all/netbase/filelist
-    A=netbase
+    A="netbase"
 
     # difficult to pkg in our opinion
     B=libudev-dev
 
+    # ca-certs needed until we bundle our own root cert
+    C=ca-certificates
+
     case $(cat /etc/debian_version) in
     jessie/sid|8.*|stretch/sid|9.*)
-      apt --yes install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B;;
+      apt install --yes libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B $C;;
     buster/sid|10.*)
-      apt --yes install libc-dev libstdc++-8-dev libgcc-8-dev $A $B;;
+      apt install --yes libc-dev libstdc++-8-dev libgcc-8-dev $A $B $C;;
     bullseye/sid|11.*)
-      apt --yes install libc-dev libstdc++-10-dev libgcc-9-dev $A $B;;
+      apt install --yes libc-dev libstdc++-10-dev libgcc-9-dev $A $B $C;;
     bookworm/sid|12.*|*)
-      apt --yes install libc-dev libstdc++-11-dev libgcc-11-dev $A $B;;
+      apt install --yes libc-dev libstdc++-11-dev libgcc-11-dev $A $B $C;;
     esac
   elif test -f /etc/fedora-release; then
     $SUDO yum --assumeyes install libatomic
@@ -129,10 +132,12 @@ _install_pkgx() {
 }
 
 _pkgx_is_old() {
-  v="$(/usr/local/bin/pkgx --version || echo pkgx 0)"
-  /usr/local/bin/pkgx --silent semverator gt \
-    $(curl -Ssf https://pkgx.sh/VERSION) \
-    $(echo $v | awk '{print $2}')
+  new_version=$(curl -Ssf https://pkgx.sh/VERSION)
+  old_version=$(/usr/local/bin/pkgx --version || echo pkgx 0)
+  old_version=$(echo $old_version | cut -d' ' -f2)
+  major_version=$(echo $new_version | cut -d. -f1)
+
+  /usr/local/bin/pkgx --silent semverator gt $new_version $old_version
 }
 
 _should_install_pkgx() {
@@ -160,8 +165,11 @@ if [ $# -gt 0 ]; then
 elif [ $(basename "/$0") != 'installer.sh' ]; then
   # ^^ temporary exception for action.ts
 
-  if type eval >/dev/null 2>&1; then
-    # we `type eval` as on Travis there was no `eval`!
+  if ! [ "$major_version" = "0" ]; then
+    major_version=$(pkgx --version | cut -d' ' -f2 | cut -d. -f1)
+  fi
+
+  if [ $major_version -lt 2 ] && type eval >/dev/null 2>&1; then
     eval "$(pkgx --shellcode)" 2>/dev/null
   fi
 

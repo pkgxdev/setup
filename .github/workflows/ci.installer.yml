@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cat ./installer.sh | sh -s node --eval 'console.log(1)'
-      - run: ./installer.sh sh -c "which pkgx"
-      - run: source <(cat ./installer.sh) duf
+      - run: cat ./installer.sh | sh -s deno eval 'console.log(1)'
+      - run: ./installer.sh -- sh -c "which pkgx"
+      - run: sh <(cat ./installer.sh) duf
       - run: if command -v pkgx; then exit 1; fi
 
   sudo-not-required:
@@ -53,8 +53,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          eval "$(cat ./installer.sh)"
-          env +duf
+          vMAJOR=$(curl https://pkgx.sh/VERSION | cut -d. -f1)
+
+          if [ "$vMAJOR" -lt 2 ]; then
+            eval "$(cat ./installer.sh)"
+            env +duf
+          else
+            eval "$(cat ./installer.sh)"
+            eval "$(pkgx +duf)"
+          fi
+
           duf --version
 
           test -n "$BASH_VERSION"
@@ -73,8 +81,16 @@ jobs:
 
       - uses: actions/checkout@v4
       - run: |
-          eval "$(cat ./installer.sh)"
-          env +duf
+          vMAJOR=$(curl https://pkgx.sh/VERSION | cut -d. -f1)
+
+          if [ "$vMAJOR" -lt 2 ]; then
+            eval "$(cat ./installer.sh)"
+            env +duf
+          else
+            eval "$(cat ./installer.sh)"
+            eval "$(pkgx +duf)"
+          fi
+
           duf --version
 
           test -n "$ZSH_VERSION"
@@ -86,8 +102,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          eval "$(cat ./installer.sh)"
-          env +duf
+          vMAJOR=$(curl https://pkgx.sh/VERSION | cut -d. -f1)
+
+          if [ "$vMAJOR" -lt 2 ]; then
+            eval "$(cat ./installer.sh)"
+            env +duf
+          else
+            eval "$(cat ./installer.sh)"
+            eval "$(pkgx +duf)"
+          fi
+
           duf --version
 
           test -z "$ZSH_VERSION"
@@ -161,7 +185,7 @@ jobs:
         env:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
 
-      - run: pkgx node --eval 'console.log(1)'
+      - run: pkgx deno eval 'console.log(1)'
 
   upgrades:
     runs-on: ubuntu-latest
