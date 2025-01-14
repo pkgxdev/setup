@@ -14,7 +14,40 @@ elif test -d /usr -a ! -w /usr; then
   SUDO="sudo"
 fi
 
+_is_ci() {
+  [ -n "$CI" ] && [ $CI != 0 ]
+}
+
 _install_pre_reqs() {
+  if _is_ci; then
+    apt() {
+      # we should use apt-get not apt in CI
+      # weird shit ref: https://askubuntu.com/a/668859
+      export DEBIAN_FRONTEND=noninteractive
+      cmd=$1
+      shift
+      $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 $@
+    }
+  else
+    echo "ensure you have the `pkgx` pre-requisites installed:" >&2
+    apt() {
+      case "$1" in
+      update)
+        echo >&2
+        ;;
+      install)
+        echo "   apt-get" "$@" >&2
+        ;;
+      esac
+    }
+    yum() {
+      echo "   yum" "$@" >&2
+    }
+    pacman() {
+      echo "   pacman" "$@" >&2
+    }
+  fi
+
   if test -f /etc/debian_version; then
     apt update --yes
 
@@ -43,10 +76,6 @@ _install_pre_reqs() {
     # to our builds is very low.
     $SUDO pacman --noconfirm -Sy gcc libatomic_ops libxcrypt-compat
   fi
-}
-
-_is_ci() {
-  [ -n "$CI" ] && [ $CI != 0 ]
 }
 
 _install_pkgx() {
@@ -121,36 +150,6 @@ if _should_install_pkgx; then
   _install_pkgx "$@"
 elif [ $# -eq 0 ]; then
   echo "$(pkgx --version) already installed" >&2
-fi
-
-if _is_ci; then
-  apt() {
-    # we should use apt-get not apt in CI
-    # weird shit ref: https://askubuntu.com/a/668859
-    export DEBIAN_FRONTEND=noninteractive
-    cmd=$1
-    shift
-    $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 $@
-  }
-else
-  apt() {
-    case "$1" in
-    update)
-      echo "ensure you have the `pkgx` pre-requisites installed:" >&2
-      echo >&2
-      ;;
-    install)
-      echo "   apt-get" "$@" >&2
-      ;;
-    esac
-  }
-  yum() {
-    echo "   yum" "$@" >&2
-  }
-  pacman() {
-    echo "   pacman" "$@" >&2
-  }
-  unset SUDO
 fi
 
 _install_pre_reqs
