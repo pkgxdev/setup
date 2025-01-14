@@ -138,9 +138,11 @@ jobs:
           # - ubuntu:trusty     glibc too old
           # - ubuntu:xenial     glibc too old
           # - ubuntu:bionic     glibc too old
+          # - ubuntu:lunar      out of support
           - ubuntu:focal
           - ubuntu:jammy
-          - ubuntu:lunar
+          - ubuntu:24.04
+          - ubuntu:24.10
 
           - fedora:latest
 
