@@ -5,6 +5,7 @@ on:
       - action.js
       - action.yml
       - package.json
+      - installer.sh
 
 concurrency:
   group: ${{ github.ref || 'ci' }}/action.ts
@@ -57,7 +58,7 @@ jobs:
         if: ${{ matrix.prefix }}
 
       - run: pkgx --version
-      - run: '[[ "$(node --version)" == v18.* ]]'
+      - run: if [[ "$(node --version)" != v18.* ]]; then exit 1; fi
       - run: deno --version
 
   multiple-apply-is-ok:
