@@ -156,22 +156,11 @@ jobs:
           - debian:buster-slim
           - debian:bullseye-slim
           - debian:bookworm-slim
-
           - archlinux:latest
-
-          # - ubuntu:trusty     glibc too old
-          # - ubuntu:xenial     glibc too old
-          # - ubuntu:bionic     glibc too old
-          # - ubuntu:lunar      out of support
           - ubuntu:focal
           - ubuntu:jammy
-          - ubuntu:24.04
-          - ubuntu:24.10
-
+          - ubuntu:noble
           - fedora:latest
-
-          # - nixos/nix:latest  can’t exec
-          # - alpine:latest     pkgx binary doesn’t actually end up on the system (wtf)
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
@@ -195,6 +184,8 @@ jobs:
           curl https://dist.pkgx.dev/pkgx.sh/linux/x86-64/v1.0.0.tar.gz |
           tar xz --strip-components=3
       - run: mv pkgx /usr/local/bin
+      - run: test "$(pkgx --version)" = 'pkgx 1.0.0'
+      - run: PKGX_UPDATE=no ./installer.sh
       - run: test "$(pkgx --version)" = 'pkgx 1.0.0'
       - run: ./installer.sh
       - run: pkgx semverator gt $(pkgx --version | awk '{print $2}') 1.0.0

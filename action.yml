@@ -18,9 +18,9 @@ inputs:
   version:
     description: >
       The version of `pkgx` to install.
-      Defaults to ^1.
+      Defaults to ^2
     required: false
-    default: ^1
+    default: ^2
 runs:
   using: node20
-  main: dist/out/index.js
+  main: ./action.js
