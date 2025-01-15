@@ -7,7 +7,7 @@ if ! git diff-index --quiet HEAD --; then
   exit 1
 fi
 
-if [ "$(git rev-parse --abbrev-ref HEAD)" != main ]; then
+if [ "$(git rev-parse --abbrev-ref HEAD)" != v2/main ]; then
   echo "error: requires main branch" >&2
   exit 1
 fi
@@ -20,7 +20,7 @@ fi
 git fetch origin -pft
 
 # ensure github tags the right release
-git push origin main
+git push origin v2/main
 
 versions="$(git tag | grep '^v[0-9]\+\.[0-9]\+\.[0-9]\+')"
 v_latest="$(bunx -- semver --include-prerelease $versions | tail -n1)"
@@ -61,7 +61,7 @@ else
 fi
 
 
-gh workflow run ci.action.yml --raw-field version="$v_new"
+gh workflow run ci.action.yml --ref v2/main
 # ^^ infuriatingly does not tell us the ID of the run
 
 gum spin --title 'sleeping 5s because GitHub API is slow' -- sleep 5
@@ -74,8 +74,8 @@ if ! gh run watch --exit-status $run_id; then
   exit $foo
 fi
 
-./dist.sh
-git add ../dist
+./scripts/dist.sh
+git add ./dist
 git commit --message v$v_new
 git tag v$v_new
 git push origin main v$v_new
@@ -88,6 +88,3 @@ gh release edit \
   v$v_new \
   --verify-tag \
   --draft=false
-
-git checkout main
-git branch -D v$v_new-branch
