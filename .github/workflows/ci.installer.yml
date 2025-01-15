@@ -189,3 +189,13 @@ jobs:
       - run: test "$(pkgx --version)" = 'pkgx 1.0.0'
       - run: ./installer.sh
       - run: pkgx semverator gt $(pkgx --version | awk '{print $2}') 1.0.0
+
+  pkgm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: '! pkgm --version'
+      - run: cat ./installer.sh | sh
+      - run: pkgm --version
+      - run: pkgm i deno
+      - run: deno --version
