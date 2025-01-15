@@ -1,0 +1,13 @@
+on:
+  push:
+    tags:
+      - latest
+  workflow_dispatch:
+
+jobs:
+  test-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - run: '! pkgx --version'
+      - uses: pkgxdev/setup@latest
+      - run: pkgx --version
