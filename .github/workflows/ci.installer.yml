@@ -195,6 +195,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: '! pkgm --version'
+      - run: '! deno --version'
       - run: cat ./installer.sh | sh
       - run: pkgm --version
       - run: pkgm i deno
