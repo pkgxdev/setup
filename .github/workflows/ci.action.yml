@@ -5,6 +5,8 @@ on:
       - action.ts
       - action.yml
       - package.json
+      - installer.sh
+      - .github/workflows/ci.action.yml
 
 concurrency:
   group: ${{ github.ref || 'ci' }}/action.ts
@@ -31,7 +33,7 @@ jobs:
           name: dist
           path: dist
       - uses: ./
-      - run: pkgx --version
+      - run: if [[ $(pkgx --version) != "pkgx "1.* ]]; then exit 1; fi
 
   plus-pkgs:
     needs: dist
