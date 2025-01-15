@@ -147,6 +147,11 @@ _should_install_pkgx() {
 
 ########################################################################### meat
 
+if [ "$PKGX_ONLY_INSTALL_PREREQS" = 1 ]; then
+  _install_pre_reqs
+  exit 0
+fi
+
 if _should_install_pkgx; then
   _install_pkgx "$@"
 elif [ $# -eq 0 ]; then

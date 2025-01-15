@@ -72,7 +72,7 @@ async function go() {
     // use our installer to install any required pre-requisites from the system packager
     const installer_script = path.join(path.dirname(__filename), "installer.sh")
     if (process.getuid && process.getuid() == 0) {
-      await exec(installer_script)
+      await exec(installer_script, [], { env: {...process.env, PKGX_ONLY_INSTALL_PREREQS: '1' } })
     } else {
       await exec('sudo', [installer_script])
     }
