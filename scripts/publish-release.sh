@@ -42,12 +42,12 @@ major|minor|patch|prerelease)
 esac
 
 if [ $v_new = $v_latest ]; then
-  echo "$v_new already exists!" >&2
+  echo v"$v_new already exists!" >&2
   exit 1
 fi
 
 if ! gh release view v$v_new >/dev/null 2>&1; then
-  gum confirm "prepare draft release for $v_new?" || exit 1
+  gum confirm "prepare draft release for v$v_new?" || exit 1
 
   gh release create \
     v$v_new \
@@ -74,6 +74,7 @@ if ! gh run watch --exit-status $run_id; then
   exit $foo
 fi
 
+git checkout -b v$v_new-branch
 npm run dist
 git add ./action.js
 git commit --message v$v_new
@@ -82,15 +83,15 @@ git push origin v$v_new
 
 gh release upload --clobber v$v_new ./installer.sh ./action.js
 
-# reset so we don’t accidentally commit it
-git co action.js
-
 gh release view v$v_new
 
-gum confirm "draft prepared, release $v_new?" || exit 1
+gum confirm "draft prepared, release v$v_new?" || exit 1
 
 gh release edit \
   v$v_new \
   --verify-tag \
   --latest \
   --draft=false
+
+git checkout main
+git branch -D v$v_new-branch

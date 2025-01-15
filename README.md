@@ -32,11 +32,6 @@ $ pkgx +rust
 > See [`@pkgxdev/dev`] to run the `dev` command in a GitHub Actions compatible manner
 
 
-### Shell Integration
-
-We cannot integrate with the GitHub Actions shell. But you probably don’t
-need it.
-
 ### Should you Cache `~/.pkgx`?
 
 No. pkgx packages are just tarballs. Caching is just a tarball. You’ll likely
@@ -52,8 +47,8 @@ To install `pkgx`:
 ```sh
 $ curl https://pkgx.sh | sh
 
-# - installs to `/usr/local/bin/pkgx`
-# - if pkgx is already installed it’s a noop
+# - installs `pkgx` & `pkgm` to `/usr/local/bin`
+# - if both are already installed, does an update check
 ```
 
 ## Temporary Sandboxes

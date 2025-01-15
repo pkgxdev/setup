@@ -117,7 +117,7 @@ _install_pkgx() {
     progress="--progress-bar"
   fi
 
-  tmpdir=$(mktemp -d)
+  tmpdir="$(mktemp -d)"
 
   if [ $# -eq 0 ]; then
     if [ -f /usr/local/bin/pkgx ]; then
@@ -130,10 +130,14 @@ _install_pkgx() {
     pipe="$tmpdir/pipe"
     mkfifo "$pipe"
 
+    curl --silent --fail --proto '=https' -o "$tmpdir/pkgm" \
+      https://pkgxdev.github.io/pkgm/pkgm.ts
+
     curl $progress --fail --proto '=https' "https://pkgx.sh/$(uname)/$(uname -m)".tgz > "$pipe" &
     $SUDO sh -c "
       mkdir -p /usr/local/bin
       tar xz --directory /usr/local/bin < '$pipe'
+      install -m 755 "$tmpdir/pkgm" /usr/local/bin
     " &
     wait
 
