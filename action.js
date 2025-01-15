@@ -128,7 +128,7 @@ async function install_pkgx() {
   if (os.platform() != 'darwin') {
     console.log(`::group::installing pre-requisites`);
     const installer_script_path = path.join(path.dirname(__filename), "installer.sh");
-    execSync(installer_script_path, {env: {PKGX_INSTALL_PREREQS: '1'}});
+    execSync(installer_script_path, {env: {PKGX_INSTALL_PREREQS: '1', ...process.env}});
     console.log(`::endgroup::`);
   }
 
