@@ -2,17 +2,45 @@
 
 set -e
 
-if test -n "$VERBOSE" -o -n "$GITHUB_ACTIONS" -a -n "$RUNNER_DEBUG"; then
-  set -x
-fi
+_main() {
+  if _should_install_pkgx; then
+    _install_pkgx "$@"
+    _install_pre_reqs
+  elif [ $# -eq 0 ]; then
+    echo "$(pkgx --version) already installed" >&2
+    exit
+  fi
 
-if test -d /usr/local/bin -a ! -w /usr/local/bin; then
-  SUDO="sudo"
-elif test -d /usr/local -a ! -w /usr/local; then
-  SUDO="sudo"
-elif test -d /usr -a ! -w /usr; then
-  SUDO="sudo"
-fi
+  if [ $# -gt 0 ]; then
+    pkgx "$@"
+  else
+    if type eval >/dev/null 2>&1; then
+      if ! [ "$major_version" ]; then
+        major_version=$(pkgx --version | cut -d' ' -f2 | cut -d. -f1)
+      fi
+      if [ $major_version -lt 2 ]; then
+        eval "$(pkgx --shellcode)" 2>/dev/null
+      fi
+    fi
+    if ! _is_ci; then
+      echo "now type: pkgx --help" >&2
+    fi
+  fi
+}
+
+_prep() {
+  if test -n "$VERBOSE" -o -n "$GITHUB_ACTIONS" -a -n "$RUNNER_DEBUG"; then
+    set -x
+  fi
+
+  if test -d /usr/local/bin -a ! -w /usr/local/bin; then
+    SUDO="sudo"
+  elif test -d /usr/local -a ! -w /usr/local; then
+    SUDO="sudo"
+  elif test -d /usr -a ! -w /usr; then
+    SUDO="sudo"
+  fi
+}
 
 _is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
@@ -132,12 +160,16 @@ _install_pkgx() {
 }
 
 _pkgx_is_old() {
-  new_version=$(curl -Ssf https://pkgx.sh/VERSION)
-  old_version=$(/usr/local/bin/pkgx --version || echo pkgx 0)
-  old_version=$(echo $old_version | cut -d' ' -f2)
-  major_version=$(echo $new_version | cut -d. -f1)
+  if [ "$PKGX_UPDATE" = no ]; then
+    return 1
+  else
+    new_version=$(curl -Ssf https://pkgx.sh/VERSION)
+    old_version=$(/usr/local/bin/pkgx --version || echo pkgx 0)
+    old_version=$(echo $old_version | cut -d' ' -f2)
+    major_version=$(echo $new_version | cut -d. -f1)
 
-  /usr/local/bin/pkgx --silent semverator gt $new_version $old_version
+    /usr/local/bin/pkgx --silent semverator gt $new_version $old_version
+  fi
 }
 
 _should_install_pkgx() {
@@ -150,30 +182,9 @@ _should_install_pkgx() {
   fi
 }
 
-########################################################################### meat
-
-if _should_install_pkgx; then
-  _install_pkgx "$@"
-elif [ $# -eq 0 ]; then
-  echo "$(pkgx --version) already installed" >&2
-fi
-
-_install_pre_reqs
-
-if [ $# -gt 0 ]; then
-  pkgx "$@"
-elif [ $(basename "/$0") != 'installer.sh' ]; then
-  # ^^ temporary exception for action.ts
-
-  if ! [ "$major_version" = "0" ]; then
-    major_version=$(pkgx --version | cut -d' ' -f2 | cut -d. -f1)
-  fi
-
-  if [ $major_version -lt 2 ] && type eval >/dev/null 2>&1; then
-    eval "$(pkgx --shellcode)" 2>/dev/null
-  fi
-
-  if ! _is_ci; then
-    echo "now type: pkgx --help" >&2
-  fi
+_prep
+if [ "$PKGX_INSTALL_PREREQS" != 1 ]; then
+  _main "$@"
+else
+  _install_pre_reqs
 fi

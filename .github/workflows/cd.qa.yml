@@ -1,0 +1,11 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+
+jobs:
+  qa-installer:
+    uses: ./.github/workflows/ci.installer.yml
+  qa-action:
+    uses: ./.github/workflows/ci.action.yml

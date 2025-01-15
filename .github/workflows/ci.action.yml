@@ -2,39 +2,27 @@ on:
   workflow_call:
   pull_request:
     paths:
-      - action.ts
+      - action.js
       - action.yml
       - package.json
+      - installer.sh
 
 concurrency:
   group: ${{ github.ref || 'ci' }}/action.ts
   cancel-in-progress: true
 
 jobs:
-  dist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/dist.sh
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: dist
-
   std:
-    needs: dist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: dist
+      - run: npm i
       - uses: ./
+        with:
+          version: null
       - run: pkgx --version
 
   plus-pkgs:
-    needs: dist
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -46,7 +34,7 @@ jobs:
           - [self-hosted, linux, ARM64]  # works in arm64 environments
         prefix:
           - null
-          - /opt
+          - /tmp/pkgx
         container:
           - null
         include:
@@ -55,31 +43,29 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+
+      - uses: actions/setup-node@v4
         with:
-          name: dist
-          path: dist
+          node-version: latest
+      - run: npm i
 
       - uses: ./
         with:
           PKGX_DIR: ${{ matrix.prefix }}
           +: node@18 deno.land
 
-      - run: test -f '${{ matrix.prefix }}/pkgx.sh/v*/bin/pkgx'
+      - run: test -f '${{ matrix.prefix }}/deno.land/v*/bin/deno'
         if: ${{ matrix.prefix }}
+
       - run: pkgx --version
-      - run: node --eval 'console.log(1)'
+      - run: if [[ "$(node --version)" != v18.* ]]; then exit 1; fi
       - run: deno --version
 
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
-    needs: dist
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: dist
+      - run: npm i
       - uses: ./
       - run: pkgx --version
       - uses: ./
