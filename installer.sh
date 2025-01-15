@@ -183,4 +183,8 @@ _should_install_pkgx() {
 }
 
 _prep
-_main "$@"
+if [ "$PKGX_INSTALL_PREREQS" != 1 ]; then
+  _main "$@"
+else
+  _install_pre_reqs
+fi
