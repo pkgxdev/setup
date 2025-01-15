@@ -12,6 +12,10 @@
 
 Installs the latest version of `pkgx`.
 
+> [!NOTE]
+> * `v2` of this action defaults to pkgx^1
+> * `v3` of this action defaults to pkgx^2
+
 See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 
 ```yaml
