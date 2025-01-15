@@ -60,7 +60,7 @@ _install_pre_reqs() {
     apt() {
       case "$1" in
       update)
-        echo "ensure you have the `pkgx` pre-requisites installed:" >&2
+        echo "ensure you have the \`pkgx\` pre-requisites installed:" >&2
         ;;
       install)
         echo "   apt-get" "$@" >&2
@@ -68,11 +68,11 @@ _install_pre_reqs() {
       esac
     }
     yum() {
-      echo "ensure you have the `pkgx` pre-requisites installed:" >&2
+      echo "ensure you have the \`pkgx\` pre-requisites installed:" >&2
       echo "   yum" "$@" >&2
     }
     pacman() {
-      echo "ensure you have the `pkgx` pre-requisites installed:" >&2
+      echo "ensure you have the \`pkgx\` pre-requisites installed:" >&2
       echo "   pacman" "$@" >&2
     }
   fi
