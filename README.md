@@ -36,10 +36,17 @@ $ pkgx +rust
 > See [`@pkgxdev/dev`] to run the `dev` command in a GitHub Actions compatible manner
 
 
-### Should you Cache `~/.pkgx`?
+## Should you Cache `~/.pkgx`?
 
 No. pkgx packages are just tarballs. Caching is just a tarball. You’ll likely
 just slow things down.
+
+## Version History
+
+* `v3` defaults to `pkgx`^2 and uses node^20
+* `v2` defaults to `pkgx`^1 and uses node^20
+* `v1` defaults to `pkgx`@latest and uses node^16
+* `v0` should not be used
 
 &nbsp;
 
