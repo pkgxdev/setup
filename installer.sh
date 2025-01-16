@@ -54,7 +54,7 @@ _install_pre_reqs() {
       export DEBIAN_FRONTEND=noninteractive
       cmd=$1
       shift
-      $SUDO apt-get $cmd -qq -o=Dpkg::Use-Pty=0 $@
+      $SUDO apt-get $cmd --yes -qq -o=Dpkg::Use-Pty=0 $@
     }
   else
     apt() {
@@ -78,7 +78,7 @@ _install_pre_reqs() {
   fi
 
   if test -f /etc/debian_version; then
-    apt update --yes
+    apt update
 
     # minimal but required or networking doesn’t work
     # https://packages.debian.org/buster/all/netbase/filelist
@@ -92,13 +92,13 @@ _install_pre_reqs() {
 
     case $(cat /etc/debian_version) in
     jessie/sid|8.*|stretch/sid|9.*)
-      apt install --yes libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B $C;;
+      apt install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B $C;;
     buster/sid|10.*)
-      apt install --yes libc-dev libstdc++-8-dev libgcc-8-dev $A $B $C;;
+      apt install libc-dev libstdc++-8-dev libgcc-8-dev $A $B $C;;
     bullseye/sid|11.*)
-      apt install --yes libc-dev libstdc++-10-dev libgcc-9-dev $A $B $C;;
+      apt install libc-dev libstdc++-10-dev libgcc-9-dev $A $B $C;;
     bookworm/sid|12.*|*)
-      apt install --yes libc-dev libstdc++-11-dev libgcc-11-dev $A $B $C;;
+      apt install libc-dev libstdc++-11-dev libgcc-11-dev $A $B $C;;
     esac
   elif test -f /etc/fedora-release; then
     $SUDO yum --assumeyes install libatomic
