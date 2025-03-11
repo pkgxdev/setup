@@ -3,6 +3,7 @@ on:
     branches: main
     paths:
       - installer.sh
+      - installer.ps1
       - .github/workflows/cd.installer.yml
 
 jobs:
@@ -32,14 +33,21 @@ jobs:
 
       - run:
           aws s3 cp
-            ./installer.sh s3://www.pkgx.sh/installer.sh
+            ./installer.sh
+            s3://www.pkgx.sh/installer.sh
+            --metadata-directive REPLACE
+            --cache-control no-cache,must-revalidate
+      - run:
+          aws s3 cp
+            ./installer.ps1
+            s3://www.pkgx.sh/installer.sh
             --metadata-directive REPLACE
             --cache-control no-cache,must-revalidate
 
       - run:
           aws cloudfront create-invalidation
             --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
-            --paths / /installer.sh
+            --paths / /installer.sh /installer.ps1
 
       - name: Seal Deployment
         uses: bobheadxi/deployments@v1

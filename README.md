@@ -62,6 +62,14 @@ $ curl https://pkgx.sh | sh
 # - if both are already installed, does an update check
 ```
 
+Or on Windows:
+
+```ps1
+$ irm https://pkgx.sh | iex
+# - installs `pkgx.exe` to `$env:ProgramFiles/pkgx`
+# - adds it to your system PATH
+```
+
 ## Temporary Sandboxes
 
 To use `pkgx` to run a command in a temporary sandbox:
