@@ -11,7 +11,7 @@ const dstdir = (() => {
     fs.accessSync('/usr/local/bin', fs.constants.W_OK);
     return '/usr/local/bin';
   } catch (err) {
-    return path.join(process.env.INPUT_PKGX_DIR || path.join(process.env.HOME, '.pkgx'), 'bin');
+    return path.join(process.env.INPUT_PKGX_DIR || path.join(os.homedir(), '.pkgx'), 'bin');
   }
 })();
 
