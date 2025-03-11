@@ -46,6 +46,7 @@ jobs:
         include:
         - os: ubuntu-latest
           container: debian:buster-slim
+        - os: windows-latest
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
