@@ -18,7 +18,8 @@ const dstdir = (() => {
 fs.writeFileSync(process.env["GITHUB_PATH"], `${dstdir}\n`);
 
 function platform_key() {
-  const platform = os.platform(); // 'darwin', 'linux', 'win32', etc.
+  let platform = os.platform(); // 'darwin', 'linux', 'win32', etc.
+  if (platform == 'win32') platform = 'windows';
   let arch = os.arch(); // 'x64', 'arm64', etc.
   if (arch == 'x64') arch = 'x86-64';
   if (arch == 'arm64') arch = 'aarch64';
@@ -86,26 +87,35 @@ function parse_pkgx_output(output) {
 }
 
 async function install_pkgx() {
-  let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
+  function get_url() {
+    if (platform_key().startsWith('windows')) {
+      // not yet versioned
+      return 'https://pkgx.sh/Windows/x86_64.tgz';
+    }
 
-  console.log(`::group::installing ${dstdir}/pkgx`);
-  console.log(`fetching ${url}`);
+    let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
 
-  const rsp = await fetch(url);
-  const txt = await rsp.text();
+    console.log(`::group::installing ${dstdir}/pkgx`);
+    console.log(`fetching ${url}`);
 
-  const versions = txt.split('\n');
-  const version = process.env.INPUT_VERSION
-    ? semver.maxSatisfying(versions, process.env.INPUT_VERSION)
-    : versions.slice(-1)[0];
+    const rsp = await fetch(url);
+    const txt = await rsp.text();
 
-  if (!version) {
-    throw new Error(`no version found for ${process.env.INPUT_VERSION}`);
+    const versions = txt.split('\n');
+    const version = process.env.INPUT_VERSION
+      ? semver.maxSatisfying(versions, process.env.INPUT_VERSION)
+      : versions.slice(-1)[0];
+
+    if (!version) {
+      throw new Error(`no version found for ${process.env.INPUT_VERSION}`);
+    }
+
+    console.log(`selected pkgx v${version}`);
+
+    return `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/v${version}.tar.gz`;
   }
 
-  console.log(`selected pkgx v${version}`);
-
-  url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/v${version}.tar.gz`;
+  const url = get_url();
 
   console.log(`fetching ${url}`);
 
