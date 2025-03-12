@@ -59,7 +59,7 @@ jobs:
       - uses: ./
         with:
           PKGX_DIR: ${{ matrix.prefix }}
-          +: node@18 deno.land
+          +: deno^2 curl.se
 
       - run: test -f '${{ matrix.prefix }}/deno.land/v*/bin/deno'
         if: ${{ matrix.prefix }}
