@@ -167,6 +167,7 @@ jobs:
           - ubuntu:jammy
           - ubuntu:noble
           - fedora:latest
+          - nixos/nix:latest
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
