@@ -40,7 +40,7 @@ jobs:
       - run:
           aws s3 cp
             ./installer.ps1
-            s3://www.pkgx.sh/installer.sh
+            s3://www.pkgx.sh/installer.ps1
             --metadata-directive REPLACE
             --cache-control no-cache,must-revalidate
 
