@@ -59,14 +59,22 @@ jobs:
       - uses: ./
         with:
           PKGX_DIR: ${{ matrix.prefix }}
-          +: node@18 curl.se deno
+          +: node@18 curl.se
+        if: ${{ runner.os != 'Windows' }}
+
+      - uses: ./
+        with:
+          PKGX_DIR: ${{ matrix.prefix }}
+          +: cmake.org^3 curl.se
+        if: ${{ runner.os == 'Windows' }}
 
       - run: test -f '${{ matrix.prefix }}/curl.se/v*/bin/curl'
         if: ${{ matrix.prefix }}
 
       - run: pkgx --version
       - run: if [[ "$(node --version)" != v18.* ]]; then exit 1; fi
-      - run: deno --version
+        if: ${{ runner.os != 'Windows' }}
+      - run: curl --version
 
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
