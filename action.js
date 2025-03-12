@@ -149,7 +149,7 @@ async function install_pkgx() {
   if (process.env['INPUT_+']) {
     console.log(`::group::installing pkgx input packages`);
     const args = process.env['INPUT_+'].split(' ');
-    const cmd = `${path.join(dstdir, 'pkgx')} ${args.map(x => `+${x}`).join(' ')}`;
+    const cmd = `${path.join(dstdir, 'pkgx')} ${args.map(x => `'+${x}'`).join(' ')}`;
     console.log(`running: \`${cmd}\``);
     let env = undefined;
     if (process.env.INPUT_PKGX_DIR) {
