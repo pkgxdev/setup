@@ -150,7 +150,8 @@ async function install_pkgx() {
     console.log(`::group::installing pkgx input packages`);
     let args = process.env['INPUT_+'].split(' ');
     if (os.platform() == 'win32') {
-      args = args.map(x => x.replace('^', '`^'));
+      // cmd.exe uses ^ as an escape character
+      args = args.map(x => x.replace('^', '^^'));
     }
     const cmd = `${path.join(dstdir, 'pkgx')} ${args.map(x => `+${x}`).join(' ')}`;
     console.log(`running: \`${cmd}\``);
