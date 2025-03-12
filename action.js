@@ -87,7 +87,7 @@ function parse_pkgx_output(output) {
 }
 
 async function install_pkgx() {
-  function get_url() {
+  async function get_url() {
     if (platform_key().startsWith('windows')) {
       // not yet versioned
       return 'https://pkgx.sh/Windows/x86_64.tgz';
@@ -95,7 +95,6 @@ async function install_pkgx() {
 
     let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
 
-    console.log(`::group::installing ${dstdir}/pkgx`);
     console.log(`fetching ${url}`);
 
     const rsp = await fetch(url);
@@ -115,7 +114,9 @@ async function install_pkgx() {
     return `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/v${version}.tar.gz`;
   }
 
-  const url = get_url();
+  console.log(`::group::installing ${dstdir}/pkgx`);
+
+  const url = await get_url();
 
   console.log(`fetching ${url}`);
 
