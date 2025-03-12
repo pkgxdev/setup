@@ -11,21 +11,22 @@ const dstdir = (() => {
     fs.accessSync('/usr/local/bin', fs.constants.W_OK);
     return '/usr/local/bin';
   } catch (err) {
-    return path.join(process.env.INPUT_PKGX_DIR || path.join(process.env.HOME, '.pkgx'), 'bin');
+    return path.join(process.env.INPUT_PKGX_DIR || path.join(os.homedir(), '.pkgx'), 'bin');
   }
 })();
 
 fs.writeFileSync(process.env["GITHUB_PATH"], `${dstdir}\n`);
 
 function platform_key() {
-  const platform = os.platform(); // 'darwin', 'linux', 'win32', etc.
+  let platform = os.platform(); // 'darwin', 'linux', 'win32', etc.
+  if (platform == 'win32') platform = 'windows';
   let arch = os.arch(); // 'x64', 'arm64', etc.
   if (arch == 'x64') arch = 'x86-64';
   if (arch == 'arm64') arch = 'aarch64';
   return `${platform}/${arch}`;
 }
 
-function downloadAndExtract(url, destination) {
+function downloadAndExtract(url, destination, strip) {
   return new Promise((resolve, reject) => {
     https.get(url, (response) => {
       if (response.statusCode !== 200) {
@@ -35,7 +36,7 @@ function downloadAndExtract(url, destination) {
 
       console.log(`extracting tarball…`);
 
-      const tar_stream = tar.x({ cwd: destination, strip: 3 });
+      const tar_stream = tar.x({ cwd: destination, strip });
 
       response
         .pipe(tar_stream) // Extract directly to destination
@@ -86,26 +87,39 @@ function parse_pkgx_output(output) {
 }
 
 async function install_pkgx() {
-  let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
+  let strip = 3;
 
-  console.log(`::group::installing ${dstdir}/pkgx`);
-  console.log(`fetching ${url}`);
+  async function get_url() {
+    if (platform_key().startsWith('windows')) {
+      // not yet versioned
+      strip = 0;
+      return 'https://pkgx.sh/Windows/x86_64.tgz';
+    }
 
-  const rsp = await fetch(url);
-  const txt = await rsp.text();
+    let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
 
-  const versions = txt.split('\n');
-  const version = process.env.INPUT_VERSION
-    ? semver.maxSatisfying(versions, process.env.INPUT_VERSION)
-    : versions.slice(-1)[0];
+    console.log(`fetching ${url}`);
 
-  if (!version) {
-    throw new Error(`no version found for ${process.env.INPUT_VERSION}`);
+    const rsp = await fetch(url);
+    const txt = await rsp.text();
+
+    const versions = txt.split('\n');
+    const version = process.env.INPUT_VERSION
+      ? semver.maxSatisfying(versions, process.env.INPUT_VERSION)
+      : versions.slice(-1)[0];
+
+    if (!version) {
+      throw new Error(`no version found for ${process.env.INPUT_VERSION}`);
+    }
+
+    console.log(`selected pkgx v${version}`);
+
+    return `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/v${version}.tar.gz`;
   }
 
-  console.log(`selected pkgx v${version}`);
+  console.log(`::group::installing ${path.join(dstdir, 'pkgx')}`);
 
-  url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/v${version}.tar.gz`;
+  const url = await get_url();
 
   console.log(`fetching ${url}`);
 
@@ -113,7 +127,7 @@ async function install_pkgx() {
     fs.mkdirSync(dstdir, {recursive: true});
   }
 
-  await downloadAndExtract(url, dstdir);
+  await downloadAndExtract(url, dstdir, strip);
 
   console.log(`::endgroup::`);
 }
@@ -134,8 +148,12 @@ async function install_pkgx() {
 
   if (process.env['INPUT_+']) {
     console.log(`::group::installing pkgx input packages`);
-    const args = process.env['INPUT_+'].split(' ');
-    const cmd = `${dstdir}/pkgx ${args.map(x => `+${x}`).join(' ')}`;
+    let args = process.env['INPUT_+'].split(' ');
+    if (os.platform() == 'win32') {
+      // cmd.exe uses ^ as an escape character
+      args = args.map(x => x.replace('^', '^^'));
+    }
+    const cmd = `${path.join(dstdir, 'pkgx')} ${args.map(x => `+${x}`).join(' ')}`;
     console.log(`running: \`${cmd}\``);
     let env = undefined;
     if (process.env.INPUT_PKGX_DIR) {
