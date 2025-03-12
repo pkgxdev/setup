@@ -59,9 +59,9 @@ jobs:
       - uses: ./
         with:
           PKGX_DIR: ${{ matrix.prefix }}
-          +: deno^2 curl.se
+          +: node@18 curl.se deno
 
-      - run: test -f '${{ matrix.prefix }}/deno.land/v*/bin/deno'
+      - run: test -f '${{ matrix.prefix }}/curl.se/v*/bin/curl'
         if: ${{ matrix.prefix }}
 
       - run: pkgx --version
