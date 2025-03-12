@@ -26,7 +26,7 @@ function platform_key() {
   return `${platform}/${arch}`;
 }
 
-function downloadAndExtract(url, destination) {
+function downloadAndExtract(url, destination, strip) {
   return new Promise((resolve, reject) => {
     https.get(url, (response) => {
       if (response.statusCode !== 200) {
@@ -36,7 +36,7 @@ function downloadAndExtract(url, destination) {
 
       console.log(`extracting tarball…`);
 
-      const tar_stream = tar.x({ cwd: destination, strip: 3 });
+      const tar_stream = tar.x({ cwd: destination, strip });
 
       response
         .pipe(tar_stream) // Extract directly to destination
@@ -87,9 +87,12 @@ function parse_pkgx_output(output) {
 }
 
 async function install_pkgx() {
+  let strip = 3;
+
   async function get_url() {
     if (platform_key().startsWith('windows')) {
       // not yet versioned
+      strip = 0;
       return 'https://pkgx.sh/Windows/x86_64.tgz';
     }
 
@@ -114,7 +117,7 @@ async function install_pkgx() {
     return `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/v${version}.tar.gz`;
   }
 
-  console.log(`::group::installing ${dstdir}/pkgx`);
+  console.log(`::group::installing ${path.join(dstdir, 'pkgx')}`);
 
   const url = await get_url();
 
@@ -124,7 +127,7 @@ async function install_pkgx() {
     fs.mkdirSync(dstdir, {recursive: true});
   }
 
-  await downloadAndExtract(url, dstdir);
+  await downloadAndExtract(url, dstdir, strip);
 
   console.log(`::endgroup::`);
 }
@@ -146,7 +149,7 @@ async function install_pkgx() {
   if (process.env['INPUT_+']) {
     console.log(`::group::installing pkgx input packages`);
     const args = process.env['INPUT_+'].split(' ');
-    const cmd = `${dstdir}/pkgx ${args.map(x => `+${x}`).join(' ')}`;
+    const cmd = `${path.join(dstdir, 'pkgx')} ${args.map(x => `+${x}`).join(' ')}`;
     console.log(`running: \`${cmd}\``);
     let env = undefined;
     if (process.env.INPUT_PKGX_DIR) {
