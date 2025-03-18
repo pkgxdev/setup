@@ -7,7 +7,8 @@ _main() {
     _install_pkgx "$@"
     _install_pre_reqs
   elif [ $# -eq 0 ]; then
-    echo "$(pkgx --version) already installed" >&2
+    echo /usr/local/bin/"$(pkgx --version) already installed" >&2
+    echo /usr/local/bin/"$(pkgm --version) already installed" >&2
     exit
   fi
 
@@ -121,9 +122,9 @@ _install_pkgx() {
 
   if [ $# -eq 0 ]; then
     if [ -f /usr/local/bin/pkgx ]; then
-      echo "upgrading: /usr/local/bin/pkgx" >&2
+      echo "upgrading: /usr/local/bin/pkg[xm]" >&2
     else
-      echo "installing: /usr/local/bin/pkgx" >&2
+      echo "installing: /usr/local/bin/pkg[xm]" >&2
     fi
 
     # using a named pipe to prevent curl progress output trumping the sudo password prompt
@@ -150,6 +151,7 @@ _install_pkgx() {
 
     # tell the user what version we just installed
     pkgx --version
+    pkgm --version
 
   else
     curl $progress --fail --proto '=https' \
@@ -176,10 +178,22 @@ _pkgx_is_old() {
   fi
 }
 
+_pkgm_is_old() {
+  if [ "$PKGX_UPDATE" = no ]; then
+    return 1
+  else
+    new_version=$(curl -Ssf https://pkgxdev.github.io/pkgm/version.txt)
+    old_version=$(pkgm --version || echo pkgm 0)
+    old_version=$(echo $old_version | cut -d' ' -f2)
+
+    /usr/local/bin/pkgx --silent semverator gt $new_version $old_version
+  fi
+}
+
 _should_install_pkgx() {
   if [ ! -f /usr/local/bin/pkgx ]; then
     return 0
-  elif _pkgx_is_old >/dev/null 2>&1; then
+  elif _pkgx_is_old >/dev/null 2>&1 || _pkgm_is_old >/dev/null 2>&1; then
     return 0
   else
     return 1
