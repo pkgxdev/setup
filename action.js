@@ -139,7 +139,7 @@ async function install_pkgx() {
     fs.appendFileSync(process.env["GITHUB_ENV"], `PKGX_DIR=${process.env.INPUT_PKGX_DIR}\n`);
   }
 
-  if (os.platform() != 'darwin') {
+  if (os.platform() == 'linux') {
     console.log(`::group::installing pre-requisites`);
     const installer_script_path = path.join(path.dirname(__filename), "installer.sh");
     execSync(installer_script_path, {env: {PKGX_INSTALL_PREREQS: '1', ...process.env}});
