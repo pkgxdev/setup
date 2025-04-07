@@ -180,7 +180,7 @@ jobs:
         env:
           PATH: ${{ github.workspace }}/bin:/usr/bin:/bin
 
-      - run: pkgx deno eval 'console.log(1)'
+      - run: pkgx node eval 'console.log(1)'
 
   windows:
     runs-on: windows-latest
