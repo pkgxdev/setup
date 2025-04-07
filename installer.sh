@@ -47,70 +47,6 @@ _is_ci() {
   [ -n "$CI" ] && [ $CI != 0 ]
 }
 
-_install_pre_reqs() {
-  if _is_ci; then
-    apt() {
-      # we should use apt-get not apt in CI
-      # weird shit ref: https://askubuntu.com/a/668859
-      export DEBIAN_FRONTEND=noninteractive
-      cmd=$1
-      shift
-      $SUDO apt-get $cmd --yes -qq -o=Dpkg::Use-Pty=0 $@
-    }
-  else
-    apt() {
-      case "$1" in
-      update)
-        echo "ensure you have the \`pkgx\` pre-requisites installed:" >&2
-        ;;
-      install)
-        echo "   apt-get" "$@" >&2
-        ;;
-      esac
-    }
-    yum() {
-      echo "ensure you have the \`pkgx\` pre-requisites installed:" >&2
-      echo "   yum" "$@" >&2
-    }
-    pacman() {
-      echo "ensure you have the \`pkgx\` pre-requisites installed:" >&2
-      echo "   pacman" "$@" >&2
-    }
-  fi
-
-  if test -f /etc/debian_version; then
-    apt update
-
-    # minimal but required or networking doesn’t work
-    # https://packages.debian.org/buster/all/netbase/filelist
-    A="netbase"
-
-    # difficult to pkg in our opinion
-    B=libudev-dev
-
-    # ca-certs needed until we bundle our own root cert
-    C=ca-certificates
-
-    case $(cat /etc/debian_version) in
-    jessie/sid|8.*|stretch/sid|9.*)
-      apt install libc-dev libstdc++-4.8-dev libgcc-4.7-dev $A $B $C;;
-    buster/sid|10.*)
-      apt install libc-dev libstdc++-8-dev libgcc-8-dev $A $B $C;;
-    bullseye/sid|11.*)
-      apt install libc-dev libstdc++-10-dev libgcc-9-dev $A $B $C;;
-    bookworm/sid|12.*|*)
-      apt install libc-dev libstdc++-11-dev libgcc-11-dev $A $B $C;;
-    esac
-  elif test -f /etc/fedora-release; then
-    $SUDO yum --assumeyes install libatomic
-  elif test -f /etc/arch-release; then
-    # installing gcc isn't my favorite thing, but even clang depends on it
-    # on archlinux. it provides libgcc. since we use it for testing, the risk
-    # to our builds is very low.
-    $SUDO pacman --noconfirm -Sy gcc libatomic_ops libxcrypt-compat
-  fi
-}
-
 _install_pkgx() {
   if _is_ci; then
     progress="--no-progress-meter"
@@ -122,23 +58,27 @@ _install_pkgx() {
 
   if [ $# -eq 0 ]; then
     if [ -f /usr/local/bin/pkgx ]; then
-      echo "upgrading: /usr/local/bin/pkg[xm]" >&2
+      echo "upgrading: /usr/local/bin/pkgx" >&2
     else
-      echo "installing: /usr/local/bin/pkg[xm]" >&2
+      echo "installing: /usr/local/bin/pkgx" >&2
     fi
 
     # using a named pipe to prevent curl progress output trumping the sudo password prompt
     pipe="$tmpdir/pipe"
     mkfifo "$pipe"
 
-    curl --silent --fail --proto '=https' -o "$tmpdir/pkgm" \
-      https://pkgxdev.github.io/pkgm/pkgm.ts
-
     curl $progress --fail --proto '=https' "https://pkgx.sh/$(uname)/$(uname -m)".tgz > "$pipe" &
     $SUDO sh -c "
       mkdir -p /usr/local/bin
       tar xz --directory /usr/local/bin < '$pipe'
-      install -m 755 "$tmpdir/pkgm" /usr/local/bin
+      if [ ! -f /usr/local/bin/pkgm ]; then
+        echo '#!/usr/bin/env -S pkgx -q! pkgm' > /usr/local/bin/pkgm
+        chmod +x /usr/local/bin/pkgm
+      fi
+      if [ ! -f /usr/local/bin/mash ]; then
+        echo '#!/usr/bin/env -S pkgx -q! mash' > /usr/local/bin/mash
+        chmod +x /usr/local/bin/mash
+      fi
     " &
     wait
 
@@ -151,7 +91,8 @@ _install_pkgx() {
 
     # tell the user what version we just installed
     pkgx --version
-    pkgm --version
+    pkgx pkgm@latest --version
+    pkgx mash@latest --version
 
   else
     curl $progress --fail --proto '=https' \
@@ -201,8 +142,4 @@ _should_install_pkgx() {
 }
 
 _prep
-if [ "$PKGX_INSTALL_PREREQS" != 1 ]; then
-  _main "$@"
-else
-  _install_pre_reqs
-fi
+_main "$@"
