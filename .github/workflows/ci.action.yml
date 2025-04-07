@@ -100,6 +100,7 @@ jobs:
           name: action
 
   linuxen:
+    needs: dist
     continue-on-error: true
     runs-on: ubuntu-latest
     strategy:
