@@ -119,6 +119,5 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: action
-          path: ./action.js
       - uses: ./
       - run: pkgx node -e 'console.log(1)'
