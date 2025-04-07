@@ -93,7 +93,7 @@ async function install_pkgx() {
     if (platform_key().startsWith('windows')) {
       // not yet versioned
       strip = 0;
-      return 'https://pkgx.sh/Windows/x86_64.tgz';
+      return 'https://pkgx.sh/Windows/x86_64.zip';
     }
 
     let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
