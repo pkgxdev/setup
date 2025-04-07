@@ -5,7 +5,6 @@ set -e
 _main() {
   if _should_install_pkgx; then
     _install_pkgx "$@"
-    _install_pre_reqs
   elif [ $# -eq 0 ]; then
     echo /usr/local/bin/"$(pkgx --version) already installed" >&2
     echo /usr/local/bin/"$(pkgm --version) already installed" >&2
