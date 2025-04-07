@@ -1,4 +1,5 @@
 const { execSync } = require('child_process');
+const unzipper = require('unzipper');
 const semver = require('semver');
 const https = require('https');
 const path = require('path');
@@ -27,6 +28,7 @@ function platform_key() {
 }
 
 function downloadAndExtract(url, destination, strip) {
+
   return new Promise((resolve, reject) => {
     https.get(url, (response) => {
       if (response.statusCode !== 200) {
@@ -34,16 +36,23 @@ function downloadAndExtract(url, destination, strip) {
         return;
       }
 
-      console.log(`extracting tarball…`);
+      console.log(`extracting pkgx archive…`);
 
-      const tar_stream = tar.x({ cwd: destination, strip });
-
-      response
-        .pipe(tar_stream) // Extract directly to destination
-        .on('finish', resolve)
-        .on('error', reject);
-
-      tar_stream.on('error', reject);
+      if (platform_key().startsWith('windows')) {
+        const unzip_stream = unzipper.Extract({ path: destination });
+        response
+          .pipe(unzip_stream)
+          .promise()
+          .then(resolve, reject);
+        unzip_stream.on('error', reject);
+      } else {
+        const tar_stream = tar.x({ cwd: destination, strip });
+        response
+          .pipe(tar_stream)
+          .on('finish', resolve)
+          .on('error', reject);
+        tar_stream.on('error', reject);
+      }
 
     }).on('error', reject);
   });
@@ -93,7 +102,7 @@ async function install_pkgx() {
     if (platform_key().startsWith('windows')) {
       // not yet versioned
       strip = 0;
-      return 'https://pkgx.sh/Windows/x86_64.tgz';
+      return 'https://pkgx.sh/Windows/x86_64.zip';
     }
 
     let url = `https://dist.pkgx.dev/pkgx.sh/${platform_key()}/versions.txt`;
@@ -137,13 +146,6 @@ async function install_pkgx() {
 
   if (process.env.INPUT_PKGX_DIR) {
     fs.appendFileSync(process.env["GITHUB_ENV"], `PKGX_DIR=${process.env.INPUT_PKGX_DIR}\n`);
-  }
-
-  if (os.platform() == 'linux') {
-    console.log(`::group::installing pre-requisites`);
-    const installer_script_path = path.join(path.dirname(__filename), "installer.sh");
-    execSync(installer_script_path, {env: {PKGX_INSTALL_PREREQS: '1', ...process.env}});
-    console.log(`::endgroup::`);
   }
 
   if (process.env['INPUT_+']) {

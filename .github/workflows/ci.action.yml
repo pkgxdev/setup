@@ -94,3 +94,32 @@ jobs:
       - run: git clean -xfd
       - uses: ./
       - run: pkgx --version
+      - uses: actions/upload-artifact@v4
+        with:
+          path: |
+            ./action.js
+            ./action.yml
+          name: action
+
+  linuxen:
+    needs: dist
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+          - debian:buster-slim
+          - debian:bullseye-slim
+          - debian:bookworm-slim
+          - archlinux:latest
+          - ubuntu:focal
+          - ubuntu:jammy
+          - ubuntu:noble
+          - fedora:latest
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: action
+      - uses: ./
+      - run: pkgx node -e 'console.log(1)'

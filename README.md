@@ -43,10 +43,15 @@ just slow things down.
 
 ## Version History
 
+* `v4` defaults to `pkgx`^2, uses node^20 and doesn’t install any pre-reqs on Linux†
 * `v3` defaults to `pkgx`^2 and uses node^20
 * `v2` defaults to `pkgx`^1 and uses node^20
 * `v1` defaults to `pkgx`@latest and uses node^16
 * `v0` should not be used
+
+> † `pkgx` requires glibc>=2.28, libgcc, libstdc++ and libatomic. Generally
+> images come installed with these. If you are building binaries you may need
+> the `-dev` versions of these packages also.
 
 &nbsp;
 
