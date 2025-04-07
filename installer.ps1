@@ -2,8 +2,8 @@
 
 $ErrorActionPreference = "Stop"
 
-# Determine install location
-$installDir = "$env:ProgramFiles\pkgx"
+# Determine install location for the current user
+$installDir = "$env:LOCALAPPDATA\pkgx"
 
 # Create directory if it doesn't exist
 if (!(Test-Path $installDir)) {
@@ -17,10 +17,10 @@ Invoke-WebRequest -Uri $zipUrl -OutFile $zipFile
 Expand-Archive -Path $zipFile -DestinationPath $installDir -Force
 Remove-Item $zipFile
 
-# Ensure PATH is updated
-$envPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+# Ensure user's PATH is updated
+$envPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::User)
 if ($envPath -notlike "*$installDir*") {
-    [System.Environment]::SetEnvironmentVariable("Path", "$envPath;$installDir", [System.EnvironmentVariableTarget]::Machine)
+    [System.Environment]::SetEnvironmentVariable("Path", "$envPath;$installDir", [System.EnvironmentVariableTarget]::User)
 }
 
 Write-Host "pkgx installed successfully! Restart your terminal to use it."

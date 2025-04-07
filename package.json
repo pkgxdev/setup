@@ -5,6 +5,6 @@
     "unzipper": "^0.12.3"
   },
   "scripts": {
-    "dist": "npx esbuild ./action.js --bundle --platform=node --target=node20 --outfile=./action.js --allow-overwrite --minify"
+    "dist": "npx esbuild ./action.js --bundle --platform=node --target=node20 --outfile=./action.js --allow-overwrite --minify --external:@aws-sdk/client-s3"
   }
 }
