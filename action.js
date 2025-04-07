@@ -1,4 +1,5 @@
 const { execSync } = require('child_process');
+const unzipper = require('unzipper');
 const semver = require('semver');
 const https = require('https');
 const path = require('path');
@@ -27,6 +28,7 @@ function platform_key() {
 }
 
 function downloadAndExtract(url, destination, strip) {
+
   return new Promise((resolve, reject) => {
     https.get(url, (response) => {
       if (response.statusCode !== 200) {
@@ -34,16 +36,23 @@ function downloadAndExtract(url, destination, strip) {
         return;
       }
 
-      console.log(`extracting tarball…`);
+      console.log(`extracting pkgx archive…`);
 
-      const tar_stream = tar.x({ cwd: destination, strip });
-
-      response
-        .pipe(tar_stream) // Extract directly to destination
-        .on('finish', resolve)
-        .on('error', reject);
-
-      tar_stream.on('error', reject);
+      if (platform_key().startsWith('windows')) {
+        const unzip_stream = unzipper.Extract({ path: destination });
+        response
+          .pipe(unzip_stream)
+          .promise()
+          .then(resolve, reject);
+        unzip_stream.on('error', reject);
+      } else {
+        const tar_stream = tar.x({ cwd: destination, strip });
+        response
+          .pipe(tar_stream)
+          .on('finish', resolve)
+          .on('error', reject);
+        tar_stream.on('error', reject);
+      }
 
     }).on('error', reject);
   });
