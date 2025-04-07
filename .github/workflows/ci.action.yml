@@ -96,7 +96,7 @@ jobs:
       - run: pkgx --version
       - uses: actions/upload-artifact@v4
         with:
-          path: ./action.js
+          path: ./action.js ./action.yml
           name: action
 
   linuxen:
