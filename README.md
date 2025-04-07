@@ -7,19 +7,21 @@
 # GitHub Action
 
 ```yaml
-- uses: pkgxdev/setup@v3
+- uses: pkgxdev/setup@v4
 ```
 
 Installs the latest version of `pkgx`.
 
 > [!NOTE]
-> * `v2` of this action defaults to pkgx^1
-> * `v3` of this action defaults to pkgx^2
+>
+> * `v3` & `v4` default to pkgx^2
+> * `v2` defaults to pkgx^1
+
 
 See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 
 ```yaml
-- uses: pkgxdev/setup@v3
+- uses: pkgxdev/setup@v4
   with:
     +: deno@1.30
        rust@1.60   # we understand colloquial names, generally just type what you know
