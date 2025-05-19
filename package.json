@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "semver": "^7.7.1",
+    "semver": "^7.7.2",
     "tar": "^7.4.3",
     "unzipper": "^0.12.3"
   },
