@@ -118,7 +118,7 @@ jobs:
           - fedora:latest
     container: ${{ matrix.container }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: action
       - uses: ./
