@@ -21,7 +21,7 @@ jobs:
           - macos-latest
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       # using cat | sh to emulate the curl command we tell people to use
       - run: cat ./installer.sh | sh
       - run: pkgx --version
@@ -29,13 +29,13 @@ jobs:
   shellcheck:
       runs-on: ubuntu-latest
       steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: reviewdog/action-shellcheck@v1
 
   usage-as-proxy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: cat ./installer.sh | sh -s deno eval 'console.log(1)'
       - run: ./installer.sh -- sh -c "which pkgx"
       - run: sh <(cat ./installer.sh) duf
@@ -45,8 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     container: debian:buster-slim
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           ref: curl
           path: bin
@@ -57,7 +57,7 @@ jobs:
   eval-bash:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: |
           vMAJOR=$(curl https://pkgx.sh/VERSION | cut -d. -f1)
 
@@ -85,7 +85,7 @@ jobs:
       - name: prep
         run: sudo apt-get update && sudo apt-get install -y zsh
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: |
           vMAJOR=$(curl https://pkgx.sh/VERSION | cut -d. -f1)
 
@@ -106,7 +106,7 @@ jobs:
   eval-posix-sh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: |
           vMAJOR=$(curl https://pkgx.sh/VERSION | cut -d. -f1)
 
@@ -127,7 +127,7 @@ jobs:
   sudo-required:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: sudo chmod go-w /usr/local/bin
       # ^^ we run as `runner` but this dir has 999 perms
       - name: check
@@ -141,7 +141,7 @@ jobs:
         dir: [/usr/local, /usr/local/bin]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: sudo mv ${{ matrix.dir }} $(mktemp -d)
       - run: ./installer.sh
       - run: pkgx duf --version
@@ -149,7 +149,7 @@ jobs:
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: cat ./installer.sh | sh
       - run: cat ./installer.sh | sh
 
@@ -169,9 +169,9 @@ jobs:
           - fedora:latest
     container: ${{ matrix.container }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: curl
           path: bin
@@ -185,7 +185,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: .\\installer.ps1
       - run: |
           $env:Path += ";$env:LOCALAPPDATA\pkgx"
@@ -194,7 +194,7 @@ jobs:
   upgrades:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run:
           curl https://dist.pkgx.dev/pkgx.sh/linux/x86-64/v1.0.0.tar.gz |
           tar xz --strip-components=3
@@ -208,7 +208,7 @@ jobs:
   pkgm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: '! pkgm --version'
       - run: '! deno --version'
       - run: cat ./installer.sh | sh
