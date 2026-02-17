@@ -23,7 +23,7 @@ jobs:
           step: start
           env: installer
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: aws-actions/configure-aws-credentials@v5
         with:
