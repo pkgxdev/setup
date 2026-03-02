@@ -40,12 +40,20 @@ jobs:
           - null
           - /tmp/pkgx
         include:
-        - os: ubuntu-latest
-          container: debian:buster-slim
-        - os: windows-latest
+          - os: ubuntu-latest
+            container: debian:buster-slim
+          - os: windows-latest
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v6
+
+      - name: install libatomic (required by Node 25+ on older distros)
+        if: ${{ matrix.container == 'debian:buster-slim' }}
+        run: |
+          # Debian buster is EOL, so we need to change mirrors
+          sed -i 's/deb\.debian/archive\.debian/g' /etc/apt/sources.list
+          apt-get update -qq
+          apt-get install -y libatomic1
 
       - uses: actions/setup-node@v6
         with:
@@ -90,7 +98,7 @@ jobs:
       - uses: ./
       - run: npm run dist
       - run: rm /usr/local/bin/pkgx
-      - run: '! pkgx --version'
+      - run: "! pkgx --version"
       - run: git clean -xfd
       - uses: ./
       - run: pkgx --version
