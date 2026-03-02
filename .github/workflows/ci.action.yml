@@ -94,7 +94,7 @@ jobs:
       - run: git clean -xfd
       - uses: ./
       - run: pkgx --version
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           path: |
             ./action.js
