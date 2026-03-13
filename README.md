@@ -45,6 +45,7 @@ just slow things down.
 
 ## Version History
 
+* `v5` defaults to `pkgx`^2, uses node^24 and doesn’t install any pre-reqs on Linux†
 * `v4` defaults to `pkgx`^2, uses node^20 and doesn’t install any pre-reqs on Linux†
 * `v3` defaults to `pkgx`^2 and uses node^20
 * `v2` defaults to `pkgx`^1 and uses node^20
