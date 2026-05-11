@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "semver": "^7.8.0",
-    "tar": "^7.5.13",
+    "tar": "^7.5.15",
     "unzipper": "^0.12.3"
   },
   "scripts": {
