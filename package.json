@@ -2,7 +2,7 @@
   "dependencies": {
     "semver": "^7.8.4",
     "tar": "^7.5.16",
-    "unzipper": "^0.12.3"
+    "unzipper": "^0.12.5"
   },
   "scripts": {
     "dist": "npx esbuild ./action.js --bundle --platform=node --target=node24 --outfile=./action.js --allow-overwrite --minify --external:@aws-sdk/client-s3"
